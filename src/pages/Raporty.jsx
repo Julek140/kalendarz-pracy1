@@ -70,8 +70,10 @@ export default function RaportyPage() {
       return isWithinInterval(holidayDate, { start, end });
     });
 
-    // Oblicz dostępne dni i zmiany w okresie
+    // Oblicz dostępne dni i zmiany w okresie (MINUS święta)
     const allDaysInRange = eachDayOfInterval({ start, end });
+    
+    // Dni robocze (Pn-Pt) MINUS święta
     const availableWeekdays = allDaysInRange.filter(day => {
       const dayOfWeek = getDay(day);
       const dateStr = format(day, 'yyyy-MM-dd');
@@ -85,7 +87,12 @@ export default function RaportyPage() {
     }).length;
 
     const totalAvailableDays = allDaysInRange.length;
-    const totalAvailableShifts = (availableWeekdays * 3) + (availableWeekendDays * 1); // Pn-Pt: 3 zmiany, Weekend: 1 zmiana
+    
+    // Dostępne dni robocze = dni Pn-Pt MINUS święta
+    const workableDays = availableWeekdays;
+    
+    // Dostępne zmiany = (dni robocze bez świąt * 3) + (weekendy * 1)
+    const totalAvailableShifts = (availableWeekdays * 3) + (availableWeekendDays * 1);
 
     const calculateStats = (department) => {
       const deptDays = filteredDays.filter(wd => 
@@ -146,9 +153,10 @@ export default function RaportyPage() {
       holidays: holidaysInRange,
       balance: {
         totalAvailableDays,
-        availableWeekdays,
+        availableWeekdays, // Dni Pn-Pt MINUS święta
         availableWeekendDays,
-        totalAvailableShifts,
+        totalAvailableShifts, // Zmiany obliczone z uwzględnieniem świąt
+        holidaysCount: holidaysInRange.length,
         usedDaysMaszynownia: maszynowniaStats.totalWorkDays,
         usedDaysPakownia: pakowniaStats.totalWorkDays,
         usedShiftsMaszynownia: maszynowniaStats.totalShifts,

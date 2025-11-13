@@ -1,6 +1,6 @@
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { BarChart3, TrendingUp, Calendar } from "lucide-react";
+import { BarChart3, TrendingUp, Calendar, PartyPopper } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 
 export default function ReportBalance({ reportData }) {
@@ -32,7 +32,7 @@ export default function ReportBalance({ reportData }) {
           <div>
             <span className="text-2xl">Bilans wykorzystania</span>
             <p className="text-sm font-normal text-slate-600 mt-1">
-              Porównanie dostępnych i wykorzystanych dni/zmian
+              Porównanie dostępnych i wykorzystanych dni/zmian (bez świąt)
             </p>
           </div>
         </CardTitle>
@@ -64,11 +64,27 @@ export default function ReportBalance({ reportData }) {
                   {balance.availableWeekendDays}
                 </span>
               </div>
+              {balance.holidaysCount > 0 && (
+                <div className="flex justify-between items-center p-3 bg-red-50 rounded-lg border border-red-200">
+                  <span className="text-red-700 flex items-center gap-2">
+                    <PartyPopper className="w-4 h-4" />
+                    Święta (odliczone):
+                  </span>
+                  <span className="text-2xl font-bold text-red-900">
+                    -{balance.holidaysCount}
+                  </span>
+                </div>
+              )}
               <div className="flex justify-between items-center p-3 bg-emerald-50 rounded-lg border-2 border-emerald-300">
                 <span className="text-emerald-700 font-semibold">Dostępne zmiany:</span>
                 <span className="text-2xl font-bold text-emerald-900">
                   {balance.totalAvailableShifts}
                 </span>
+              </div>
+              <div className="text-xs text-slate-500 italic p-2 bg-slate-50 rounded">
+                * Dni robocze (Pn-Pt) już pomniejszone o święta
+                <br />
+                * Dostępne zmiany = (dni robocze × 3) + (weekendy × 1)
               </div>
             </div>
           </div>
