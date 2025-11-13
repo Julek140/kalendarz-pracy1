@@ -2,15 +2,16 @@ import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isWeekend, addMonths, subMonths, startOfWeek, endOfWeek } from "date-fns";
 import { pl } from "date-fns/locale";
 
 import CalendarGrid from "../components/calendar/CalendarGrid";
 import CalendarLegend from "../components/calendar/CalendarLegend";
 import DayDialog from "../components/calendar/DayDialog";
+import HolidayDialog from "../components/calendar/HolidayDialog";
 
-// Polskie święta 2025
+// Polskie święta 2025 (wbudowane)
 const polishHolidays = [
   { date: "2025-01-01", name: "Nowy Rok" },
   { date: "2025-01-06", name: "Trzech Króli" },
@@ -31,12 +32,19 @@ export default function KalendarzPage() {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedDay, setSelectedDay] = useState(null);
   const [showDialog, setShowDialog] = useState(false);
+  const [showHolidayDialog, setShowHolidayDialog] = useState(false);
 
   const queryClient = useQueryClient();
 
   const { data: workDays = [], isLoading } = useQuery({
     queryKey: ['workDays'],
     queryFn: () => base44.entities.WorkDay.list(),
+    initialData: [],
+  });
+
+  const { data: customHolidays = [] } = useQuery({
+    queryKey: ['holidays'],
+    queryFn: () => base44.entities.Holiday.list(),
     initialData: [],
   });
 
@@ -75,7 +83,16 @@ export default function KalendarzPage() {
   };
 
   const getHolidayForDate = (date) => {
-    return polishHolidays.find(h => h.date === format(date, 'yyyy-MM-dd'));
+    const dateStr = format(date, 'yyyy-MM-dd');
+    // Sprawdź wbudowane święta
+    const builtIn = polishHolidays.find(h => h.date === dateStr);
+    if (builtIn) return { ...builtIn, isCustom: false };
+    
+    // Sprawdź niestandardowe święta
+    const custom = customHolidays.find(h => h.date === dateStr);
+    if (custom) return { ...custom, isCustom: true };
+    
+    return null;
   };
 
   const handleDayClick = (day) => {
@@ -109,28 +126,38 @@ export default function KalendarzPage() {
               <h1 className="text-3xl font-bold text-slate-900">Kalendarz Pracy Zakładu</h1>
               <p className="text-slate-600 mt-1">Zarządzaj harmonogramem pracy działów</p>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 flex-wrap">
               <Button
+                onClick={() => setShowHolidayDialog(true)}
                 variant="outline"
-                size="icon"
-                onClick={() => setCurrentMonth(subMonths(currentMonth, 1))}
-                className="rounded-xl hover:bg-blue-50"
+                className="bg-red-50 hover:bg-red-100 border-red-200 text-red-700"
               >
-                <ChevronLeft className="w-5 h-5" />
+                <Plus className="w-4 h-4 mr-2" />
+                Dodaj święto
               </Button>
-              <div className="min-w-[200px] text-center">
-                <h2 className="text-xl font-bold text-slate-900">
-                  {format(currentMonth, 'LLLL yyyy', { locale: pl })}
-                </h2>
+              <div className="flex items-center gap-3">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => setCurrentMonth(subMonths(currentMonth, 1))}
+                  className="rounded-xl hover:bg-blue-50"
+                >
+                  <ChevronLeft className="w-5 h-5" />
+                </Button>
+                <div className="min-w-[200px] text-center">
+                  <h2 className="text-xl font-bold text-slate-900">
+                    {format(currentMonth, 'LLLL yyyy', { locale: pl })}
+                  </h2>
+                </div>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => setCurrentMonth(addMonths(currentMonth, 1))}
+                  className="rounded-xl hover:bg-blue-50"
+                >
+                  <ChevronRight className="w-5 h-5" />
+                </Button>
               </div>
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={() => setCurrentMonth(addMonths(currentMonth, 1))}
-                className="rounded-xl hover:bg-blue-50"
-              >
-                <ChevronRight className="w-5 h-5" />
-              </Button>
             </div>
           </div>
         </div>
@@ -158,6 +185,14 @@ export default function KalendarzPage() {
             onDelete={handleDeleteWorkDay}
             onClose={() => setShowDialog(false)}
             isProcessing={createWorkDayMutation.isPending || updateWorkDayMutation.isPending || deleteWorkDayMutation.isPending}
+          />
+        )}
+
+        {/* Holiday Dialog */}
+        {showHolidayDialog && (
+          <HolidayDialog
+            onClose={() => setShowHolidayDialog(false)}
+            customHolidays={customHolidays}
           />
         )}
       </div>

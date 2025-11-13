@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Calendar, FileText, Clock, AlertCircle } from "lucide-react";
+import { Calendar, FileText, Clock } from "lucide-react";
 import { format, isWeekend, parseISO, isWithinInterval } from "date-fns";
 import { pl } from "date-fns/locale";
 
@@ -40,11 +40,23 @@ export default function RaportyPage() {
     initialData: [],
   });
 
+  const { data: customHolidays = [] } = useQuery({
+    queryKey: ['holidays'],
+    queryFn: () => base44.entities.Holiday.list(),
+    initialData: [],
+  });
+
   const generateReport = () => {
     if (!startDate || !endDate) return;
 
     const start = parseISO(startDate);
     const end = parseISO(endDate);
+
+    // Połącz wbudowane święta i niestandardowe
+    const allHolidays = [
+      ...polishHolidays,
+      ...customHolidays.filter(h => h.is_work_free).map(h => ({ date: h.date, name: h.name, isCustom: true }))
+    ];
 
     const filteredDays = workDays.filter(wd => {
       const workDate = parseISO(wd.date);
@@ -52,7 +64,7 @@ export default function RaportyPage() {
     });
 
     // Policz święta w zakresie dat
-    const holidaysInRange = polishHolidays.filter(holiday => {
+    const holidaysInRange = allHolidays.filter(holiday => {
       const holidayDate = parseISO(holiday.date);
       return isWithinInterval(holidayDate, { start, end });
     });
@@ -65,13 +77,13 @@ export default function RaportyPage() {
       const regularDays = deptDays.filter(wd => {
         const date = parseISO(wd.date);
         return !isWeekend(date) && 
-               !polishHolidays.some(h => h.date === wd.date) && 
+               !allHolidays.some(h => h.date === wd.date) && 
                !wd.is_downtime;
       }).length;
 
       const overtimeDays = deptDays.filter(wd => {
         const date = parseISO(wd.date);
-        return (isWeekend(date) || polishHolidays.some(h => h.date === wd.date)) && 
+        return (isWeekend(date) || allHolidays.some(h => h.date === wd.date)) && 
                !wd.is_downtime;
       }).length;
 

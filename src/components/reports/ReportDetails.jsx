@@ -13,17 +13,34 @@ import { format, parseISO, isWeekend } from "date-fns";
 import { pl } from "date-fns/locale";
 
 const polishHolidays = [
-  "2025-01-01", "2025-01-06", "2025-04-20", "2025-04-21", "2025-05-01",
-  "2025-05-03", "2025-06-08", "2025-06-19", "2025-08-15", "2025-11-01",
-  "2025-11-11", "2025-12-25", "2025-12-26"
+  { date: "2025-01-01", name: "Nowy Rok" },
+  { date: "2025-01-06", name: "Trzech Króli" },
+  { date: "2025-04-20", name: "Wielkanoc" },
+  { date: "2025-04-21", name: "Poniedziałek Wielkanocny" },
+  { date: "2025-05-01", name: "Święto Pracy" },
+  { date: "2025-05-03", name: "Święto Konstytucji 3 Maja" },
+  { date: "2025-06-08", name: "Zielone Świątki" },
+  { date: "2025-06-19", name: "Boże Ciało" },
+  { date: "2025-08-15", name: "Wniebowzięcie NMP" },
+  { date: "2025-11-01", name: "Wszystkich Świętych" },
+  { date: "2025-11-11", name: "Święto Niepodległości" },
+  { date: "2025-12-25", name: "Boże Narodzenie" },
+  { date: "2025-12-26", name: "Drugi Dzień Bożego Narodzenia" },
 ];
 
 export default function ReportDetails({ reportData }) {
-  const { allDays } = reportData;
+  const { allDays, holidays } = reportData;
 
   const getDayType = (date) => {
     const parsedDate = parseISO(date);
-    if (polishHolidays.includes(date)) return { label: "Święto", color: "bg-red-100 text-red-800" };
+    const holiday = holidays?.find(h => h.date === date);
+    
+    if (holiday) {
+      return { 
+        label: holiday.isCustom ? `Święto (własne)` : "Święto", 
+        color: "bg-red-100 text-red-800" 
+      };
+    }
     if (isWeekend(parsedDate)) return { label: "Nadgodziny", color: "bg-orange-100 text-orange-800" };
     return { label: "Normalny", color: "bg-blue-100 text-blue-800" };
   };
