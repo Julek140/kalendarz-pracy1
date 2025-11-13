@@ -13,9 +13,19 @@ import ReportSummary from "../components/reports/ReportSummary";
 import ReportDetails from "../components/reports/ReportDetails";
 
 const polishHolidays = [
-  "2025-01-01", "2025-01-06", "2025-04-20", "2025-04-21", "2025-05-01",
-  "2025-05-03", "2025-06-08", "2025-06-19", "2025-08-15", "2025-11-01",
-  "2025-11-11", "2025-12-25", "2025-12-26"
+  { date: "2025-01-01", name: "Nowy Rok" },
+  { date: "2025-01-06", name: "Trzech Króli" },
+  { date: "2025-04-20", name: "Wielkanoc" },
+  { date: "2025-04-21", name: "Poniedziałek Wielkanocny" },
+  { date: "2025-05-01", name: "Święto Pracy" },
+  { date: "2025-05-03", name: "Święto Konstytucji 3 Maja" },
+  { date: "2025-06-08", name: "Zielone Świątki" },
+  { date: "2025-06-19", name: "Boże Ciało" },
+  { date: "2025-08-15", name: "Wniebowzięcie NMP" },
+  { date: "2025-11-01", name: "Wszystkich Świętych" },
+  { date: "2025-11-11", name: "Święto Niepodległości" },
+  { date: "2025-12-25", name: "Boże Narodzenie" },
+  { date: "2025-12-26", name: "Drugi Dzień Bożego Narodzenia" },
 ];
 
 export default function RaportyPage() {
@@ -41,6 +51,12 @@ export default function RaportyPage() {
       return isWithinInterval(workDate, { start, end });
     });
 
+    // Policz święta w zakresie dat
+    const holidaysInRange = polishHolidays.filter(holiday => {
+      const holidayDate = parseISO(holiday.date);
+      return isWithinInterval(holidayDate, { start, end });
+    });
+
     const calculateStats = (department) => {
       const deptDays = filteredDays.filter(wd => 
         wd.department === department || wd.department === "OBA_DZIALY"
@@ -49,13 +65,13 @@ export default function RaportyPage() {
       const regularDays = deptDays.filter(wd => {
         const date = parseISO(wd.date);
         return !isWeekend(date) && 
-               !polishHolidays.includes(wd.date) && 
+               !polishHolidays.some(h => h.date === wd.date) && 
                !wd.is_downtime;
       }).length;
 
       const overtimeDays = deptDays.filter(wd => {
         const date = parseISO(wd.date);
-        return (isWeekend(date) || polishHolidays.includes(wd.date)) && 
+        return (isWeekend(date) || polishHolidays.some(h => h.date === wd.date)) && 
                !wd.is_downtime;
       }).length;
 
@@ -78,6 +94,8 @@ export default function RaportyPage() {
       maszynownia: calculateStats("MASZYNOWNIA"),
       pakownia: calculateStats("PAKOWNIA"),
       allDays: filteredDays,
+      holidaysCount: holidaysInRange.length,
+      holidays: holidaysInRange,
     });
 
     setReportGenerated(true);

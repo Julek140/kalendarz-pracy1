@@ -1,11 +1,12 @@
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Factory, Package, Calendar, Clock, Pause } from "lucide-react";
+import { Factory, Package, Calendar, Clock, Pause, PartyPopper } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { pl } from "date-fns/locale";
+import { Badge } from "@/components/ui/badge";
 
 export default function ReportSummary({ reportData }) {
-  const { startDate, endDate, maszynownia, pakownia } = reportData;
+  const { startDate, endDate, maszynownia, pakownia, holidaysCount, holidays } = reportData;
 
   const summaryCards = [
     {
@@ -30,6 +31,42 @@ export default function ReportSummary({ reportData }) {
           {format(parseISO(startDate), 'd MMMM yyyy', { locale: pl })} - {format(parseISO(endDate), 'd MMMM yyyy', { locale: pl })}
         </p>
       </div>
+
+      {/* Święta - osobna karta */}
+      <Card className="mb-6 shadow-lg border-none bg-gradient-to-r from-red-50 to-pink-50">
+        <CardHeader className="border-b border-red-200">
+          <CardTitle className="flex items-center gap-3">
+            <div className="p-3 rounded-xl bg-red-500 text-white">
+              <PartyPopper className="w-6 h-6" />
+            </div>
+            <div>
+              <span className="text-2xl">Święta w okresie</span>
+              <p className="text-sm font-normal text-slate-600 mt-1">Dni wolne wyłączające dni robocze</p>
+            </div>
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="p-6">
+          <div className="flex items-center gap-6">
+            <div className="text-center p-6 bg-white rounded-xl shadow-sm flex-shrink-0">
+              <p className="text-5xl font-bold text-red-600">{holidaysCount}</p>
+              <p className="text-sm text-slate-600 mt-2">Dni świątecznych</p>
+            </div>
+            <div className="flex-1">
+              {holidaysCount > 0 ? (
+                <div className="flex flex-wrap gap-2">
+                  {holidays.map((holiday, index) => (
+                    <Badge key={index} variant="secondary" className="bg-red-100 text-red-800 border border-red-200 px-3 py-2">
+                      🎉 {format(parseISO(holiday.date), 'd MMM', { locale: pl })} - {holiday.name}
+                    </Badge>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-slate-600 italic">Brak świąt w wybranym okresie</p>
+              )}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       <div className="grid md:grid-cols-2 gap-6">
         {summaryCards.map((card) => (
