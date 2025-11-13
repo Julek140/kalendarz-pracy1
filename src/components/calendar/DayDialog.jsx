@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
-import { format, isWeekend } from "date-fns";
+import { format, isWeekend, getDay } from "date-fns";
 import { pl } from "date-fns/locale";
 import { Save, Trash2, X } from "lucide-react";
 
@@ -27,17 +27,31 @@ export default function DayDialog({
   const [department, setDepartment] = useState(existingWorkDay?.department || "MASZYNOWNIA");
   const [isDowntime, setIsDowntime] = useState(existingWorkDay?.is_downtime || false);
   const [notes, setNotes] = useState(existingWorkDay?.notes || "");
+  
+  const isWeekendDay = isWeekend(selectedDay);
+  const dayOfWeek = getDay(selectedDay); // 0=niedziela, 1=pon, ..., 6=sobota
+  const isWeekday = dayOfWeek >= 1 && dayOfWeek <= 5; // Pn-Pt
+  
+  // Domyślna liczba zmian: 3 dla Pn-Pt, 1 dla soboty/niedzieli
+  const defaultShifts = isWeekday ? 3 : 1;
+  const [shifts, setShifts] = useState(existingWorkDay?.shifts || defaultShifts);
 
   const handleSave = () => {
     onSave({
       date: format(selectedDay, 'yyyy-MM-dd'),
       department,
+      shifts: isDowntime ? 0 : shifts,
       is_downtime: isDowntime,
       notes: notes.trim() || undefined,
     });
   };
 
-  const isWeekendDay = isWeekend(selectedDay);
+  // Reset shifts when downtime changes
+  useEffect(() => {
+    if (isDowntime) {
+      // Nie zmieniaj shifts gdy jest przestój - po prostu będzie ignorowane
+    }
+  }, [isDowntime]);
 
   return (
     <Dialog open={true} onOpenChange={onClose}>
@@ -79,6 +93,41 @@ export default function DayDialog({
             </RadioGroup>
           </div>
 
+          {/* Shifts Selection */}
+          {!isDowntime && (
+            <div className="p-4 rounded-lg bg-indigo-50 border border-indigo-200">
+              <Label className="text-base font-semibold mb-3 block">
+                Liczba zmian:
+                <span className="text-sm font-normal text-slate-600 ml-2">
+                  ({isWeekday ? 'Pn-Pt: domyślnie 3 zmiany' : 'Weekend: domyślnie 1 zmiana'})
+                </span>
+              </Label>
+              <div className="space-y-2">
+                {[1, 2, 3].map((shiftNum) => (
+                  <div
+                    key={shiftNum}
+                    className={`flex items-center space-x-3 p-3 rounded-lg border-2 transition-all ${
+                      shifts === shiftNum
+                        ? 'border-indigo-500 bg-indigo-100'
+                        : 'border-slate-200 bg-white hover:border-indigo-300'
+                    }`}
+                  >
+                    <Checkbox
+                      id={`shift-${shiftNum}`}
+                      checked={shifts === shiftNum}
+                      onCheckedChange={(checked) => {
+                        if (checked) setShifts(shiftNum);
+                      }}
+                    />
+                    <Label htmlFor={`shift-${shiftNum}`} className="cursor-pointer flex-1 font-medium">
+                      {shiftNum} {shiftNum === 1 ? 'zmiana' : shiftNum <= 4 ? 'zmiany' : 'zmian'}
+                    </Label>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Downtime Checkbox */}
           <div className="flex items-center space-x-3 p-4 rounded-lg bg-gray-50 border">
             <Checkbox
@@ -87,7 +136,7 @@ export default function DayDialog({
               onCheckedChange={setIsDowntime}
             />
             <Label htmlFor="downtime" className="cursor-pointer flex-1 font-medium">
-              ⏸️ Przestój
+              ⏸️ Przestój (brak pracy)
             </Label>
           </div>
 

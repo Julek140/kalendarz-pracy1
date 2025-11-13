@@ -74,6 +74,7 @@ export default function ReportDetails({ reportData }) {
                   <TableHead>Data</TableHead>
                   <TableHead>Dzień tygodnia</TableHead>
                   <TableHead>Dział</TableHead>
+                  <TableHead className="text-center">Zmiany</TableHead>
                   <TableHead>Typ dnia</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Uwagi</TableHead>
@@ -91,6 +92,11 @@ export default function ReportDetails({ reportData }) {
                         {format(parseISO(day.date), 'EEEE', { locale: pl })}
                       </TableCell>
                       <TableCell>{getDepartmentBadge(day.department)}</TableCell>
+                      <TableCell className="text-center">
+                        <Badge variant="outline" className="bg-indigo-50 text-indigo-700 border-indigo-300 font-bold">
+                          {day.shifts || 0} {day.shifts === 1 ? 'zmiana' : 'zmiany'}
+                        </Badge>
+                      </TableCell>
                       <TableCell>
                         <Badge variant="secondary" className={dayType.color}>
                           {dayType.label}

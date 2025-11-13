@@ -1,6 +1,6 @@
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Factory, Package, Calendar, Clock, Pause, PartyPopper } from "lucide-react";
+import { Factory, Package, Calendar, Clock, Pause, PartyPopper, Zap } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { pl } from "date-fns/locale";
 import { Badge } from "@/components/ui/badge";
@@ -80,26 +80,31 @@ export default function ReportSummary({ reportData }) {
               </CardTitle>
             </CardHeader>
             <CardContent className="p-6">
-              <div className="grid grid-cols-2 gap-6">
+              <div className="grid grid-cols-2 gap-4 mb-4">
                 <div className="text-center p-4 bg-slate-50 rounded-xl">
                   <Calendar className="w-8 h-8 text-slate-600 mx-auto mb-2" />
                   <p className="text-3xl font-bold text-slate-900">{card.stats.totalWorkDays}</p>
                   <p className="text-sm text-slate-600 mt-1">Dni pracy</p>
                 </div>
-                <div className="text-center p-4 bg-orange-50 rounded-xl">
-                  <Clock className="w-8 h-8 text-orange-600 mx-auto mb-2" />
-                  <p className="text-3xl font-bold text-orange-700">{card.stats.overtimeDays}</p>
-                  <p className="text-sm text-slate-600 mt-1">Nadgodziny</p>
+                <div className="text-center p-4 bg-indigo-50 rounded-xl">
+                  <Zap className="w-8 h-8 text-indigo-600 mx-auto mb-2" />
+                  <p className="text-3xl font-bold text-indigo-700">{card.stats.totalShifts}</p>
+                  <p className="text-sm text-slate-600 mt-1">Zmiany ogółem</p>
                 </div>
-                <div className="text-center p-4 bg-blue-50 rounded-xl">
-                  <Calendar className="w-8 h-8 text-blue-600 mx-auto mb-2" />
-                  <p className="text-3xl font-bold text-blue-700">{card.stats.regularDays}</p>
-                  <p className="text-sm text-slate-600 mt-1">Dni normalne</p>
+              </div>
+              
+              <div className="grid grid-cols-3 gap-3">
+                <div className="text-center p-3 bg-blue-50 rounded-lg">
+                  <p className="text-2xl font-bold text-blue-700">{card.stats.regularShifts}</p>
+                  <p className="text-xs text-slate-600 mt-1">Zmiany normalne</p>
                 </div>
-                <div className="text-center p-4 bg-gray-100 rounded-xl">
-                  <Pause className="w-8 h-8 text-gray-600 mx-auto mb-2" />
-                  <p className="text-3xl font-bold text-gray-700">{card.stats.downtimeDays}</p>
-                  <p className="text-sm text-slate-600 mt-1">Przestoje</p>
+                <div className="text-center p-3 bg-orange-50 rounded-lg">
+                  <p className="text-2xl font-bold text-orange-700">{card.stats.overtimeShifts}</p>
+                  <p className="text-xs text-slate-600 mt-1">Nadgodziny</p>
+                </div>
+                <div className="text-center p-3 bg-gray-100 rounded-lg">
+                  <p className="text-2xl font-bold text-gray-700">{card.stats.downtimeDays}</p>
+                  <p className="text-xs text-slate-600 mt-1">Przestoje</p>
                 </div>
               </div>
             </CardContent>

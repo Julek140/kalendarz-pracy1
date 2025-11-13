@@ -6,11 +6,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Calendar, FileText, Clock } from "lucide-react";
-import { format, isWeekend, parseISO, isWithinInterval } from "date-fns";
+import { format, isWeekend, parseISO, isWithinInterval, eachDayOfInterval, getDay } from "date-fns";
 import { pl } from "date-fns/locale";
 
 import ReportSummary from "../components/reports/ReportSummary";
 import ReportDetails from "../components/reports/ReportDetails";
+import ReportBalance from "../components/reports/ReportBalance";
 
 const polishHolidays = [
   { date: "2025-01-01", name: "Nowy Rok" },
@@ -69,6 +70,23 @@ export default function RaportyPage() {
       return isWithinInterval(holidayDate, { start, end });
     });
 
+    // Oblicz dostępne dni i zmiany w okresie
+    const allDaysInRange = eachDayOfInterval({ start, end });
+    const availableWeekdays = allDaysInRange.filter(day => {
+      const dayOfWeek = getDay(day);
+      const dateStr = format(day, 'yyyy-MM-dd');
+      const isWeekdayDate = dayOfWeek >= 1 && dayOfWeek <= 5;
+      const isHoliday = allHolidays.some(h => h.date === dateStr);
+      return isWeekdayDate && !isHoliday;
+    }).length;
+
+    const availableWeekendDays = allDaysInRange.filter(day => {
+      return isWeekend(day);
+    }).length;
+
+    const totalAvailableDays = allDaysInRange.length;
+    const totalAvailableShifts = (availableWeekdays * 3) + (availableWeekendDays * 1); // Pn-Pt: 3 zmiany, Weekend: 1 zmiana
+
     const calculateStats = (department) => {
       const deptDays = filteredDays.filter(wd => 
         wd.department === department || wd.department === "OBA_DZIALY"
@@ -91,23 +109,51 @@ export default function RaportyPage() {
 
       const totalWorkDays = regularDays + overtimeDays;
 
+      // Oblicz zmiany
+      const totalShifts = deptDays.reduce((sum, wd) => sum + (wd.shifts || 0), 0);
+      const regularShifts = deptDays.filter(wd => {
+        const date = parseISO(wd.date);
+        return !isWeekend(date) && !allHolidays.some(h => h.date === wd.date) && !wd.is_downtime;
+      }).reduce((sum, wd) => sum + (wd.shifts || 0), 0);
+
+      const overtimeShifts = deptDays.filter(wd => {
+        const date = parseISO(wd.date);
+        return (isWeekend(date) || allHolidays.some(h => h.date === wd.date)) && !wd.is_downtime;
+      }).reduce((sum, wd) => sum + (wd.shifts || 0), 0);
+
       return {
         totalWorkDays,
         regularDays,
         overtimeDays,
         downtimeDays,
+        totalShifts,
+        regularShifts,
+        overtimeShifts,
         details: deptDays,
       };
     };
 
+    const maszynowniaStats = calculateStats("MASZYNOWNIA");
+    const pakowniaStats = calculateStats("PAKOWNIA");
+
     setReportData({
       startDate,
       endDate,
-      maszynownia: calculateStats("MASZYNOWNIA"),
-      pakownia: calculateStats("PAKOWNIA"),
+      maszynownia: maszynowniaStats,
+      pakownia: pakowniaStats,
       allDays: filteredDays,
       holidaysCount: holidaysInRange.length,
       holidays: holidaysInRange,
+      balance: {
+        totalAvailableDays,
+        availableWeekdays,
+        availableWeekendDays,
+        totalAvailableShifts,
+        usedDaysMaszynownia: maszynowniaStats.totalWorkDays,
+        usedDaysPakownia: pakowniaStats.totalWorkDays,
+        usedShiftsMaszynownia: maszynowniaStats.totalShifts,
+        usedShiftsPakownia: pakowniaStats.totalShifts,
+      },
     });
 
     setReportGenerated(true);
@@ -116,7 +162,6 @@ export default function RaportyPage() {
   return (
     <div className="p-4 md:p-8 min-h-screen">
       <div className="max-w-6xl mx-auto">
-        {/* Header */}
         <div className="bg-white rounded-2xl shadow-lg p-6 mb-6">
           <div className="flex items-center gap-3 mb-2">
             <FileText className="w-8 h-8 text-blue-600" />
@@ -125,7 +170,6 @@ export default function RaportyPage() {
           <p className="text-slate-600">Generuj szczegółowe raporty pracy działów</p>
         </div>
 
-        {/* Date Range Selection */}
         <Card className="mb-6 shadow-lg border-none">
           <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b">
             <CardTitle className="flex items-center gap-2">
@@ -171,9 +215,9 @@ export default function RaportyPage() {
           </CardContent>
         </Card>
 
-        {/* Report Results */}
         {reportGenerated && reportData && (
           <>
+            <ReportBalance reportData={reportData} />
             <ReportSummary reportData={reportData} />
             <ReportDetails reportData={reportData} />
           </>
