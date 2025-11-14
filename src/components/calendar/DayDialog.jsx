@@ -24,7 +24,7 @@ export default function DayDialog({
   onClose,
   isProcessing,
 }) {
-  const [department, setDepartment] = useState(existingWorkDay?.department || "MASZYNOWNIA");
+  const [department, setDepartment] = useState(existingWorkDay?.department || "OBA_DZIALY");
   const [isDowntime, setIsDowntime] = useState(existingWorkDay?.is_downtime || false);
   const [notes, setNotes] = useState(existingWorkDay?.notes || "");
   

@@ -13,6 +13,7 @@ import ReportSummary from "../components/reports/ReportSummary";
 import ReportDetails from "../components/reports/ReportDetails";
 import ReportBalance from "../components/reports/ReportBalance";
 import ReportCharts from "../components/reports/ReportCharts";
+import ReportExport from "../components/reports/ReportExport";
 
 const polishHolidays = [
   { date: "2025-01-01", name: "Nowy Rok" },
@@ -188,8 +189,32 @@ export default function RaportyPage() {
 
   return (
     <div className="p-4 md:p-8 min-h-screen">
+      <style>{`
+        @media print {
+          body * {
+            visibility: hidden;
+          }
+          .print-area, .print-area * {
+            visibility: visible;
+          }
+          .print-area {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+          }
+          .print:hidden {
+            display: none !important;
+          }
+          @page {
+            size: A4;
+            margin: 1cm;
+          }
+        }
+      `}</style>
+      
       <div className="max-w-6xl mx-auto">
-        <div className="bg-white rounded-2xl shadow-lg p-6 mb-6">
+        <div className="bg-white rounded-2xl shadow-lg p-6 mb-6 print:hidden">
           <div className="flex items-center gap-3 mb-2">
             <FileText className="w-8 h-8 text-blue-600" />
             <h1 className="text-3xl font-bold text-slate-900">Raporty Pracy</h1>
@@ -197,7 +222,7 @@ export default function RaportyPage() {
           <p className="text-slate-600">Generuj szczegółowe raporty pracy działów</p>
         </div>
 
-        <Card className="mb-6 shadow-lg border-none">
+        <Card className="mb-6 shadow-lg border-none print:hidden">
           <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b">
             <CardTitle className="flex items-center gap-2">
               <Calendar className="w-5 h-5 text-blue-600" />
@@ -253,12 +278,16 @@ export default function RaportyPage() {
         </Card>
 
         {reportGenerated && reportData && (
-          <>
+          <div className="print-area">
+            <div className="mb-6 print:hidden">
+              <ReportExport reportData={reportData} />
+            </div>
+            
             <ReportBalance reportData={reportData} />
             <ReportCharts reportData={reportData} />
             <ReportSummary reportData={reportData} />
             <ReportDetails reportData={reportData} />
-          </>
+          </div>
         )}
 
         {!reportGenerated && (
