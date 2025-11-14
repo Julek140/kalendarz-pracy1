@@ -6,20 +6,31 @@ import { Progress } from "@/components/ui/progress";
 export default function ReportBalance({ reportData }) {
   const { balance } = reportData;
 
-  const maszynowniaUsagePercent = balance.totalAvailableShifts > 0
+  // Procent wykorzystania TYLKO dni roboczych (Pn-Pt)
+  const maszynowniaWeekdaysPercent = balance.availableWeekdays > 0
+    ? (balance.usedWeekdaysMaszynownia / balance.availableWeekdays) * 100
+    : 0;
+
+  const pakowniaWeekdaysPercent = balance.availableWeekdays > 0
+    ? (balance.usedWeekdaysPakownia / balance.availableWeekdays) * 100
+    : 0;
+
+  // Procent wykorzystania sobót
+  const maszynowniaSaturdaysPercent = balance.availableSaturdays > 0
+    ? (balance.usedSaturdaysMaszynownia / balance.availableSaturdays) * 100
+    : 0;
+
+  const pakowniaSaturdaysPercent = balance.availableSaturdays > 0
+    ? (balance.usedSaturdaysPakownia / balance.availableSaturdays) * 100
+    : 0;
+
+  // Procent wykorzystania zmian
+  const maszynowniaShiftsPercent = balance.totalAvailableShifts > 0
     ? (balance.usedShiftsMaszynownia / balance.totalAvailableShifts) * 100
     : 0;
 
-  const pakowniaUsagePercent = balance.totalAvailableShifts > 0
+  const pakowniaShiftsPercent = balance.totalAvailableShifts > 0
     ? (balance.usedShiftsPakownia / balance.totalAvailableShifts) * 100
-    : 0;
-
-  const maszynowniaDaysPercent = balance.totalAvailableDays > 0
-    ? (balance.usedDaysMaszynownia / balance.totalAvailableDays) * 100
-    : 0;
-
-  const pakowniaDaysPercent = balance.totalAvailableDays > 0
-    ? (balance.usedDaysPakownia / balance.totalAvailableDays) * 100
     : 0;
 
   return (
@@ -32,7 +43,7 @@ export default function ReportBalance({ reportData }) {
           <div>
             <span className="text-2xl">Bilans wykorzystania</span>
             <p className="text-sm font-normal text-slate-600 mt-1">
-              Porównanie dostępnych i wykorzystanych dni/zmian (bez świąt)
+              Porównanie dostępnych i wykorzystanych dni roboczych/sobót (święta wyłączone)
             </p>
           </div>
         </CardTitle>
@@ -52,23 +63,23 @@ export default function ReportBalance({ reportData }) {
                   {balance.totalAvailableDays}
                 </span>
               </div>
-              <div className="flex justify-between items-center p-3 bg-blue-50 rounded-lg">
-                <span className="text-blue-700">Dni robocze (Pn-Pt):</span>
+              <div className="flex justify-between items-center p-3 bg-blue-50 rounded-lg border-2 border-blue-300">
+                <span className="text-blue-700 font-semibold">Dni robocze (Pn-Pt):</span>
                 <span className="text-2xl font-bold text-blue-900">
                   {balance.availableWeekdays}
                 </span>
               </div>
-              <div className="flex justify-between items-center p-3 bg-orange-50 rounded-lg">
-                <span className="text-orange-700">Weekendy:</span>
+              <div className="flex justify-between items-center p-3 bg-orange-50 rounded-lg border-2 border-orange-300">
+                <span className="text-orange-700 font-semibold">Soboty:</span>
                 <span className="text-2xl font-bold text-orange-900">
-                  {balance.availableWeekendDays}
+                  {balance.availableSaturdays}
                 </span>
               </div>
               {balance.holidaysCount > 0 && (
                 <div className="flex justify-between items-center p-3 bg-red-50 rounded-lg border border-red-200">
                   <span className="text-red-700 flex items-center gap-2">
                     <PartyPopper className="w-4 h-4" />
-                    Święta (odliczone):
+                    Święta (wyłączone):
                   </span>
                   <span className="text-2xl font-bold text-red-900">
                     -{balance.holidaysCount}
@@ -82,7 +93,7 @@ export default function ReportBalance({ reportData }) {
                 </span>
               </div>
               <div className="text-xs text-slate-500 italic p-2 bg-slate-50 rounded">
-                * Dni robocze (Pn-Pt) już pomniejszone o święta
+                * Dni robocze = Pn-Pt minus święta
                 <br />
                 * Dostępne zmiany = (dni robocze × 3) + (weekendy × 1)
               </div>
@@ -101,22 +112,36 @@ export default function ReportBalance({ reportData }) {
                 <div className="flex justify-between items-center mb-2">
                   <span className="font-semibold text-blue-700">🏭 Maszynownia</span>
                 </div>
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span>Dni pracy:</span>
-                    <span className="font-semibold">
-                      {balance.usedDaysMaszynownia} / {balance.totalAvailableDays} ({maszynowniaDaysPercent.toFixed(1)}%)
-                    </span>
+                <div className="space-y-3">
+                  <div>
+                    <div className="flex justify-between text-sm mb-1">
+                      <span>Dni robocze (Pn-Pt):</span>
+                      <span className="font-semibold">
+                        {balance.usedWeekdaysMaszynownia} / {balance.availableWeekdays} ({maszynowniaWeekdaysPercent.toFixed(1)}%)
+                      </span>
+                    </div>
+                    <Progress value={maszynowniaWeekdaysPercent} className="h-2 bg-blue-100" />
                   </div>
-                  <Progress value={maszynowniaDaysPercent} className="h-2 bg-blue-100" />
+
+                  <div>
+                    <div className="flex justify-between text-sm mb-1">
+                      <span>Soboty:</span>
+                      <span className="font-semibold">
+                        {balance.usedSaturdaysMaszynownia} / {balance.availableSaturdays} ({maszynowniaSaturdaysPercent.toFixed(1)}%)
+                      </span>
+                    </div>
+                    <Progress value={maszynowniaSaturdaysPercent} className="h-2 bg-orange-100" />
+                  </div>
                   
-                  <div className="flex justify-between text-sm mt-3">
-                    <span>Zmiany:</span>
-                    <span className="font-semibold">
-                      {balance.usedShiftsMaszynownia} / {balance.totalAvailableShifts} ({maszynowniaUsagePercent.toFixed(1)}%)
-                    </span>
+                  <div>
+                    <div className="flex justify-between text-sm mb-1">
+                      <span>Zmiany ogółem:</span>
+                      <span className="font-semibold">
+                        {balance.usedShiftsMaszynownia} / {balance.totalAvailableShifts} ({maszynowniaShiftsPercent.toFixed(1)}%)
+                      </span>
+                    </div>
+                    <Progress value={maszynowniaShiftsPercent} className="h-2 bg-emerald-100" />
                   </div>
-                  <Progress value={maszynowniaUsagePercent} className="h-2 bg-blue-100" />
                 </div>
               </div>
 
@@ -125,22 +150,36 @@ export default function ReportBalance({ reportData }) {
                 <div className="flex justify-between items-center mb-2">
                   <span className="font-semibold text-green-700">📦 Pakownia</span>
                 </div>
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span>Dni pracy:</span>
-                    <span className="font-semibold">
-                      {balance.usedDaysPakownia} / {balance.totalAvailableDays} ({pakowniaDaysPercent.toFixed(1)}%)
-                    </span>
+                <div className="space-y-3">
+                  <div>
+                    <div className="flex justify-between text-sm mb-1">
+                      <span>Dni robocze (Pn-Pt):</span>
+                      <span className="font-semibold">
+                        {balance.usedWeekdaysPakownia} / {balance.availableWeekdays} ({pakowniaWeekdaysPercent.toFixed(1)}%)
+                      </span>
+                    </div>
+                    <Progress value={pakowniaWeekdaysPercent} className="h-2 bg-green-100" />
                   </div>
-                  <Progress value={pakowniaDaysPercent} className="h-2 bg-green-100" />
+
+                  <div>
+                    <div className="flex justify-between text-sm mb-1">
+                      <span>Soboty:</span>
+                      <span className="font-semibold">
+                        {balance.usedSaturdaysPakownia} / {balance.availableSaturdays} ({pakowniaSaturdaysPercent.toFixed(1)}%)
+                      </span>
+                    </div>
+                    <Progress value={pakowniaSaturdaysPercent} className="h-2 bg-orange-100" />
+                  </div>
                   
-                  <div className="flex justify-between text-sm mt-3">
-                    <span>Zmiany:</span>
-                    <span className="font-semibold">
-                      {balance.usedShiftsPakownia} / {balance.totalAvailableShifts} ({pakowniaUsagePercent.toFixed(1)}%)
-                    </span>
+                  <div>
+                    <div className="flex justify-between text-sm mb-1">
+                      <span>Zmiany ogółem:</span>
+                      <span className="font-semibold">
+                        {balance.usedShiftsPakownia} / {balance.totalAvailableShifts} ({pakowniaShiftsPercent.toFixed(1)}%)
+                      </span>
+                    </div>
+                    <Progress value={pakowniaShiftsPercent} className="h-2 bg-emerald-100" />
                   </div>
-                  <Progress value={pakowniaUsagePercent} className="h-2 bg-green-100" />
                 </div>
               </div>
             </div>
@@ -150,9 +189,9 @@ export default function ReportBalance({ reportData }) {
         {/* Summary Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="bg-white rounded-xl p-4 text-center shadow-sm">
-            <p className="text-sm text-slate-600 mb-1">Wykorzystane dni</p>
+            <p className="text-sm text-slate-600 mb-1">Dni robocze (Pn-Pt)</p>
             <p className="text-sm font-medium text-blue-700">Maszynownia</p>
-            <p className="text-3xl font-bold text-blue-900">{balance.usedDaysMaszynownia}</p>
+            <p className="text-3xl font-bold text-blue-900">{balance.usedWeekdaysMaszynownia}</p>
           </div>
           <div className="bg-white rounded-xl p-4 text-center shadow-sm">
             <p className="text-sm text-slate-600 mb-1">Wykorzystane zmiany</p>
@@ -160,9 +199,9 @@ export default function ReportBalance({ reportData }) {
             <p className="text-3xl font-bold text-blue-900">{balance.usedShiftsMaszynownia}</p>
           </div>
           <div className="bg-white rounded-xl p-4 text-center shadow-sm">
-            <p className="text-sm text-slate-600 mb-1">Wykorzystane dni</p>
+            <p className="text-sm text-slate-600 mb-1">Dni robocze (Pn-Pt)</p>
             <p className="text-sm font-medium text-green-700">Pakownia</p>
-            <p className="text-3xl font-bold text-green-900">{balance.usedDaysPakownia}</p>
+            <p className="text-3xl font-bold text-green-900">{balance.usedWeekdaysPakownia}</p>
           </div>
           <div className="bg-white rounded-xl p-4 text-center shadow-sm">
             <p className="text-sm text-slate-600 mb-1">Wykorzystane zmiany</p>

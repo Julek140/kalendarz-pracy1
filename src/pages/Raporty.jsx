@@ -6,12 +6,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Calendar, FileText, Clock } from "lucide-react";
-import { format, isWeekend, parseISO, isWithinInterval, eachDayOfInterval, getDay } from "date-fns";
+import { format, isWeekend, parseISO, isWithinInterval, eachDayOfInterval, getDay, getWeek } from "date-fns";
 import { pl } from "date-fns/locale";
 
 import ReportSummary from "../components/reports/ReportSummary";
 import ReportDetails from "../components/reports/ReportDetails";
 import ReportBalance from "../components/reports/ReportBalance";
+import ReportCharts from "../components/reports/ReportCharts";
 
 const polishHolidays = [
   { date: "2025-01-01", name: "Nowy Rok" },
@@ -70,7 +71,7 @@ export default function RaportyPage() {
       return isWithinInterval(holidayDate, { start, end });
     });
 
-    // Oblicz dostępne dni i zmiany w okresie (MINUS święta)
+    // Oblicz dostępne dni i zmiany w okresie
     const allDaysInRange = eachDayOfInterval({ start, end });
     
     // Dni robocze (Pn-Pt) MINUS święta
@@ -82,14 +83,14 @@ export default function RaportyPage() {
       return isWeekdayDate && !isHoliday;
     }).length;
 
+    // Dostępne soboty
+    const availableSaturdays = allDaysInRange.filter(day => getDay(day) === 6).length;
+
     const availableWeekendDays = allDaysInRange.filter(day => {
       return isWeekend(day);
     }).length;
 
     const totalAvailableDays = allDaysInRange.length;
-    
-    // Dostępne dni robocze = dni Pn-Pt MINUS święta
-    const workableDays = availableWeekdays;
     
     // Dostępne zmiany = (dni robocze bez świąt * 3) + (weekendy * 1)
     const totalAvailableShifts = (availableWeekdays * 3) + (availableWeekendDays * 1);
@@ -114,6 +115,12 @@ export default function RaportyPage() {
 
       const downtimeDays = deptDays.filter(wd => wd.is_downtime).length;
 
+      // Wykorzystane soboty
+      const usedSaturdays = deptDays.filter(wd => {
+        const date = parseISO(wd.date);
+        return getDay(date) === 6 && !wd.is_downtime;
+      }).length;
+
       const totalWorkDays = regularDays + overtimeDays;
 
       // Oblicz zmiany
@@ -133,6 +140,7 @@ export default function RaportyPage() {
         regularDays,
         overtimeDays,
         downtimeDays,
+        usedSaturdays,
         totalShifts,
         regularShifts,
         overtimeShifts,
@@ -154,11 +162,16 @@ export default function RaportyPage() {
       balance: {
         totalAvailableDays,
         availableWeekdays, // Dni Pn-Pt MINUS święta
+        availableSaturdays, // Dostępne soboty
         availableWeekendDays,
         totalAvailableShifts, // Zmiany obliczone z uwzględnieniem świąt
         holidaysCount: holidaysInRange.length,
         usedDaysMaszynownia: maszynowniaStats.totalWorkDays,
         usedDaysPakownia: pakowniaStats.totalWorkDays,
+        usedWeekdaysMaszynownia: maszynowniaStats.regularDays,
+        usedWeekdaysPakownia: pakowniaStats.regularDays,
+        usedSaturdaysMaszynownia: maszynowniaStats.usedSaturdays,
+        usedSaturdaysPakownia: pakowniaStats.usedSaturdays,
         usedShiftsMaszynownia: maszynowniaStats.totalShifts,
         usedShiftsPakownia: pakowniaStats.totalShifts,
       },
@@ -198,6 +211,11 @@ export default function RaportyPage() {
                   onChange={(e) => setStartDate(e.target.value)}
                   className="w-full"
                 />
+                {startDate && (
+                  <p className="text-xs text-slate-500 mt-1">
+                    Tydzień {getWeek(parseISO(startDate), { weekStartsOn: 1, locale: pl })}
+                  </p>
+                )}
               </div>
               <div>
                 <Label htmlFor="endDate" className="text-sm font-medium mb-2 block">
@@ -210,6 +228,11 @@ export default function RaportyPage() {
                   onChange={(e) => setEndDate(e.target.value)}
                   className="w-full"
                 />
+                {endDate && (
+                  <p className="text-xs text-slate-500 mt-1">
+                    Tydzień {getWeek(parseISO(endDate), { weekStartsOn: 1, locale: pl })}
+                  </p>
+                )}
               </div>
               <Button
                 onClick={generateReport}
@@ -226,6 +249,7 @@ export default function RaportyPage() {
         {reportGenerated && reportData && (
           <>
             <ReportBalance reportData={reportData} />
+            <ReportCharts reportData={reportData} />
             <ReportSummary reportData={reportData} />
             <ReportDetails reportData={reportData} />
           </>
