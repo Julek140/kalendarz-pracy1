@@ -15,7 +15,7 @@ export default function ReportBalance({ reportData }) {
     ? (balance.usedWeekdaysPakownia / balance.availableWeekdays) * 100
     : 0;
 
-  // Procent wykorzystania sobót
+  // Procent wykorzystania sobót (bez świąt)
   const maszynowniaSaturdaysPercent = balance.availableSaturdays > 0
     ? (balance.usedSaturdaysMaszynownia / balance.availableSaturdays) * 100
     : 0;
@@ -94,6 +94,8 @@ export default function ReportBalance({ reportData }) {
               </div>
               <div className="text-xs text-slate-500 italic p-2 bg-slate-50 rounded">
                 * Dni robocze = Pn-Pt minus święta
+                <br />
+                * Soboty = tylko soboty niebędące świętami
                 <br />
                 * Dostępne zmiany = (dni robocze × 3) + (weekendy × 1)
               </div>

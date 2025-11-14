@@ -83,8 +83,12 @@ export default function RaportyPage() {
       return isWeekdayDate && !isHoliday;
     }).length;
 
-    // Dostępne soboty
-    const availableSaturdays = allDaysInRange.filter(day => getDay(day) === 6).length;
+    // Dostępne soboty (bez świąt)
+    const availableSaturdays = allDaysInRange.filter(day => {
+      const dateStr = format(day, 'yyyy-MM-dd');
+      const isHoliday = allHolidays.some(h => h.date === dateStr);
+      return getDay(day) === 6 && !isHoliday;
+    }).length;
 
     const availableWeekendDays = allDaysInRange.filter(day => {
       return isWeekend(day);
@@ -115,10 +119,12 @@ export default function RaportyPage() {
 
       const downtimeDays = deptDays.filter(wd => wd.is_downtime).length;
 
-      // Wykorzystane soboty
+      // Wykorzystane soboty (bez świąt)
       const usedSaturdays = deptDays.filter(wd => {
         const date = parseISO(wd.date);
-        return getDay(date) === 6 && !wd.is_downtime;
+        const dateStr = format(date, 'yyyy-MM-dd');
+        const isHoliday = allHolidays.some(h => h.date === dateStr);
+        return getDay(date) === 6 && !wd.is_downtime && !isHoliday;
       }).length;
 
       const totalWorkDays = regularDays + overtimeDays;
@@ -162,7 +168,7 @@ export default function RaportyPage() {
       balance: {
         totalAvailableDays,
         availableWeekdays, // Dni Pn-Pt MINUS święta
-        availableSaturdays, // Dostępne soboty
+        availableSaturdays, // Dostępne soboty MINUS święta
         availableWeekendDays,
         totalAvailableShifts, // Zmiany obliczone z uwzględnieniem świąt
         holidaysCount: holidaysInRange.length,

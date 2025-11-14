@@ -1,195 +1,271 @@
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from "recharts";
+import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from "recharts";
 import { TrendingUp } from "lucide-react";
 
 const COLORS = {
-  maszynownia: '#3B82F6',
-  pakownia: '#10B981',
-  available: '#E5E7EB',
-  used: '#6366F1',
+  used: '#3B82F6',
+  unused: '#E5E7EB',
+  usedPakownia: '#10B981',
+  unusedPakownia: '#D1FAE5',
 };
 
 export default function ReportCharts({ reportData }) {
-  const { balance, maszynownia, pakownia } = reportData;
+  const { balance } = reportData;
 
-  // Dane dla wykresu porównawczego dni roboczych
-  const weekdaysData = [
-    {
-      name: 'Dostępne',
-      Maszynownia: balance.availableWeekdays,
-      Pakownia: balance.availableWeekdays,
-    },
-    {
-      name: 'Wykorzystane',
-      Maszynownia: balance.usedWeekdaysMaszynownia,
-      Pakownia: balance.usedWeekdaysPakownia,
-    },
+  // Procent wykorzystania dni roboczych Maszynownia
+  const maszynowniaWeekdaysUsed = balance.usedWeekdaysMaszynownia;
+  const maszynowniaWeekdaysUnused = balance.availableWeekdays - balance.usedWeekdaysMaszynownia;
+  const maszynowniaWeekdaysPercent = balance.availableWeekdays > 0
+    ? ((maszynowniaWeekdaysUsed / balance.availableWeekdays) * 100).toFixed(1)
+    : 0;
+
+  const maszynowniaWeekdaysData = [
+    { name: 'Wykorzystane', value: maszynowniaWeekdaysUsed, color: COLORS.used },
+    { name: 'Niewykorzystane', value: maszynowniaWeekdaysUnused, color: COLORS.unused },
   ];
 
-  // Dane dla wykresu sobót
-  const saturdaysData = [
-    {
-      name: 'Dostępne soboty',
-      value: balance.availableSaturdays,
-    },
-    {
-      name: 'Maszynownia',
-      value: balance.usedSaturdaysMaszynownia,
-    },
-    {
-      name: 'Pakownia',
-      value: balance.usedSaturdaysPakownia,
-    },
+  // Procent wykorzystania dni roboczych Pakownia
+  const pakowniaWeekdaysUsed = balance.usedWeekdaysPakownia;
+  const pakowniaWeekdaysUnused = balance.availableWeekdays - balance.usedWeekdaysPakownia;
+  const pakowniaWeekdaysPercent = balance.availableWeekdays > 0
+    ? ((pakowniaWeekdaysUsed / balance.availableWeekdays) * 100).toFixed(1)
+    : 0;
+
+  const pakowniaWeekdaysData = [
+    { name: 'Wykorzystane', value: pakowniaWeekdaysUsed, color: COLORS.usedPakownia },
+    { name: 'Niewykorzystane', value: pakowniaWeekdaysUnused, color: COLORS.unusedPakownia },
   ];
 
-  // Dane dla wykresu zmian
-  const shiftsData = [
-    {
-      name: 'Maszynownia',
-      'Zmiany normalne': maszynownia.regularShifts,
-      'Nadgodziny': maszynownia.overtimeShifts,
-    },
-    {
-      name: 'Pakownia',
-      'Zmiany normalne': pakownia.regularShifts,
-      'Nadgodziny': pakownia.overtimeShifts,
-    },
+  // Procent wykorzystania zmian Maszynownia
+  const maszynowniaShiftsUsed = balance.usedShiftsMaszynownia;
+  const maszynowniaShiftsUnused = balance.totalAvailableShifts - balance.usedShiftsMaszynownia;
+  const maszynowniaShiftsPercent = balance.totalAvailableShifts > 0
+    ? ((maszynowniaShiftsUsed / balance.totalAvailableShifts) * 100).toFixed(1)
+    : 0;
+
+  const maszynowniaShiftsData = [
+    { name: 'Wykorzystane', value: maszynowniaShiftsUsed, color: COLORS.used },
+    { name: 'Niewykorzystane', value: maszynowniaShiftsUnused, color: COLORS.unused },
   ];
 
-  // Dane dla wykresu kołowego - wykorzystanie zmian
-  const shiftsUsagePieData = [
-    {
-      name: 'Maszynownia wykorzystane',
-      value: balance.usedShiftsMaszynownia,
-      color: COLORS.maszynownia,
-    },
-    {
-      name: 'Pakownia wykorzystane',
-      value: balance.usedShiftsPakownia,
-      color: COLORS.pakownia,
-    },
-    {
-      name: 'Niewykorzystane',
-      value: Math.max(0, balance.totalAvailableShifts - balance.usedShiftsMaszynownia - balance.usedShiftsPakownia),
-      color: COLORS.available,
-    },
+  // Procent wykorzystania zmian Pakownia
+  const pakowniaShiftsUsed = balance.usedShiftsPakownia;
+  const pakowniaShiftsUnused = balance.totalAvailableShifts - balance.usedShiftsPakownia;
+  const pakowniaShiftsPercent = balance.totalAvailableShifts > 0
+    ? ((pakowniaShiftsUsed / balance.totalAvailableShifts) * 100).toFixed(1)
+    : 0;
+
+  const pakowniaShiftsData = [
+    { name: 'Wykorzystane', value: pakowniaShiftsUsed, color: COLORS.usedPakownia },
+    { name: 'Niewykorzystane', value: pakowniaShiftsUnused, color: COLORS.unusedPakownia },
   ];
+
+  const renderCustomLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent }) => {
+    const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
+    const x = cx + radius * Math.cos(-midAngle * Math.PI / 180);
+    const y = cy + radius * Math.sin(-midAngle * Math.PI / 180);
+
+    return (
+      <text 
+        x={x} 
+        y={y} 
+        fill="white" 
+        textAnchor={x > cx ? 'start' : 'end'} 
+        dominantBaseline="central"
+        className="font-bold text-sm"
+      >
+        {`${(percent * 100).toFixed(0)}%`}
+      </text>
+    );
+  };
 
   return (
     <div className="space-y-6 mb-6">
-      {/* Wykresy porównawcze */}
+      {/* Wykresy dni roboczych */}
       <div className="grid md:grid-cols-2 gap-6">
-        {/* Wykres dni roboczych */}
+        {/* Maszynownia - Dni robocze */}
         <Card className="shadow-lg border-none">
-          <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b">
+          <CardHeader className="bg-gradient-to-r from-blue-50 to-blue-100 border-b">
             <CardTitle className="flex items-center gap-2">
               <TrendingUp className="w-5 h-5 text-blue-600" />
-              Wykorzystanie dni roboczych (Pn-Pt)
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-6">
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={weekdaysData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Bar dataKey="Maszynownia" fill={COLORS.maszynownia} />
-                <Bar dataKey="Pakownia" fill={COLORS.pakownia} />
-              </BarChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
-
-        {/* Wykres sobót */}
-        <Card className="shadow-lg border-none">
-          <CardHeader className="bg-gradient-to-r from-orange-50 to-amber-50 border-b">
-            <CardTitle className="flex items-center gap-2">
-              <TrendingUp className="w-5 h-5 text-orange-600" />
-              Wykorzystanie sobót
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-6">
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={saturdaysData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey="value" fill="#F97316" />
-              </BarChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Wykresy zmian */}
-      <div className="grid md:grid-cols-2 gap-6">
-        {/* Wykres porównania zmian normalnych vs nadgodziny */}
-        <Card className="shadow-lg border-none">
-          <CardHeader className="bg-gradient-to-r from-purple-50 to-indigo-50 border-b">
-            <CardTitle className="flex items-center gap-2">
-              <TrendingUp className="w-5 h-5 text-purple-600" />
-              Zmiany normalne vs Nadgodziny
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-6">
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={shiftsData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Bar dataKey="Zmiany normalne" stackId="a" fill="#8B5CF6" />
-                <Bar dataKey="Nadgodziny" stackId="a" fill="#F97316" />
-              </BarChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
-
-        {/* Wykres kołowy - całkowite wykorzystanie zmian */}
-        <Card className="shadow-lg border-none">
-          <CardHeader className="bg-gradient-to-r from-emerald-50 to-teal-50 border-b">
-            <CardTitle className="flex items-center gap-2">
-              <TrendingUp className="w-5 h-5 text-emerald-600" />
-              Całkowite wykorzystanie dostępnych zmian
+              🏭 Maszynownia - Dni robocze (Pn-Pt)
             </CardTitle>
           </CardHeader>
           <CardContent className="p-6">
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
                 <Pie
-                  data={shiftsUsagePieData}
+                  data={maszynowniaWeekdaysData}
                   cx="50%"
                   cy="50%"
                   labelLine={false}
-                  label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                  outerRadius={80}
+                  label={renderCustomLabel}
+                  outerRadius={100}
                   fill="#8884d8"
                   dataKey="value"
                 >
-                  {shiftsUsagePieData.map((entry, index) => (
+                  {maszynowniaWeekdaysData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
                 </Pie>
                 <Tooltip />
+                <Legend />
               </PieChart>
             </ResponsiveContainer>
             <div className="mt-4 grid grid-cols-3 gap-2 text-center">
-              <div className="p-2 bg-blue-50 rounded">
-                <p className="text-xs text-slate-600">Maszynownia</p>
-                <p className="text-lg font-bold text-blue-700">{balance.usedShiftsMaszynownia}</p>
+              <div className="p-3 bg-blue-50 rounded-lg">
+                <p className="text-xs text-slate-600 mb-1">Wykorzystane</p>
+                <p className="text-2xl font-bold text-blue-700">{maszynowniaWeekdaysUsed}</p>
               </div>
-              <div className="p-2 bg-green-50 rounded">
-                <p className="text-xs text-slate-600">Pakownia</p>
-                <p className="text-lg font-bold text-green-700">{balance.usedShiftsPakownia}</p>
+              <div className="p-3 bg-slate-50 rounded-lg">
+                <p className="text-xs text-slate-600 mb-1">Niewykorzystane</p>
+                <p className="text-2xl font-bold text-slate-700">{maszynowniaWeekdaysUnused}</p>
               </div>
-              <div className="p-2 bg-slate-50 rounded">
-                <p className="text-xs text-slate-600">Dostępne</p>
-                <p className="text-lg font-bold text-slate-700">{balance.totalAvailableShifts}</p>
+              <div className="p-3 bg-indigo-50 rounded-lg">
+                <p className="text-xs text-slate-600 mb-1">Procent</p>
+                <p className="text-2xl font-bold text-indigo-700">{maszynowniaWeekdaysPercent}%</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Pakownia - Dni robocze */}
+        <Card className="shadow-lg border-none">
+          <CardHeader className="bg-gradient-to-r from-green-50 to-green-100 border-b">
+            <CardTitle className="flex items-center gap-2">
+              <TrendingUp className="w-5 h-5 text-green-600" />
+              📦 Pakownia - Dni robocze (Pn-Pt)
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-6">
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <Pie
+                  data={pakowniaWeekdaysData}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  label={renderCustomLabel}
+                  outerRadius={100}
+                  fill="#8884d8"
+                  dataKey="value"
+                >
+                  {pakowniaWeekdaysData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip />
+                <Legend />
+              </PieChart>
+            </ResponsiveContainer>
+            <div className="mt-4 grid grid-cols-3 gap-2 text-center">
+              <div className="p-3 bg-green-50 rounded-lg">
+                <p className="text-xs text-slate-600 mb-1">Wykorzystane</p>
+                <p className="text-2xl font-bold text-green-700">{pakowniaWeekdaysUsed}</p>
+              </div>
+              <div className="p-3 bg-slate-50 rounded-lg">
+                <p className="text-xs text-slate-600 mb-1">Niewykorzystane</p>
+                <p className="text-2xl font-bold text-slate-700">{pakowniaWeekdaysUnused}</p>
+              </div>
+              <div className="p-3 bg-emerald-50 rounded-lg">
+                <p className="text-xs text-slate-600 mb-1">Procent</p>
+                <p className="text-2xl font-bold text-emerald-700">{pakowniaWeekdaysPercent}%</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Wykresy zmian ogółem */}
+      <div className="grid md:grid-cols-2 gap-6">
+        {/* Maszynownia - Zmiany ogółem */}
+        <Card className="shadow-lg border-none">
+          <CardHeader className="bg-gradient-to-r from-indigo-50 to-indigo-100 border-b">
+            <CardTitle className="flex items-center gap-2">
+              <TrendingUp className="w-5 h-5 text-indigo-600" />
+              🏭 Maszynownia - Zmiany ogółem
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-6">
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <Pie
+                  data={maszynowniaShiftsData}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  label={renderCustomLabel}
+                  outerRadius={100}
+                  fill="#8884d8"
+                  dataKey="value"
+                >
+                  {maszynowniaShiftsData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip />
+                <Legend />
+              </PieChart>
+            </ResponsiveContainer>
+            <div className="mt-4 grid grid-cols-3 gap-2 text-center">
+              <div className="p-3 bg-blue-50 rounded-lg">
+                <p className="text-xs text-slate-600 mb-1">Wykorzystane</p>
+                <p className="text-2xl font-bold text-blue-700">{maszynowniaShiftsUsed}</p>
+              </div>
+              <div className="p-3 bg-slate-50 rounded-lg">
+                <p className="text-xs text-slate-600 mb-1">Dostępne</p>
+                <p className="text-2xl font-bold text-slate-700">{balance.totalAvailableShifts}</p>
+              </div>
+              <div className="p-3 bg-indigo-50 rounded-lg">
+                <p className="text-xs text-slate-600 mb-1">Procent</p>
+                <p className="text-2xl font-bold text-indigo-700">{maszynowniaShiftsPercent}%</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Pakownia - Zmiany ogółem */}
+        <Card className="shadow-lg border-none">
+          <CardHeader className="bg-gradient-to-r from-emerald-50 to-emerald-100 border-b">
+            <CardTitle className="flex items-center gap-2">
+              <TrendingUp className="w-5 h-5 text-emerald-600" />
+              📦 Pakownia - Zmiany ogółem
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-6">
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <Pie
+                  data={pakowniaShiftsData}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  label={renderCustomLabel}
+                  outerRadius={100}
+                  fill="#8884d8"
+                  dataKey="value"
+                >
+                  {pakowniaShiftsData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip />
+                <Legend />
+              </PieChart>
+            </ResponsiveContainer>
+            <div className="mt-4 grid grid-cols-3 gap-2 text-center">
+              <div className="p-3 bg-green-50 rounded-lg">
+                <p className="text-xs text-slate-600 mb-1">Wykorzystane</p>
+                <p className="text-2xl font-bold text-green-700">{pakowniaShiftsUsed}</p>
+              </div>
+              <div className="p-3 bg-slate-50 rounded-lg">
+                <p className="text-xs text-slate-600 mb-1">Dostępne</p>
+                <p className="text-2xl font-bold text-slate-700">{balance.totalAvailableShifts}</p>
+              </div>
+              <div className="p-3 bg-emerald-50 rounded-lg">
+                <p className="text-xs text-slate-600 mb-1">Procent</p>
+                <p className="text-2xl font-bold text-emerald-700">{pakowniaShiftsPercent}%</p>
               </div>
             </div>
           </CardContent>
