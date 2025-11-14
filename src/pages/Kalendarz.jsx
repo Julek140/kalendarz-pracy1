@@ -11,8 +11,9 @@ import CalendarLegend from "../components/calendar/CalendarLegend";
 import DayDialog from "../components/calendar/DayDialog";
 import HolidayDialog from "../components/calendar/HolidayDialog";
 
-// Polskie święta 2025 (wbudowane)
+// Polskie święta 2025-2029
 const polishHolidays = [
+  // 2025
   { date: "2025-01-01", name: "Nowy Rok" },
   { date: "2025-01-06", name: "Trzech Króli" },
   { date: "2025-04-20", name: "Wielkanoc" },
@@ -26,6 +27,66 @@ const polishHolidays = [
   { date: "2025-11-11", name: "Święto Niepodległości" },
   { date: "2025-12-25", name: "Boże Narodzenie" },
   { date: "2025-12-26", name: "Drugi Dzień Bożego Narodzenia" },
+  
+  // 2026
+  { date: "2026-01-01", name: "Nowy Rok" },
+  { date: "2026-01-06", name: "Trzech Króli" },
+  { date: "2026-04-05", name: "Wielkanoc" },
+  { date: "2026-04-06", name: "Poniedziałek Wielkanocny" },
+  { date: "2026-05-01", name: "Święto Pracy" },
+  { date: "2026-05-03", name: "Święto Konstytucji 3 Maja" },
+  { date: "2026-05-24", name: "Zielone Świątki" },
+  { date: "2026-06-04", name: "Boże Ciało" },
+  { date: "2026-08-15", name: "Wniebowzięcie NMP" },
+  { date: "2026-11-01", name: "Wszystkich Świętych" },
+  { date: "2026-11-11", name: "Święto Niepodległości" },
+  { date: "2026-12-25", name: "Boże Narodzenie" },
+  { date: "2026-12-26", name: "Drugi Dzień Bożego Narodzenia" },
+  
+  // 2027
+  { date: "2027-01-01", name: "Nowy Rok" },
+  { date: "2027-01-06", name: "Trzech Króli" },
+  { date: "2027-03-28", name: "Wielkanoc" },
+  { date: "2027-03-29", name: "Poniedziałek Wielkanocny" },
+  { date: "2027-05-01", name: "Święto Pracy" },
+  { date: "2027-05-03", name: "Święto Konstytucji 3 Maja" },
+  { date: "2027-05-16", name: "Zielone Świątki" },
+  { date: "2027-05-27", name: "Boże Ciało" },
+  { date: "2027-08-15", name: "Wniebowzięcie NMP" },
+  { date: "2027-11-01", name: "Wszystkich Świętych" },
+  { date: "2027-11-11", name: "Święto Niepodległości" },
+  { date: "2027-12-25", name: "Boże Narodzenie" },
+  { date: "2027-12-26", name: "Drugi Dzień Bożego Narodzenia" },
+  
+  // 2028
+  { date: "2028-01-01", name: "Nowy Rok" },
+  { date: "2028-01-06", name: "Trzech Króli" },
+  { date: "2028-04-16", name: "Wielkanoc" },
+  { date: "2028-04-17", name: "Poniedziałek Wielkanocny" },
+  { date: "2028-05-01", name: "Święto Pracy" },
+  { date: "2028-05-03", name: "Święto Konstytucji 3 Maja" },
+  { date: "2028-06-04", name: "Zielone Świątki" },
+  { date: "2028-06-15", name: "Boże Ciało" },
+  { date: "2028-08-15", name: "Wniebowzięcie NMP" },
+  { date: "2028-11-01", name: "Wszystkich Świętych" },
+  { date: "2028-11-11", name: "Święto Niepodległości" },
+  { date: "2028-12-25", name: "Boże Narodzenie" },
+  { date: "2028-12-26", name: "Drugi Dzień Bożego Narodzenia" },
+  
+  // 2029
+  { date: "2029-01-01", name: "Nowy Rok" },
+  { date: "2029-01-06", name: "Trzech Króli" },
+  { date: "2029-04-01", name: "Wielkanoc" },
+  { date: "2029-04-02", name: "Poniedziałek Wielkanocny" },
+  { date: "2029-05-01", name: "Święto Pracy" },
+  { date: "2029-05-03", name: "Święto Konstytucji 3 Maja" },
+  { date: "2029-05-20", name: "Zielone Świątki" },
+  { date: "2029-05-31", name: "Boże Ciało" },
+  { date: "2029-08-15", name: "Wniebowzięcie NMP" },
+  { date: "2029-11-01", name: "Wszystkich Świętych" },
+  { date: "2029-11-11", name: "Święto Niepodległości" },
+  { date: "2029-12-25", name: "Boże Narodzenie" },
+  { date: "2029-12-26", name: "Drugi Dzień Bożego Narodzenia" },
 ];
 
 export default function KalendarzPage() {
@@ -122,9 +183,16 @@ export default function KalendarzPage() {
         {/* Header */}
         <div className="bg-white rounded-2xl shadow-lg p-6 mb-6">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-            <div>
-              <h1 className="text-3xl font-bold text-slate-900">Kalendarz Pracy Zakładu</h1>
-              <p className="text-slate-600 mt-1">Zarządzaj harmonogramem pracy działów</p>
+            <div className="flex items-center gap-4">
+              <img 
+                src="https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?w=80&h=80&fit=crop" 
+                alt="CONSTRACT Logo" 
+                className="w-16 h-16 object-contain rounded-lg"
+              />
+              <div>
+                <h1 className="text-3xl font-bold text-slate-900">Kalendarz Pracy Zakładu CONSTRACT</h1>
+                <p className="text-slate-600 mt-1">Zarządzaj harmonogramem pracy działów</p>
+              </div>
             </div>
             <div className="flex items-center gap-3 flex-wrap">
               <Button

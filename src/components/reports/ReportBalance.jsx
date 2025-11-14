@@ -137,7 +137,7 @@ export default function ReportBalance({ reportData }) {
                   
                   <div>
                     <div className="flex justify-between text-sm mb-1">
-                      <span>Zmiany ogółem:</span>
+                      <span>Zmiany ogółem (+nadgodziny):</span>
                       <span className="font-semibold">
                         {balance.usedShiftsMaszynownia} / {balance.totalAvailableShifts} ({maszynowniaShiftsPercent.toFixed(1)}%)
                       </span>
@@ -175,7 +175,7 @@ export default function ReportBalance({ reportData }) {
                   
                   <div>
                     <div className="flex justify-between text-sm mb-1">
-                      <span>Zmiany ogółem:</span>
+                      <span>Zmiany ogółem (+nadgodziny):</span>
                       <span className="font-semibold">
                         {balance.usedShiftsPakownia} / {balance.totalAvailableShifts} ({pakowniaShiftsPercent.toFixed(1)}%)
                       </span>
