@@ -24,7 +24,7 @@ export default function ReportBalance({ reportData }) {
     ? (balance.usedSaturdaysPakownia / balance.availableSaturdays) * 100
     : 0;
 
-  // Procent wykorzystania zmian
+  // Procent wykorzystania zmian - ZMIENIONE: tylko względem dni roboczych Pn-Pt × 3
   const maszynowniaShiftsPercent = balance.totalAvailableShifts > 0
     ? (balance.usedShiftsMaszynownia / balance.totalAvailableShifts) * 100
     : 0;
@@ -43,7 +43,7 @@ export default function ReportBalance({ reportData }) {
           <div>
             <span className="text-2xl">Bilans wykorzystania</span>
             <p className="text-sm font-normal text-slate-600 mt-1">
-              Porównanie dostępnych i wykorzystanych dni roboczych/sobót (święta wyłączone)
+              Dostępne zmiany = 15/tydzień (Pn-Pt), soboty i niedziele to nadgodziny
             </p>
           </div>
         </CardTitle>
@@ -79,7 +79,7 @@ export default function ReportBalance({ reportData }) {
                 <div className="flex justify-between items-center p-3 bg-red-50 rounded-lg border border-red-200">
                   <span className="text-red-700 flex items-center gap-2">
                     <PartyPopper className="w-4 h-4" />
-                    Święta (wyłączone):
+                    Święta Pn-Sob (wyłączone):
                   </span>
                   <span className="text-2xl font-bold text-red-900">
                     -{balance.holidaysCount}
@@ -87,17 +87,17 @@ export default function ReportBalance({ reportData }) {
                 </div>
               )}
               <div className="flex justify-between items-center p-3 bg-emerald-50 rounded-lg border-2 border-emerald-300">
-                <span className="text-emerald-700 font-semibold">Dostępne zmiany:</span>
+                <span className="text-emerald-700 font-semibold">Dostępne zmiany (Pn-Pt):</span>
                 <span className="text-2xl font-bold text-emerald-900">
                   {balance.totalAvailableShifts}
                 </span>
               </div>
               <div className="text-xs text-slate-500 italic p-2 bg-slate-50 rounded">
-                * Dni robocze = Pn-Pt minus święta
+                * Dni robocze = Pn-Pt minus święta (bez niedziel)
                 <br />
-                * Soboty = tylko soboty niebędące świętami
+                * Soboty = nadgodziny (nie wliczone w dostępne zmiany)
                 <br />
-                * Dostępne zmiany = (dni robocze × 3) + (weekendy × 1)
+                * Dostępne zmiany = dni robocze Pn-Pt × 3 (15/tydzień)
               </div>
             </div>
           </div>
@@ -127,7 +127,7 @@ export default function ReportBalance({ reportData }) {
 
                   <div>
                     <div className="flex justify-between text-sm mb-1">
-                      <span>Soboty:</span>
+                      <span>Soboty (nadgodziny):</span>
                       <span className="font-semibold">
                         {balance.usedSaturdaysMaszynownia} / {balance.availableSaturdays} ({maszynowniaSaturdaysPercent.toFixed(1)}%)
                       </span>
@@ -165,7 +165,7 @@ export default function ReportBalance({ reportData }) {
 
                   <div>
                     <div className="flex justify-between text-sm mb-1">
-                      <span>Soboty:</span>
+                      <span>Soboty (nadgodziny):</span>
                       <span className="font-semibold">
                         {balance.usedSaturdaysPakownia} / {balance.availableSaturdays} ({pakowniaSaturdaysPercent.toFixed(1)}%)
                       </span>

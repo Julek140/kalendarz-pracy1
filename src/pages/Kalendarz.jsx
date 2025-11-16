@@ -185,9 +185,9 @@ export default function KalendarzPage() {
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div className="flex items-center gap-4">
               <img 
-                src="https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?w=80&h=80&fit=crop" 
+                src="https://constract.pl/wp-content/uploads/2024/09/cropped-Constract_logo-2024-01-e1744010411889-2048x557.png" 
                 alt="CONSTRACT Logo" 
-                className="w-16 h-16 object-contain rounded-lg"
+                className="h-12 w-auto object-contain"
               />
               <div>
                 <h1 className="text-3xl font-bold text-slate-900">Kalendarz Pracy Zakładu CONSTRACT</h1>

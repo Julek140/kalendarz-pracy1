@@ -35,15 +35,16 @@ export default function Layout({ children }) {
     <SidebarProvider>
       <div className="min-h-screen flex w-full bg-gradient-to-br from-slate-50 to-blue-50">
         <Sidebar className="border-r border-slate-200">
-          <SidebarHeader className="border-b border-slate-200 p-6">
+          <SidebarHeader className="border-b border-slate-200 p-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
-                <Factory className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <h2 className="font-bold text-slate-900 text-base">Kalendarz Pracy</h2>
-                <p className="text-xs text-slate-500">CONSTRACT</p>
-              </div>
+              <img 
+                src="https://constract.pl/wp-content/uploads/2024/09/cropped-Constract_logo-2024-01-e1744010411889-2048x557.png" 
+                alt="CONSTRACT Logo" 
+                className="h-10 w-auto object-contain"
+              />
+            </div>
+            <div className="mt-2">
+              <p className="text-xs text-slate-500 font-medium">Kalendarz Pracy</p>
             </div>
           </SidebarHeader>
           

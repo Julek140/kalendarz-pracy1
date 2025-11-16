@@ -127,16 +127,18 @@ export default function RaportyPage() {
       return isWithinInterval(workDate, { start, end });
     });
 
-    // Policz święta w zakresie dat
+    // Policz święta w zakresie dat - TYLKO Pn-Sob (bez niedziel)
     const holidaysInRange = allHolidays.filter(holiday => {
       const holidayDate = parseISO(holiday.date);
-      return isWithinInterval(holidayDate, { start, end });
+      const dayOfWeek = getDay(holidayDate);
+      // Wyklucz niedziele (0)
+      return isWithinInterval(holidayDate, { start, end }) && dayOfWeek !== 0;
     });
 
     // Oblicz dostępne dni i zmiany w okresie
     const allDaysInRange = eachDayOfInterval({ start, end });
     
-    // Dni robocze (Pn-Pt) MINUS święta
+    // NOWA LOGIKA: Dostępne zmiany = TYLKO dni robocze Pn-Pt (bez świąt) × 3
     const availableWeekdays = allDaysInRange.filter(day => {
       const dayOfWeek = getDay(day);
       const dateStr = format(day, 'yyyy-MM-dd');
@@ -145,7 +147,7 @@ export default function RaportyPage() {
       return isWeekdayDate && !isHoliday;
     }).length;
 
-    // Dostępne soboty (bez świąt)
+    // Dostępne soboty (bez świąt) - do statystyk
     const availableSaturdays = allDaysInRange.filter(day => {
       const dateStr = format(day, 'yyyy-MM-dd');
       const isHoliday = allHolidays.some(h => h.date === dateStr);
@@ -158,8 +160,8 @@ export default function RaportyPage() {
 
     const totalAvailableDays = allDaysInRange.length;
     
-    // Dostępne zmiany = (dni robocze bez świąt * 3) + (weekendy * 1)
-    const totalAvailableShifts = (availableWeekdays * 3) + (availableWeekendDays * 1);
+    // NOWA LOGIKA: Dostępne zmiany = TYLKO dni robocze Pn-Pt × 3 (15/tydzień)
+    const totalAvailableShifts = availableWeekdays * 3;
 
     const calculateStats = (department) => {
       const deptDays = filteredDays.filter(wd => 
@@ -191,17 +193,19 @@ export default function RaportyPage() {
 
       const totalWorkDays = regularDays + overtimeDays;
 
-      // Oblicz zmiany
-      const totalShifts = deptDays.reduce((sum, wd) => sum + (wd.shifts || 0), 0);
+      // NOWA LOGIKA: Zmiany normalne to tylko Pn-Pt, reszta to nadgodziny
       const regularShifts = deptDays.filter(wd => {
         const date = parseISO(wd.date);
         return !isWeekend(date) && !allHolidays.some(h => h.date === wd.date) && !wd.is_downtime;
       }).reduce((sum, wd) => sum + (wd.shifts || 0), 0);
 
+      // Nadgodziny = soboty + niedziele + święta
       const overtimeShifts = deptDays.filter(wd => {
         const date = parseISO(wd.date);
         return (isWeekend(date) || allHolidays.some(h => h.date === wd.date)) && !wd.is_downtime;
       }).reduce((sum, wd) => sum + (wd.shifts || 0), 0);
+
+      const totalShifts = regularShifts + overtimeShifts;
 
       return {
         totalWorkDays,
@@ -232,7 +236,7 @@ export default function RaportyPage() {
         availableWeekdays,
         availableSaturdays,
         availableWeekendDays,
-        totalAvailableShifts,
+        totalAvailableShifts, // Tylko Pn-Pt × 3
         holidaysCount: holidaysInRange.length,
         usedDaysMaszynownia: maszynowniaStats.totalWorkDays,
         usedDaysPakownia: pakowniaStats.totalWorkDays,
@@ -278,9 +282,9 @@ export default function RaportyPage() {
         <div className="bg-white rounded-2xl shadow-lg p-6 mb-6 print:shadow-none print:rounded-none">
           <div className="flex items-center justify-center gap-4 mb-4">
             <img 
-              src="https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?w=120&h=120&fit=crop" 
+              src="https://constract.pl/wp-content/uploads/2024/09/cropped-Constract_logo-2024-01-e1744010411889-2048x557.png" 
               alt="CONSTRACT Logo" 
-              className="w-20 h-20 object-contain rounded-lg"
+              className="h-12 w-auto object-contain"
             />
             <div className="text-center">
               <h1 className="text-3xl font-bold text-slate-900">Kalendarz Pracy Zakładu CONSTRACT</h1>
