@@ -113,7 +113,6 @@ export default function KalendarzPage() {
     mutationFn: (data) => base44.entities.WorkDay.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['workDays'] });
-      setShowDialog(false);
     },
   });
 
@@ -121,7 +120,6 @@ export default function KalendarzPage() {
     mutationFn: ({ id, data }) => base44.entities.WorkDay.update(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['workDays'] });
-      setShowDialog(false);
     },
   });
 
@@ -129,7 +127,6 @@ export default function KalendarzPage() {
     mutationFn: (id) => base44.entities.WorkDay.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['workDays'] });
-      setShowDialog(false);
     },
   });
 
@@ -139,8 +136,14 @@ export default function KalendarzPage() {
   const calendarEnd = endOfWeek(monthEnd, { weekStartsOn: 1 });
   const calendarDays = eachDayOfInterval({ start: calendarStart, end: calendarEnd });
 
+  const getWorkDaysForDate = (date) => {
+    return workDays.filter(wd => isSameDay(new Date(wd.date), date));
+  };
+
   const getWorkDayForDate = (date) => {
-    return workDays.find(wd => isSameDay(new Date(wd.date), date));
+    // Dla kompatybilności z CalendarGrid - zwraca pierwszy wpis
+    const daysForDate = getWorkDaysForDate(date);
+    return daysForDate.length > 0 ? daysForDate[0] : null;
   };
 
   const getHolidayForDate = (date) => {
@@ -161,20 +164,16 @@ export default function KalendarzPage() {
     setShowDialog(true);
   };
 
-  const handleSaveWorkDay = (data) => {
-    const existingWorkDay = getWorkDayForDate(selectedDay);
-    if (existingWorkDay) {
-      updateWorkDayMutation.mutate({ id: existingWorkDay.id, data });
+  const handleSaveWorkDay = (data, editingId) => {
+    if (editingId) {
+      updateWorkDayMutation.mutate({ id: editingId, data });
     } else {
       createWorkDayMutation.mutate(data);
     }
   };
 
-  const handleDeleteWorkDay = () => {
-    const existingWorkDay = getWorkDayForDate(selectedDay);
-    if (existingWorkDay) {
-      deleteWorkDayMutation.mutate(existingWorkDay.id);
-    }
+  const handleDeleteWorkDay = (id) => {
+    deleteWorkDayMutation.mutate(id);
   };
 
   return (
@@ -247,7 +246,7 @@ export default function KalendarzPage() {
         {showDialog && (
           <DayDialog
             selectedDay={selectedDay}
-            existingWorkDay={getWorkDayForDate(selectedDay)}
+            existingWorkDays={getWorkDaysForDate(selectedDay)}
             holiday={getHolidayForDate(selectedDay)}
             onSave={handleSaveWorkDay}
             onDelete={handleDeleteWorkDay}
