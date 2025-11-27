@@ -34,7 +34,7 @@ export default function ReportBalance({ reportData }) {
     : 0;
 
   return (
-    <Card className="mb-6 shadow-lg border-none bg-gradient-to-br from-emerald-50 to-teal-50">
+    <Card className="mb-6 shadow-lg border-none bg-gradient-to-br from-emerald-50 to-teal-50 print:break-inside-avoid">
       <CardHeader className="border-b border-emerald-200">
         <CardTitle className="flex items-center gap-3">
           <div className="p-3 rounded-xl bg-emerald-600 text-white">

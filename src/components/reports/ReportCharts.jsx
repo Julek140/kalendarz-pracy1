@@ -81,11 +81,11 @@ export default function ReportCharts({ reportData }) {
   };
 
   return (
-    <div className="space-y-6 mb-6">
+    <div className="space-y-6 mb-6 print:break-before-page">
       {/* Wykresy dni roboczych */}
       <div className="grid md:grid-cols-2 gap-6">
         {/* Maszynownia - Dni robocze */}
-        <Card className="shadow-lg border-none">
+        <Card className="shadow-lg border-none print:break-inside-avoid">
           <CardHeader className="bg-gradient-to-r from-blue-50 to-blue-100 border-b">
             <CardTitle className="flex items-center gap-2">
               <TrendingUp className="w-5 h-5 text-blue-600" />
@@ -131,7 +131,7 @@ export default function ReportCharts({ reportData }) {
         </Card>
 
         {/* Pakownia - Dni robocze */}
-        <Card className="shadow-lg border-none">
+        <Card className="shadow-lg border-none print:break-inside-avoid">
           <CardHeader className="bg-gradient-to-r from-green-50 to-green-100 border-b">
             <CardTitle className="flex items-center gap-2">
               <TrendingUp className="w-5 h-5 text-green-600" />
@@ -180,7 +180,7 @@ export default function ReportCharts({ reportData }) {
       {/* Wykresy zmian ogółem */}
       <div className="grid md:grid-cols-2 gap-6">
         {/* Maszynownia - Zmiany ogółem */}
-        <Card className="shadow-lg border-none">
+        <Card className="shadow-lg border-none print:break-inside-avoid">
           <CardHeader className="bg-gradient-to-r from-indigo-50 to-indigo-100 border-b">
             <CardTitle className="flex items-center gap-2">
               <TrendingUp className="w-5 h-5 text-indigo-600" />
@@ -226,7 +226,7 @@ export default function ReportCharts({ reportData }) {
         </Card>
 
         {/* Pakownia - Zmiany ogółem */}
-        <Card className="shadow-lg border-none">
+        <Card className="shadow-lg border-none print:break-inside-avoid">
           <CardHeader className="bg-gradient-to-r from-emerald-50 to-emerald-100 border-b">
             <CardTitle className="flex items-center gap-2">
               <TrendingUp className="w-5 h-5 text-emerald-600" />

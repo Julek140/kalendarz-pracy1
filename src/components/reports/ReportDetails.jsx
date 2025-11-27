@@ -57,7 +57,7 @@ export default function ReportDetails({ reportData }) {
   );
 
   return (
-    <Card className="shadow-lg border-none">
+    <Card className="shadow-lg border-none print:break-before-page">
       <CardHeader className="bg-gradient-to-r from-slate-50 to-slate-100 border-b">
         <CardTitle className="text-xl">Szczegółowy wykaz dni pracy</CardTitle>
       </CardHeader>
