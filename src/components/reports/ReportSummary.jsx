@@ -33,7 +33,7 @@ export default function ReportSummary({ reportData }) {
       </div>
 
       {/* Święta - osobna karta */}
-      <Card className="mb-6 shadow-lg border-none bg-gradient-to-r from-red-50 to-pink-50 print:break-inside-avoid">
+      <Card className="mb-6 shadow-lg border-none bg-gradient-to-r from-red-50 to-pink-50">
         <CardHeader className="border-b border-red-200">
           <CardTitle className="flex items-center gap-3">
             <div className="p-3 rounded-xl bg-red-500 text-white">
@@ -68,9 +68,9 @@ export default function ReportSummary({ reportData }) {
         </CardContent>
       </Card>
 
-      <div className="grid md:grid-cols-2 gap-6 print:break-inside-avoid">
+      <div className="grid md:grid-cols-2 gap-6">
         {summaryCards.map((card) => (
-          <Card key={card.title} className="shadow-lg border-none overflow-hidden print:break-inside-avoid">
+          <Card key={card.title} className="shadow-lg border-none overflow-hidden">
             <CardHeader className={`bg-gradient-to-r from-${card.color}-50 to-${card.color}-100 border-b`}>
               <CardTitle className="flex items-center gap-3">
                 <div className={`p-3 rounded-xl bg-${card.color}-500 text-white`}>

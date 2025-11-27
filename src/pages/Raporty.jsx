@@ -275,32 +275,6 @@ export default function RaportyPage() {
             size: A4;
             margin: 1cm;
           }
-          .print-area > div {
-            page-break-inside: avoid;
-            break-inside: avoid;
-          }
-          .print-area .grid {
-            page-break-inside: avoid;
-            break-inside: avoid;
-          }
-          .print-area [class*="Card"] {
-            page-break-inside: avoid;
-            break-inside: avoid;
-            margin-bottom: 16px;
-          }
-          .print-area table {
-            page-break-inside: auto;
-          }
-          .print-area tr {
-            page-break-inside: avoid;
-            break-inside: avoid;
-          }
-          .print-logo {
-            display: block !important;
-          }
-        }
-        .print-logo {
-          display: none;
         }
       `}</style>
       
@@ -376,17 +350,7 @@ export default function RaportyPage() {
 
         {reportGenerated && reportData && (
             <div className="print-area">
-              {/* Logo widoczne tylko w wydruku */}
-              <div className="print-logo mb-6 text-center border-b pb-4">
-                <img 
-                  src="https://constract.pl/wp-content/uploads/2024/09/cropped-Constract_logo-2024-01-e1744010411889-2048x557.png" 
-                  alt="CONSTRACT Logo" 
-                  className="h-16 mx-auto object-contain"
-                />
-                <p className="text-lg font-semibold text-slate-700 mt-2">Raport Kalendarz Pracy Zakładu</p>
-              </div>
-
-              <div className="mb-6 print-hidden">
+              <div className="mb-6 print:hidden">
                 <ReportExport reportData={reportData} />
               </div>
 
