@@ -2,6 +2,7 @@ import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Calendar, FileBarChart, Factory } from "lucide-react";
+import PixelAssistant from "@/components/PixelAssistant";
 import {
   Sidebar,
   SidebarContent,
@@ -99,8 +100,10 @@ export default function Layout({ children }) {
           <div className="flex-1 overflow-auto">
             {children}
           </div>
-        </main>
-      </div>
-    </SidebarProvider>
-  );
-}
+          </main>
+
+          <PixelAssistant />
+          </div>
+          </SidebarProvider>
+          );
+          }
