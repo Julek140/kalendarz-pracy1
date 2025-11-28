@@ -2,7 +2,7 @@ import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Calendar, FileBarChart, Factory } from "lucide-react";
-import PixelAssistant from "@/components/PixelAssistant";
+import SidebarAssistant from "@/components/SidebarAssistant";
 import {
   Sidebar,
   SidebarContent,
