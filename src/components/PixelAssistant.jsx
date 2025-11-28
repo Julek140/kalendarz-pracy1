@@ -66,11 +66,21 @@ const PixelSnufkin = ({ isWaving }) => (
 export default function PixelAssistant() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([
-    { role: "assistant", content: "Cześć! 🎒 Jestem Włóczykij. Choć lubię wędrować samotnie, chętnie pomogę Ci z kalendarzem pracy!" }
+    { role: "assistant", content: "Cześć! 🎒 Jestem Pomocny Włóczykij. Choć lubię wędrować samotnie, chętnie pomogę Ci z kalendarzem pracy!" }
   ]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isWaving, setIsWaving] = useState(false);
   const messagesEndRef = useRef(null);
+
+  // Animacja machania co 3-4 sekundy
+  useEffect(() => {
+    const waveInterval = setInterval(() => {
+      setIsWaving(true);
+      setTimeout(() => setIsWaving(false), 600);
+    }, 3500);
+    return () => clearInterval(waveInterval);
+  }, []);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
