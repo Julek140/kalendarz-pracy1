@@ -134,8 +134,8 @@ Pytanie użytkownika: ${userMessage}`,
                 {PIXEL_SNUFKIN_SVG}
               </div>
               <div>
-                <h3 className="font-bold">Asystent</h3>
-                <p className="text-xs text-indigo-200">Zawsze chętny pomóc!</p>
+                <h3 className="font-bold">Włóczykij</h3>
+                <p className="text-xs text-indigo-200">Wędrowiec z Doliny Muminków</p>
               </div>
             </div>
             <Button
