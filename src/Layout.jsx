@@ -74,19 +74,20 @@ export default function Layout({ children }) {
             </SidebarGroup>
           </SidebarContent>
 
-          <SidebarFooter className="border-t border-slate-200 p-4">
-            <div className="text-center space-y-1">
-              <div className="flex items-center justify-center gap-1.5 text-xs text-slate-500">
-                <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-slate-200 text-slate-600 font-semibold text-[10px]">
-                  ©
-                </span>
-                <span>2025 CONSTRACT</span>
-              </div>
-              <p className="text-xs text-slate-400">
-                Created by Julian Ostrowski
-              </p>
-            </div>
-          </SidebarFooter>
+          <SidebarFooter className="p-0">
+                        <SidebarAssistant />
+                        <div className="text-center py-2 border-t border-slate-200">
+                          <div className="flex items-center justify-center gap-1.5 text-xs text-slate-500">
+                            <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-slate-200 text-slate-600 font-semibold text-[10px]">
+                              ©
+                            </span>
+                            <span>2025 CONSTRACT</span>
+                          </div>
+                          <p className="text-xs text-slate-400">
+                            Created by Julian Ostrowski
+                          </p>
+                        </div>
+                      </SidebarFooter>
         </Sidebar>
 
         <main className="flex-1 flex flex-col">
@@ -102,7 +103,7 @@ export default function Layout({ children }) {
           </div>
           </main>
 
-          <PixelAssistant />
+
           </div>
           </SidebarProvider>
           );
