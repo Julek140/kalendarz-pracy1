@@ -163,7 +163,7 @@ Pytanie użytkownika: ${userMessage}`,
                 <PixelSnufkin isWaving={false} />
               </div>
               <div>
-                <h3 className="font-bold">Włóczykij</h3>
+                <h3 className="font-bold">Pomocny Włóczykij</h3>
                 <p className="text-xs text-indigo-200">Wędrowiec z Doliny Muminków</p>
               </div>
             </div>
