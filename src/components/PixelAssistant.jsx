@@ -143,8 +143,8 @@ Pytanie użytkownika: ${userMessage}`,
           className="fixed bottom-6 right-6 z-50 animate-bounce hover:animate-none transition-all duration-300 hover:scale-110 group"
         >
           <div className="relative">
-            <div className="bg-indigo-600 rounded-full p-3 shadow-lg group-hover:bg-indigo-700 transition-colors">
-              {PIXEL_SNUFKIN_SVG}
+            <div className="bg-gradient-to-br from-amber-400 via-orange-400 to-amber-500 rounded-full p-3 shadow-lg group-hover:from-amber-500 group-hover:via-orange-500 group-hover:to-amber-600 transition-all border-2 border-amber-300">
+              <PixelSnufkin isWaving={isWaving} />
             </div>
             <div className="absolute -top-12 right-0 bg-white rounded-lg shadow-lg px-3 py-2 text-sm font-medium text-slate-700 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">
               Potrzebujesz pomocy? 💬
