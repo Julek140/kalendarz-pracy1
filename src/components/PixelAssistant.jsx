@@ -47,7 +47,7 @@ const PIXEL_SNUFKIN_SVG = (
 export default function PixelAssistant() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([
-    { role: "assistant", content: "Cześć! 👋 Jestem Twoim asystentem. Jak mogę Ci pomóc w obsłudze kalendarza pracy?" }
+    { role: "assistant", content: "Cześć! 🎒 Jestem Włóczykij. Choć lubię wędrować samotnie, chętnie pomogę Ci z kalendarzem pracy!" }
   ]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
