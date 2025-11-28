@@ -115,7 +115,7 @@ Pytanie użytkownika: ${userMessage}`,
         >
           <div className="relative">
             <div className="bg-indigo-600 rounded-full p-3 shadow-lg group-hover:bg-indigo-700 transition-colors">
-              {PIXEL_ASSISTANT_SVG}
+              {PIXEL_SNUFKIN_SVG}
             </div>
             <div className="absolute -top-12 right-0 bg-white rounded-lg shadow-lg px-3 py-2 text-sm font-medium text-slate-700 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">
               Potrzebujesz pomocy? 💬
@@ -131,7 +131,7 @@ Pytanie użytkownika: ${userMessage}`,
           <div className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-4 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="bg-white/20 rounded-full p-1">
-                {PIXEL_ASSISTANT_SVG}
+                {PIXEL_SNUFKIN_SVG}
               </div>
               <div>
                 <h3 className="font-bold">Asystent</h3>
