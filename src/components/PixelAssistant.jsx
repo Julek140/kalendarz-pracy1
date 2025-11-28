@@ -6,7 +6,7 @@ import { X, Send, Loader2 } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 
 // Pixelowy Włóczykij z Muminków - z zielonym kapeluszem i harmonijką
-const PIXEL_SNUFKIN_SVG = (
+const PixelSnufkin = ({ isWaving }) => (
   <svg width="48" height="48" viewBox="0 0 16 16" className="pixel-art">
     {/* Kapelusz - zielony z szerokim rondem */}
     <rect x="6" y="0" width="4" height="1" fill="#2D5016"/>
@@ -28,13 +28,32 @@ const PIXEL_SNUFKIN_SVG = (
     <rect x="3" y="10" width="10" height="1" fill="#4A7C23"/>
     <rect x="3" y="11" width="10" height="1" fill="#3D6B1E"/>
     
-    {/* Harmonijka w ręku */}
-    <rect x="1" y="10" width="2" height="1" fill="#FFE4C4"/>
-    <rect x="0" y="11" width="3" height="1" fill="#C0392B"/>
-    <rect x="0" y="12" width="3" height="1" fill="#E74C3C"/>
+    {/* Lewa ręka z harmonijką - animowana */}
+    {isWaving ? (
+      <>
+        <rect x="1" y="8" width="2" height="1" fill="#FFE4C4"/>
+        <rect x="0" y="7" width="2" height="1" fill="#FFE4C4"/>
+        <rect x="-1" y="6" width="3" height="1" fill="#C0392B"/>
+        <rect x="-1" y="5" width="3" height="1" fill="#E74C3C"/>
+      </>
+    ) : (
+      <>
+        <rect x="1" y="10" width="2" height="1" fill="#FFE4C4"/>
+        <rect x="0" y="11" width="3" height="1" fill="#C0392B"/>
+        <rect x="0" y="12" width="3" height="1" fill="#E74C3C"/>
+      </>
+    )}
     
-    {/* Druga ręka */}
-    <rect x="13" y="10" width="2" height="1" fill="#FFE4C4"/>
+    {/* Prawa ręka - animowana machanie */}
+    {isWaving ? (
+      <>
+        <rect x="13" y="8" width="2" height="1" fill="#FFE4C4"/>
+        <rect x="14" y="7" width="2" height="1" fill="#FFE4C4"/>
+        <rect x="15" y="6" width="1" height="1" fill="#FFE4C4"/>
+      </>
+    ) : (
+      <rect x="13" y="10" width="2" height="1" fill="#FFE4C4"/>
+    )}
     
     {/* Nogi */}
     <rect x="4" y="12" width="3" height="1" fill="#8B4513"/>
