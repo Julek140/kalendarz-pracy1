@@ -5,31 +5,42 @@ import { Card } from "@/components/ui/card";
 import { X, Send, Loader2 } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 
-const PIXEL_ASSISTANT_SVG = (
+// Pixelowy Włóczykij z Muminków - z zielonym kapeluszem i harmonijką
+const PIXEL_SNUFKIN_SVG = (
   <svg width="48" height="48" viewBox="0 0 16 16" className="pixel-art">
-    <rect x="5" y="1" width="6" height="1" fill="#4F46E5"/>
-    <rect x="4" y="2" width="8" height="1" fill="#4F46E5"/>
-    <rect x="3" y="3" width="10" height="1" fill="#FFE4C4"/>
-    <rect x="3" y="4" width="10" height="1" fill="#FFE4C4"/>
-    <rect x="4" y="5" width="2" height="1" fill="#1E293B"/>
-    <rect x="10" y="5" width="2" height="1" fill="#1E293B"/>
-    <rect x="3" y="5" width="1" height="1" fill="#FFE4C4"/>
-    <rect x="6" y="5" width="4" height="1" fill="#FFE4C4"/>
-    <rect x="12" y="5" width="1" height="1" fill="#FFE4C4"/>
-    <rect x="3" y="6" width="10" height="1" fill="#FFE4C4"/>
-    <rect x="6" y="7" width="4" height="1" fill="#FF6B6B"/>
-    <rect x="3" y="7" width="3" height="1" fill="#FFE4C4"/>
-    <rect x="10" y="7" width="3" height="1" fill="#FFE4C4"/>
-    <rect x="4" y="8" width="8" height="1" fill="#4F46E5"/>
-    <rect x="3" y="9" width="10" height="1" fill="#4F46E5"/>
-    <rect x="3" y="10" width="4" height="1" fill="#4F46E5"/>
-    <rect x="9" y="10" width="4" height="1" fill="#4F46E5"/>
-    <rect x="2" y="9" width="1" height="3" fill="#FFE4C4"/>
-    <rect x="13" y="9" width="1" height="3" fill="#FFE4C4"/>
-    <rect x="3" y="11" width="4" height="1" fill="#1E293B"/>
-    <rect x="9" y="11" width="4" height="1" fill="#1E293B"/>
-    <rect x="3" y="12" width="2" height="1" fill="#1E293B"/>
-    <rect x="11" y="12" width="2" height="1" fill="#1E293B"/>
+    {/* Kapelusz - zielony z szerokim rondem */}
+    <rect x="6" y="0" width="4" height="1" fill="#2D5016"/>
+    <rect x="5" y="1" width="6" height="1" fill="#3D6B1E"/>
+    <rect x="4" y="2" width="8" height="1" fill="#3D6B1E"/>
+    <rect x="3" y="3" width="10" height="1" fill="#4A7C23"/>
+    <rect x="2" y="4" width="12" height="1" fill="#2D5016"/>
+    
+    {/* Twarz */}
+    <rect x="5" y="5" width="6" height="1" fill="#FFE4C4"/>
+    <rect x="4" y="6" width="8" height="1" fill="#FFE4C4"/>
+    <rect x="5" y="6" width="2" height="1" fill="#1E293B"/>
+    <rect x="9" y="6" width="2" height="1" fill="#1E293B"/>
+    <rect x="4" y="7" width="8" height="1" fill="#FFE4C4"/>
+    <rect x="6" y="8" width="4" height="1" fill="#D4A574"/>
+    
+    {/* Płaszcz zielony */}
+    <rect x="4" y="9" width="8" height="1" fill="#3D6B1E"/>
+    <rect x="3" y="10" width="10" height="1" fill="#4A7C23"/>
+    <rect x="3" y="11" width="10" height="1" fill="#3D6B1E"/>
+    
+    {/* Harmonijka w ręku */}
+    <rect x="1" y="10" width="2" height="1" fill="#FFE4C4"/>
+    <rect x="0" y="11" width="3" height="1" fill="#C0392B"/>
+    <rect x="0" y="12" width="3" height="1" fill="#E74C3C"/>
+    
+    {/* Druga ręka */}
+    <rect x="13" y="10" width="2" height="1" fill="#FFE4C4"/>
+    
+    {/* Nogi */}
+    <rect x="4" y="12" width="3" height="1" fill="#8B4513"/>
+    <rect x="9" y="12" width="3" height="1" fill="#8B4513"/>
+    <rect x="4" y="13" width="2" height="1" fill="#654321"/>
+    <rect x="10" y="13" width="2" height="1" fill="#654321"/>
   </svg>
 );
 
