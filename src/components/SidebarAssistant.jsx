@@ -46,6 +46,24 @@ const PixelSnufkin = ({ isWaving, size = 32 }) => (
   </svg>
 );
 
+const SNUFKIN_QUOTES = [
+  "Nie warto martwić się na zapas.",
+  "Wolność jest najważniejsza.",
+  "Najlepiej iść własną drogą.",
+  "Cisza też potrafi być przyjacielem.",
+  "Świat jest pełen rzeczy, które czekają, by je zobaczyć.",
+  "Najlepiej jest wędrować bez pośpiechu.",
+  "Samotność jest czasem potrzebna.",
+  "Zawsze znajdzie się ścieżka, jeśli się ją chce znaleźć.",
+  "Każda przygoda zaczyna się od ciekawości.",
+  "Nie bój się odejść, jeśli wiesz, że musisz iść dalej.",
+  "Wolność to nie mieć nic, co cię zatrzymuje.",
+  "Warto czekać na właściwy moment.",
+  "Świat jest piękny, kiedy umiesz patrzeć.",
+  "Nie wszystko trzeba brać ze sobą w drogę.",
+  "Najbardziej lubię poranki nad rzeką."
+];
+
 export default function SidebarAssistant() {
   const [isExpanded, setIsExpanded] = useState(false);
   const [messages, setMessages] = useState([
@@ -54,6 +72,8 @@ export default function SidebarAssistant() {
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isWaving, setIsWaving] = useState(false);
+  const [currentQuote, setCurrentQuote] = useState("");
+  const [showQuote, setShowQuote] = useState(false);
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
@@ -63,6 +83,29 @@ export default function SidebarAssistant() {
     }, 3500);
     return () => clearInterval(waveInterval);
   }, []);
+
+  // Losowe cytaty co 8-12 sekund
+  useEffect(() => {
+    if (isExpanded) return; // Nie pokazuj cytatów gdy chat jest rozwinięty
+    
+    const showRandomQuote = () => {
+      const randomQuote = SNUFKIN_QUOTES[Math.floor(Math.random() * SNUFKIN_QUOTES.length)];
+      setCurrentQuote(randomQuote);
+      setShowQuote(true);
+      setTimeout(() => setShowQuote(false), 4000); // Ukryj po 4 sekundach
+    };
+
+    // Pokaż pierwszy cytat po 3 sekundach
+    const initialTimeout = setTimeout(showRandomQuote, 3000);
+    
+    // Następne cytaty co 10 sekund
+    const quoteInterval = setInterval(showRandomQuote, 10000);
+
+    return () => {
+      clearTimeout(initialTimeout);
+      clearInterval(quoteInterval);
+    };
+  }, [isExpanded]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -121,10 +164,10 @@ Pytanie użytkownika: ${userMessage}`,
       {/* Header - always visible */}
       <button
         onClick={() => setIsExpanded(!isExpanded)}
-        className="w-full p-3 flex items-center justify-between hover:bg-slate-100 transition-colors"
+        className="w-full p-3 flex items-center justify-between hover:bg-slate-100 transition-colors relative"
       >
         <div className="flex items-center gap-3">
-          <div className="bg-gradient-to-br from-amber-400 via-orange-400 to-amber-500 rounded-full p-1.5 shadow-sm border border-amber-300">
+          <div className="bg-gradient-to-br from-amber-400 via-orange-400 to-amber-500 rounded-full p-1.5 shadow-sm border border-amber-300 relative">
             <PixelSnufkin isWaving={isWaving} size={28} />
           </div>
           <div className="text-left">
@@ -136,6 +179,16 @@ Pytanie użytkownika: ${userMessage}`,
           <ChevronDown className="w-5 h-5 text-slate-400" />
         ) : (
           <ChevronUp className="w-5 h-5 text-slate-400" />
+        )}
+        
+        {/* Dymek z cytatem */}
+        {showQuote && !isExpanded && (
+          <div className="absolute bottom-full left-2 mb-2 z-50 animate-in fade-in slide-in-from-bottom-2 duration-300">
+            <div className="bg-white rounded-lg shadow-lg border border-slate-200 px-3 py-2 max-w-[200px] relative">
+              <p className="text-xs text-slate-600 italic">„{currentQuote}"</p>
+              <div className="absolute -bottom-1.5 left-4 w-3 h-3 bg-white border-r border-b border-slate-200 transform rotate-45"></div>
+            </div>
+          </div>
         )}
       </button>
 
