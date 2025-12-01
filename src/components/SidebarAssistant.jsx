@@ -92,7 +92,7 @@ export default function SidebarAssistant() {
       const randomQuote = SNUFKIN_QUOTES[Math.floor(Math.random() * SNUFKIN_QUOTES.length)];
       setCurrentQuote(randomQuote);
       setShowQuote(true);
-      setTimeout(() => setShowQuote(false), 4000); // Ukryj po 4 sekundach
+      setTimeout(() => setShowQuote(false), 6000); // Ukryj po 6 sekundach
     };
 
     // Pokaż pierwszy cytat po 3 sekundach

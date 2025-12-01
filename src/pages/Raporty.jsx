@@ -15,6 +15,7 @@ import ReportBalance from "../components/reports/ReportBalance";
 import ReportCharts from "../components/reports/ReportCharts";
 import ReportExport from "../components/reports/ReportExport";
 import ReportComparison from "../components/reports/ReportComparison";
+import ReportYearComparison from "../components/reports/ReportYearComparison";
 
 const polishHolidays = [
   // 2025
@@ -364,6 +365,13 @@ export default function RaportyPage() {
 
         {/* Porównanie miesięcy - zawsze widoczne */}
         <ReportComparison 
+          workDays={workDays} 
+          holidays={customHolidays} 
+          polishHolidays={polishHolidays} 
+        />
+
+        {/* Porównanie lat */}
+        <ReportYearComparison 
           workDays={workDays} 
           holidays={customHolidays} 
           polishHolidays={polishHolidays} 
