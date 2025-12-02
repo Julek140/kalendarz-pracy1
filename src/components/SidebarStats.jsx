@@ -79,15 +79,26 @@ export default function SidebarStats() {
       percentDiff = ((totalShiftsThisYear - totalShiftsLastYear) / totalShiftsLastYear) * 100;
     }
 
-    // Dostępne dni robocze do końca roku
-    const remainingDays = eachDayOfInterval({ start: today, end: yearEnd });
+    // Dostępne dni robocze do końca roku (od jutra)
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    
+    const remainingDays = tomorrow <= yearEnd ? eachDayOfInterval({ start: tomorrow, end: yearEnd }) : [];
     const holidays = currentYear === 2025 ? polishHolidays2025 : polishHolidays2024;
+    
+    // Dni już wbite (pracy lub przestój) w przyszłości
+    const futureWorkDays = workDays.filter(wd => {
+      const date = parseISO(wd.date);
+      return date >= tomorrow && date <= yearEnd;
+    }).map(wd => wd.date);
+    
     const remainingWorkdays = remainingDays.filter(day => {
       const dayOfWeek = getDay(day);
       const dateStr = format(day, 'yyyy-MM-dd');
       const isWeekday = dayOfWeek >= 1 && dayOfWeek <= 5;
       const isHoliday = holidays.includes(dateStr);
-      return isWeekday && !isHoliday;
+      const isAlreadyBooked = futureWorkDays.includes(dateStr);
+      return isWeekday && !isHoliday && !isAlreadyBooked;
     }).length;
 
     // Potencjalne zmiany do końca roku
