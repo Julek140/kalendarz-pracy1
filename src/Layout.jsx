@@ -2,8 +2,7 @@ import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Calendar, FileBarChart, Factory } from "lucide-react";
-import SidebarStats from "@/components/SidebarStats";
-import FloatingAssistant from "@/components/FloatingAssistant";
+import SidebarAssistant from "@/components/SidebarAssistant";
 import {
   Sidebar,
   SidebarContent,
@@ -76,7 +75,7 @@ export default function Layout({ children }) {
           </SidebarContent>
 
           <SidebarFooter className="p-0">
-                                    <SidebarStats />
+                        <SidebarAssistant />
                         <div className="text-center py-2 border-t border-slate-200">
                           <div className="flex items-center justify-center gap-1.5 text-xs text-slate-500">
                             <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-slate-200 text-slate-600 font-semibold text-[10px]">
@@ -102,7 +101,6 @@ export default function Layout({ children }) {
           <div className="flex-1 overflow-auto">
             {children}
           </div>
-          <FloatingAssistant />
           </main>
 
 
