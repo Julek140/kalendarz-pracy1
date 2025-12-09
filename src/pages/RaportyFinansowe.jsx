@@ -1,15 +1,38 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DollarSign, TrendingUp, Calendar, BarChart3 } from "lucide-react";
-import { format, parseISO, isWithinInterval, eachWeekOfInterval, startOfWeek, endOfWeek, getWeek, startOfMonth, endOfMonth, eachMonthOfInterval } from "date-fns";
+import { format, parseISO, isWithinInterval, eachWeekOfInterval, startOfWeek, endOfWeek, getWeek, startOfMonth, endOfMonth, eachMonthOfInterval, getYear } from "date-fns";
 import { pl } from "date-fns/locale";
 
+const MONTHS = [
+  { value: "01", label: "Styczeń" },
+  { value: "02", label: "Luty" },
+  { value: "03", label: "Marzec" },
+  { value: "04", label: "Kwiecień" },
+  { value: "05", label: "Maj" },
+  { value: "06", label: "Czerwiec" },
+  { value: "07", label: "Lipiec" },
+  { value: "08", label: "Sierpień" },
+  { value: "09", label: "Wrzesień" },
+  { value: "10", label: "Październik" },
+  { value: "11", label: "Listopad" },
+  { value: "12", label: "Grudzień" },
+];
+
+const YEARS = ["2024", "2025", "2026", "2027", "2028", "2029"];
+
 export default function RaportyFinansowePage() {
+  const [mode, setMode] = useState("month");
+  const [selectedMonth, setSelectedMonth] = useState("");
+  const [selectedYear, setSelectedYear] = useState(getYear(new Date()).toString());
+  const [selectedWeek, setSelectedWeek] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [reportGenerated, setReportGenerated] = useState(false);
@@ -21,11 +44,44 @@ export default function RaportyFinansowePage() {
     initialData: [],
   });
 
+  useEffect(() => {
+    if (mode === "month" && selectedMonth && selectedYear) {
+      const start = startOfMonth(new Date(parseInt(selectedYear), parseInt(selectedMonth) - 1));
+      const end = endOfMonth(start);
+      setStartDate(format(start, 'yyyy-MM-dd'));
+      setEndDate(format(end, 'yyyy-MM-dd'));
+      generateReportAuto(start, end);
+    }
+  }, [selectedMonth, selectedYear, mode]);
+
+  useEffect(() => {
+    if (mode === "week" && selectedWeek && selectedYear) {
+      const weekNum = parseInt(selectedWeek);
+      const yearStart = new Date(parseInt(selectedYear), 0, 1);
+      const weeks = eachWeekOfInterval({ start: yearStart, end: new Date(parseInt(selectedYear), 11, 31) }, { weekStartsOn: 1 });
+      const targetWeek = weeks.find(w => getWeek(w, { weekStartsOn: 1, locale: pl }) === weekNum);
+      if (targetWeek) {
+        const start = startOfWeek(targetWeek, { weekStartsOn: 1 });
+        const end = endOfWeek(targetWeek, { weekStartsOn: 1 });
+        setStartDate(format(start, 'yyyy-MM-dd'));
+        setEndDate(format(end, 'yyyy-MM-dd'));
+        generateReportAuto(start, end);
+      }
+    }
+  }, [selectedWeek, selectedYear, mode]);
+
+  const generateReportAuto = (start, end) => {
+    generateReportInternal(start, end);
+  };
+
   const generateReport = () => {
     if (!startDate || !endDate) return;
-
     const start = parseISO(startDate);
     const end = parseISO(endDate);
+    generateReportInternal(start, end);
+  };
+
+  const generateReportInternal = (start, end) => {
 
     const filteredDays = workDays.filter(wd => {
       const workDate = parseISO(wd.date);
@@ -107,6 +163,21 @@ export default function RaportyFinansowePage() {
     setReportGenerated(true);
   };
 
+  const getWeeksForYear = (year) => {
+    const yearStart = new Date(parseInt(year), 0, 1);
+    const yearEnd = new Date(parseInt(year), 11, 31);
+    const weeks = eachWeekOfInterval({ start: yearStart, end: yearEnd }, { weekStartsOn: 1 });
+    return weeks.map(w => {
+      const weekNum = getWeek(w, { weekStartsOn: 1, locale: pl });
+      const wStart = startOfWeek(w, { weekStartsOn: 1 });
+      const wEnd = endOfWeek(w, { weekStartsOn: 1 });
+      return {
+        value: weekNum.toString(),
+        label: `Tydzień ${weekNum} (${format(wStart, 'd MMM', { locale: pl })} - ${format(wEnd, 'd MMM', { locale: pl })})`
+      };
+    });
+  };
+
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('pl-PL', { style: 'currency', currency: 'PLN' }).format(amount);
   };
@@ -132,44 +203,116 @@ export default function RaportyFinansowePage() {
           <CardHeader className="bg-gradient-to-r from-emerald-50 to-green-50 border-b">
             <CardTitle className="flex items-center gap-2">
               <Calendar className="w-5 h-5 text-emerald-600" />
-              Wybierz zakres dat
+              Wybierz okres raportu
             </CardTitle>
           </CardHeader>
           <CardContent className="p-6">
-            <div className="grid md:grid-cols-3 gap-6 items-end">
-              <div>
-                <Label htmlFor="startDate" className="text-sm font-medium mb-2 block">
-                  Data początkowa
-                </Label>
-                <Input
-                  id="startDate"
-                  type="date"
-                  value={startDate}
-                  onChange={(e) => setStartDate(e.target.value)}
-                  className="w-full"
-                />
-              </div>
-              <div>
-                <Label htmlFor="endDate" className="text-sm font-medium mb-2 block">
-                  Data końcowa
-                </Label>
-                <Input
-                  id="endDate"
-                  type="date"
-                  value={endDate}
-                  onChange={(e) => setEndDate(e.target.value)}
-                  className="w-full"
-                />
-              </div>
-              <Button
-                onClick={generateReport}
-                disabled={!startDate || !endDate}
-                className="bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 h-10"
-              >
-                <BarChart3 className="w-4 h-4 mr-2" />
-                Generuj raport
-              </Button>
-            </div>
+            <Tabs value={mode} onValueChange={setMode} className="w-full">
+              <TabsList className="grid w-full grid-cols-3 mb-6">
+                <TabsTrigger value="month">Miesiąc</TabsTrigger>
+                <TabsTrigger value="week">Tydzień</TabsTrigger>
+                <TabsTrigger value="custom">Własny zakres</TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="month">
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <Label className="text-sm font-medium mb-2 block">Miesiąc</Label>
+                    <Select value={selectedMonth} onValueChange={setSelectedMonth}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Wybierz miesiąc" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {MONTHS.map(m => (
+                          <SelectItem key={m.value} value={m.value}>{m.label}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label className="text-sm font-medium mb-2 block">Rok</Label>
+                    <Select value={selectedYear} onValueChange={setSelectedYear}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {YEARS.map(y => (
+                          <SelectItem key={y} value={y}>{y}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="week">
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <Label className="text-sm font-medium mb-2 block">Tydzień</Label>
+                    <Select value={selectedWeek} onValueChange={setSelectedWeek}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Wybierz tydzień" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {getWeeksForYear(selectedYear).map(w => (
+                          <SelectItem key={w.value} value={w.value}>{w.label}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label className="text-sm font-medium mb-2 block">Rok</Label>
+                    <Select value={selectedYear} onValueChange={setSelectedYear}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {YEARS.map(y => (
+                          <SelectItem key={y} value={y}>{y}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="custom">
+                <div className="grid md:grid-cols-3 gap-6 items-end">
+                  <div>
+                    <Label htmlFor="startDate" className="text-sm font-medium mb-2 block">
+                      Data początkowa
+                    </Label>
+                    <Input
+                      id="startDate"
+                      type="date"
+                      value={startDate}
+                      onChange={(e) => setStartDate(e.target.value)}
+                      className="w-full"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="endDate" className="text-sm font-medium mb-2 block">
+                      Data końcowa
+                    </Label>
+                    <Input
+                      id="endDate"
+                      type="date"
+                      value={endDate}
+                      onChange={(e) => setEndDate(e.target.value)}
+                      className="w-full"
+                    />
+                  </div>
+                  <Button
+                    onClick={generateReport}
+                    disabled={!startDate || !endDate}
+                    className="bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 h-10"
+                  >
+                    <BarChart3 className="w-4 h-4 mr-2" />
+                    Generuj raport
+                  </Button>
+                </div>
+              </TabsContent>
+            </Tabs>
           </CardContent>
         </Card>
 
