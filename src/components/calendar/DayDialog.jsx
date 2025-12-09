@@ -7,6 +7,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -35,12 +36,14 @@ export default function DayDialog({
   const isWeekday = dayOfWeek >= 1 && dayOfWeek <= 5;
   const defaultShifts = isWeekday ? 3 : 1;
   const [shifts, setShifts] = useState(defaultShifts);
+  const [revenue, setRevenue] = useState("");
 
   const startNewEntry = () => {
     setEditingId(null);
     setDepartment("OBA_DZIALY");
     setIsDowntime(false);
     setShifts(defaultShifts);
+    setRevenue("");
     setNotes("");
     setShowForm(true);
   };
@@ -50,6 +53,7 @@ export default function DayDialog({
     setDepartment(workDay.department);
     setIsDowntime(workDay.is_downtime || false);
     setShifts(workDay.shifts || defaultShifts);
+    setRevenue(workDay.revenue ? workDay.revenue.toString() : "");
     setNotes(workDay.notes || "");
     setShowForm(true);
   };
@@ -60,6 +64,7 @@ export default function DayDialog({
       department,
       shifts: isDowntime ? 0 : shifts,
       is_downtime: isDowntime,
+      revenue: revenue ? parseFloat(revenue) : undefined,
       notes: notes.trim() || undefined,
     };
 
@@ -115,6 +120,11 @@ export default function DayDialog({
                         </div>
                         <div className="text-sm text-slate-600">
                           <span className="font-medium">Zmiany:</span> {workDay.shifts || 0}
+                          {workDay.revenue && (
+                            <span className="ml-3">
+                              <span className="font-medium">Obrót:</span> {new Intl.NumberFormat('pl-PL', { style: 'currency', currency: 'PLN' }).format(workDay.revenue)}
+                            </span>
+                          )}
                           {workDay.notes && (
                             <span className="ml-3">
                               <span className="font-medium">Uwagi:</span> {workDay.notes}
@@ -237,6 +247,23 @@ export default function DayDialog({
                   <Label htmlFor="downtime" className="cursor-pointer flex-1 font-medium">
                     ⏸️ Przestój (brak pracy)
                   </Label>
+                </div>
+
+                {/* Revenue Input */}
+                <div>
+                  <Label htmlFor="revenue" className="text-base font-semibold mb-2 block">
+                    Obrót finansowy (PLN):
+                  </Label>
+                  <Input
+                    id="revenue"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={revenue}
+                    onChange={(e) => setRevenue(e.target.value)}
+                    placeholder="np. 15000.00"
+                    className="text-lg"
+                  />
                 </div>
 
                 {/* Notes */}

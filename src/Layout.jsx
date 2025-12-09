@@ -28,6 +28,11 @@ const navigationItems = [
     url: createPageUrl("Raporty"),
     icon: FileBarChart,
   },
+  {
+    title: "Raporty Finansowe",
+    url: createPageUrl("RaportyFinansowe"),
+    icon: Factory,
+  },
 ];
 
 export default function Layout({ children }) {
