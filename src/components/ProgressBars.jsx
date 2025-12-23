@@ -4,6 +4,7 @@ import { Progress } from "@/components/ui/progress";
 import { Calendar, TrendingUp, Target, Edit2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 
@@ -11,6 +12,7 @@ export default function ProgressBars() {
   const [isEditingGoal, setIsEditingGoal] = useState(false);
   const [goalInput, setGoalInput] = useState("");
   const [yearlyGoal, setYearlyGoal] = useState(null);
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
 
   // Pobierz cel z bazy danych użytkownika
   const { data: user } = useQuery({
@@ -23,7 +25,7 @@ export default function ProgressBars() {
 
   useEffect(() => {
     if (user?.yearly_goals) {
-      const goalForYear = user.yearly_goals.find(g => g.year === currentYear);
+      const goalForYear = user.yearly_goals.find(g => g.year === selectedYear);
       if (goalForYear) {
         setYearlyGoal(goalForYear.goal);
         setGoalInput(goalForYear.goal.toString());
@@ -32,7 +34,7 @@ export default function ProgressBars() {
         setGoalInput("");
       }
     }
-  }, [user, currentYear]);
+  }, [user, selectedYear]);
 
   // Oblicz dni roku
   const startOfYear = new Date(now.getFullYear(), 0, 1);
@@ -49,22 +51,22 @@ export default function ProgressBars() {
     initialData: [],
   });
 
-  const currentYearRevenue = workDays
+  const selectedYearRevenue = workDays
     .filter(wd => {
       const date = new Date(wd.date);
-      return date.getFullYear() === now.getFullYear() && !wd.is_downtime;
+      return date.getFullYear() === selectedYear && !wd.is_downtime;
     })
     .reduce((sum, wd) => sum + (wd.revenue || 0), 0);
 
-  const financialProgress = yearlyGoal > 0 ? (currentYearRevenue / yearlyGoal) * 100 : 0;
+  const financialProgress = yearlyGoal > 0 ? (selectedYearRevenue / yearlyGoal) * 100 : 0;
 
   const handleSaveGoal = async () => {
     const newGoal = parseFloat(goalInput);
     if (!isNaN(newGoal) && newGoal > 0) {
       try {
         const existingGoals = user?.yearly_goals || [];
-        const updatedGoals = existingGoals.filter(g => g.year !== currentYear);
-        updatedGoals.push({ year: currentYear, goal: newGoal });
+        const updatedGoals = existingGoals.filter(g => g.year !== selectedYear);
+        updatedGoals.push({ year: selectedYear, goal: newGoal });
         
         await base44.auth.updateMe({ yearly_goals: updatedGoals });
         setYearlyGoal(newGoal);
@@ -101,17 +103,32 @@ export default function ProgressBars() {
             <TrendingUp className="w-4 h-4 text-emerald-600" />
             <span className="text-sm font-semibold text-emerald-900">Cel finansowy</span>
           </div>
-          <button
-            onClick={() => setIsEditingGoal(!isEditingGoal)}
-            className="text-emerald-600 hover:text-emerald-800 transition-colors"
-          >
-            <Edit2 className="w-3 h-3" />
-          </button>
+          <div className="flex items-center gap-2">
+            <Select value={selectedYear.toString()} onValueChange={(val) => setSelectedYear(parseInt(val))}>
+              <SelectTrigger className="h-6 w-16 text-xs border-emerald-300">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="2024">2024</SelectItem>
+                <SelectItem value="2025">2025</SelectItem>
+                <SelectItem value="2026">2026</SelectItem>
+                <SelectItem value="2027">2027</SelectItem>
+                <SelectItem value="2028">2028</SelectItem>
+                <SelectItem value="2029">2029</SelectItem>
+              </SelectContent>
+            </Select>
+            <button
+              onClick={() => setIsEditingGoal(!isEditingGoal)}
+              className="text-emerald-600 hover:text-emerald-800 transition-colors"
+            >
+              <Edit2 className="w-3 h-3" />
+            </button>
+          </div>
         </div>
 
         {isEditingGoal ? (
           <div className="space-y-2 mb-2">
-            <p className="text-xs text-emerald-700 font-semibold">Cel dla roku {currentYear}</p>
+            <p className="text-xs text-emerald-700 font-semibold">Cel dla roku {selectedYear}</p>
             <div className="flex gap-2">
               <Input
                 type="number"
@@ -127,12 +144,11 @@ export default function ProgressBars() {
           </div>
         ) : yearlyGoal ? (
           <>
-            <p className="text-xs text-emerald-700 mb-1">Rok {currentYear}</p>
             <Progress value={Math.min(financialProgress, 100)} className="h-2 mb-2 bg-emerald-200" />
             <div className="space-y-1">
               <div className="flex justify-between text-xs text-emerald-700">
                 <span>Osiągnięte:</span>
-                <span className="font-semibold">{formatCurrency(currentYearRevenue)}</span>
+                <span className="font-semibold">{formatCurrency(selectedYearRevenue)}</span>
               </div>
               <div className="flex justify-between text-xs text-emerald-700">
                 <span>Cel:</span>
