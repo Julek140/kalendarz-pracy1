@@ -157,21 +157,9 @@ export default function RaportyFinansowePage() {
     const avgWeeklyRevenue = weeklyData.length > 0 ? weeklyData.reduce((sum, w) => sum + w.totalRevenue, 0) / weeklyData.length : 0;
     
     // Oblicz potrzebny średni obrót miesięczny do osiągnięcia celu
-    const now = new Date();
     const reportYear = new Date(start).getFullYear();
     const yearlyGoal = getYearlyGoal(reportYear);
-    const monthsLeftInYear = reportYear === now.getFullYear() ? 12 - now.getMonth() : 12;
-    
-    // Suma obrotów z roku raportu
-    const yearRevenue = workDays
-      .filter(wd => {
-        const date = new Date(wd.date);
-        return date.getFullYear() === reportYear && !wd.is_downtime;
-      })
-      .reduce((sum, wd) => sum + (wd.revenue || 0), 0);
-    
-    const remainingToGoal = yearlyGoal - yearRevenue;
-    const requiredAvgMonthlyRevenue = monthsLeftInYear > 0 ? remainingToGoal / monthsLeftInYear : 0;
+    const requiredAvgMonthlyRevenue = yearlyGoal / 12;
 
     setReportData({
       startDate,
