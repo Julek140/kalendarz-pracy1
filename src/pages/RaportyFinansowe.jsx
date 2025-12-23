@@ -49,7 +49,11 @@ export default function RaportyFinansowePage() {
     queryFn: () => base44.auth.me(),
   });
 
-  const yearlyGoal = user?.yearly_financial_goal || 0;
+  const getYearlyGoal = (year) => {
+    if (!user?.yearly_goals) return 0;
+    const goalForYear = user.yearly_goals.find(g => g.year === year);
+    return goalForYear ? goalForYear.goal : 0;
+  };
 
   useEffect(() => {
     if (mode === "month" && selectedMonth && selectedYear) {
@@ -154,18 +158,19 @@ export default function RaportyFinansowePage() {
     
     // Oblicz potrzebny średni obrót miesięczny do osiągnięcia celu
     const now = new Date();
-    const currentYear = now.getFullYear();
-    const monthsLeftInYear = 12 - now.getMonth();
+    const reportYear = new Date(start).getFullYear();
+    const yearlyGoal = getYearlyGoal(reportYear);
+    const monthsLeftInYear = reportYear === now.getFullYear() ? 12 - now.getMonth() : 12;
     
-    // Suma obrotów z bieżącego roku
-    const currentYearRevenue = workDays
+    // Suma obrotów z roku raportu
+    const yearRevenue = workDays
       .filter(wd => {
         const date = new Date(wd.date);
-        return date.getFullYear() === currentYear && !wd.is_downtime;
+        return date.getFullYear() === reportYear && !wd.is_downtime;
       })
       .reduce((sum, wd) => sum + (wd.revenue || 0), 0);
     
-    const remainingToGoal = yearlyGoal - currentYearRevenue;
+    const remainingToGoal = yearlyGoal - yearRevenue;
     const requiredAvgMonthlyRevenue = monthsLeftInYear > 0 ? remainingToGoal / monthsLeftInYear : 0;
 
     setReportData({
@@ -363,9 +368,7 @@ export default function RaportyFinansowePage() {
                   <Calendar className="w-10 h-10 mb-3 opacity-80" />
                   <p className="text-sm opacity-90 mb-1">Potrzebny śr. obrót miesięczny</p>
                   <p className="text-3xl font-bold">{formatCurrency(reportData.requiredAvgMonthlyRevenue)}</p>
-                  {yearlyGoal > 0 && (
-                    <p className="text-xs opacity-75 mt-1">Do osiągnięcia celu rocznego</p>
-                  )}
+                  <p className="text-xs opacity-75 mt-1">Do celu roku {new Date(reportData.startDate).getFullYear()}</p>
                 </CardContent>
               </Card>
 

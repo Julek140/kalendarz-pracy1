@@ -18,15 +18,23 @@ export default function ProgressBars() {
     queryFn: () => base44.auth.me(),
   });
 
+  const now = new Date();
+  const currentYear = now.getFullYear();
+
   useEffect(() => {
-    if (user?.yearly_financial_goal) {
-      setYearlyGoal(user.yearly_financial_goal);
-      setGoalInput(user.yearly_financial_goal.toString());
+    if (user?.yearly_goals) {
+      const goalForYear = user.yearly_goals.find(g => g.year === currentYear);
+      if (goalForYear) {
+        setYearlyGoal(goalForYear.goal);
+        setGoalInput(goalForYear.goal.toString());
+      } else {
+        setYearlyGoal(null);
+        setGoalInput("");
+      }
     }
-  }, [user]);
+  }, [user, currentYear]);
 
   // Oblicz dni roku
-  const now = new Date();
   const startOfYear = new Date(now.getFullYear(), 0, 1);
   const endOfYear = new Date(now.getFullYear(), 11, 31);
   const daysPassed = Math.floor((now - startOfYear) / (1000 * 60 * 60 * 24)) + 1;
@@ -54,7 +62,11 @@ export default function ProgressBars() {
     const newGoal = parseFloat(goalInput);
     if (!isNaN(newGoal) && newGoal > 0) {
       try {
-        await base44.auth.updateMe({ yearly_financial_goal: newGoal });
+        const existingGoals = user?.yearly_goals || [];
+        const updatedGoals = existingGoals.filter(g => g.year !== currentYear);
+        updatedGoals.push({ year: currentYear, goal: newGoal });
+        
+        await base44.auth.updateMe({ yearly_goals: updatedGoals });
         setYearlyGoal(newGoal);
         setIsEditingGoal(false);
       } catch (error) {
@@ -98,20 +110,24 @@ export default function ProgressBars() {
         </div>
 
         {isEditingGoal ? (
-          <div className="flex gap-2 mb-2">
-            <Input
-              type="number"
-              value={goalInput}
-              onChange={(e) => setGoalInput(e.target.value)}
-              placeholder="Cel roczny"
-              className="h-8 text-xs"
-            />
-            <Button onClick={handleSaveGoal} size="sm" className="h-8 px-2 text-xs bg-emerald-600 hover:bg-emerald-700">
-              Zapisz
-            </Button>
+          <div className="space-y-2 mb-2">
+            <p className="text-xs text-emerald-700 font-semibold">Cel dla roku {currentYear}</p>
+            <div className="flex gap-2">
+              <Input
+                type="number"
+                value={goalInput}
+                onChange={(e) => setGoalInput(e.target.value)}
+                placeholder="Cel roczny"
+                className="h-8 text-xs"
+              />
+              <Button onClick={handleSaveGoal} size="sm" className="h-8 px-2 text-xs bg-emerald-600 hover:bg-emerald-700">
+                Zapisz
+              </Button>
+            </div>
           </div>
         ) : yearlyGoal ? (
           <>
+            <p className="text-xs text-emerald-700 mb-1">Rok {currentYear}</p>
             <Progress value={Math.min(financialProgress, 100)} className="h-2 mb-2 bg-emerald-200" />
             <div className="space-y-1">
               <div className="flex justify-between text-xs text-emerald-700">
