@@ -44,6 +44,13 @@ export default function RaportyFinansowePage() {
     initialData: [],
   });
 
+  const { data: user } = useQuery({
+    queryKey: ['currentUser'],
+    queryFn: () => base44.auth.me(),
+  });
+
+  const yearlyGoal = user?.yearly_financial_goal || 0;
+
   useEffect(() => {
     if (mode === "month" && selectedMonth && selectedYear) {
       const start = startOfMonth(new Date(parseInt(selectedYear), parseInt(selectedMonth) - 1));
@@ -144,7 +151,22 @@ export default function RaportyFinansowePage() {
     const totalDays = filteredDays.length;
     const totalShifts = filteredDays.reduce((sum, wd) => sum + (wd.shifts || 0), 0);
     const avgWeeklyRevenue = weeklyData.length > 0 ? weeklyData.reduce((sum, w) => sum + w.totalRevenue, 0) / weeklyData.length : 0;
-    const avgMonthlyRevenue = monthlyData.length > 0 ? monthlyData.reduce((sum, m) => sum + m.totalRevenue, 0) / monthlyData.length : 0;
+    
+    // Oblicz potrzebny średni obrót miesięczny do osiągnięcia celu
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    const monthsLeftInYear = 12 - now.getMonth();
+    
+    // Suma obrotów z bieżącego roku
+    const currentYearRevenue = workDays
+      .filter(wd => {
+        const date = new Date(wd.date);
+        return date.getFullYear() === currentYear && !wd.is_downtime;
+      })
+      .reduce((sum, wd) => sum + (wd.revenue || 0), 0);
+    
+    const remainingToGoal = yearlyGoal - currentYearRevenue;
+    const requiredAvgMonthlyRevenue = monthsLeftInYear > 0 ? remainingToGoal / monthsLeftInYear : 0;
 
     setReportData({
       startDate,
@@ -153,7 +175,7 @@ export default function RaportyFinansowePage() {
       totalDays,
       totalShifts,
       avgWeeklyRevenue,
-      avgMonthlyRevenue,
+      requiredAvgMonthlyRevenue,
       revenuePerDay: totalDays > 0 ? totalRevenue / totalDays : 0,
       revenuePerShift: totalShifts > 0 ? totalRevenue / totalShifts : 0,
       weeklyData,
@@ -339,16 +361,19 @@ export default function RaportyFinansowePage() {
               <Card className="shadow-lg border-none bg-gradient-to-br from-purple-500 to-pink-600 text-white">
                 <CardContent className="p-6">
                   <Calendar className="w-10 h-10 mb-3 opacity-80" />
-                  <p className="text-sm opacity-90 mb-1">Śr. obrót miesięczny</p>
-                  <p className="text-3xl font-bold">{formatCurrency(reportData.avgMonthlyRevenue)}</p>
+                  <p className="text-sm opacity-90 mb-1">Potrzebny śr. obrót miesięczny</p>
+                  <p className="text-3xl font-bold">{formatCurrency(reportData.requiredAvgMonthlyRevenue)}</p>
+                  {yearlyGoal > 0 && (
+                    <p className="text-xs opacity-75 mt-1">Do osiągnięcia celu rocznego</p>
+                  )}
                 </CardContent>
               </Card>
 
               <Card className="shadow-lg border-none bg-gradient-to-br from-orange-500 to-red-600 text-white">
                 <CardContent className="p-6">
                   <BarChart3 className="w-10 h-10 mb-3 opacity-80" />
-                  <p className="text-sm opacity-90 mb-1">Dni przepracowane</p>
-                  <p className="text-3xl font-bold">{reportData.totalDays}</p>
+                  <p className="text-sm opacity-90 mb-1">Zmiany przepracowane</p>
+                  <p className="text-3xl font-bold">{reportData.totalShifts}</p>
                 </CardContent>
               </Card>
             </div>
