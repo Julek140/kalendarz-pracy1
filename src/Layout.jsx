@@ -34,6 +34,11 @@ const navigationItems = [
     url: createPageUrl("RaportyFinansowe"),
     icon: Factory,
   },
+  {
+    title: "Raport Roczny",
+    url: createPageUrl("RaportRoczny"),
+    icon: FileBarChart,
+  },
 ];
 
 export default function Layout({ children }) {
