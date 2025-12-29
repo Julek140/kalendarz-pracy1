@@ -96,7 +96,7 @@ export default function RaportyFinansowePage() {
 
     const filteredDays = workDays.filter(wd => {
       const workDate = parseISO(wd.date);
-      return isWithinInterval(workDate, { start, end }) && !wd.is_downtime;
+      return isWithinInterval(workDate, { start, end });
     });
 
     // Dane tygodniowe

@@ -54,7 +54,7 @@ export default function ProgressBars() {
   const selectedYearRevenue = workDays
     .filter(wd => {
       const date = new Date(wd.date);
-      return date.getFullYear() === selectedYear && !wd.is_downtime;
+      return date.getFullYear() === selectedYear;
     })
     .reduce((sum, wd) => sum + (wd.revenue || 0), 0);
 

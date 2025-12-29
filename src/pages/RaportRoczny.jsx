@@ -30,7 +30,7 @@ export default function RaportRocznyPage() {
     // Filtruj dane dla wybranego roku
     const yearWorkDays = workDays.filter(wd => {
       const date = new Date(wd.date);
-      return date.getFullYear() === year && !wd.is_downtime;
+      return date.getFullYear() === year;
     });
 
     // Agregacja miesięczna
