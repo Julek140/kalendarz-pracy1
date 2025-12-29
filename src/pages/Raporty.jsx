@@ -196,13 +196,13 @@ export default function RaportyPage() {
       // NOWA LOGIKA: Zmiany normalne to tylko Pn-Pt, reszta to nadgodziny
       const regularShifts = deptDays.filter(wd => {
         const date = parseISO(wd.date);
-        return !isWeekend(date) && !allHolidays.some(h => h.date === wd.date) && !wd.is_downtime;
+        return !isWeekend(date) && !allHolidays.some(h => h.date === wd.date);
       }).reduce((sum, wd) => sum + (wd.shifts || 0), 0);
 
       // Nadgodziny = soboty + niedziele + święta
       const overtimeShifts = deptDays.filter(wd => {
         const date = parseISO(wd.date);
-        return (isWeekend(date) || allHolidays.some(h => h.date === wd.date)) && !wd.is_downtime;
+        return (isWeekend(date) || allHolidays.some(h => h.date === wd.date));
       }).reduce((sum, wd) => sum + (wd.shifts || 0), 0);
 
       const totalShifts = regularShifts + overtimeShifts;
