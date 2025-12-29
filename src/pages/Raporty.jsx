@@ -173,14 +173,12 @@ export default function RaportyPage() {
       const regularDays = deptDays.filter(wd => {
         const date = parseISO(wd.date);
         return !isWeekend(date) && 
-               !allHolidays.some(h => h.date === wd.date) && 
-               !wd.is_downtime;
+               !allHolidays.some(h => h.date === wd.date);
       }).length;
 
       const overtimeDays = deptDays.filter(wd => {
         const date = parseISO(wd.date);
-        return (isWeekend(date) || allHolidays.some(h => h.date === wd.date)) && 
-               !wd.is_downtime;
+        return (isWeekend(date) || allHolidays.some(h => h.date === wd.date));
       }).length;
 
       const downtimeDays = deptDays.filter(wd => wd.is_downtime).length;
@@ -190,7 +188,7 @@ export default function RaportyPage() {
         const date = parseISO(wd.date);
         const dateStr = format(date, 'yyyy-MM-dd');
         const isHoliday = allHolidays.some(h => h.date === dateStr);
-        return getDay(date) === 6 && !wd.is_downtime && !isHoliday;
+        return getDay(date) === 6 && !isHoliday;
       }).length;
 
       const totalWorkDays = regularDays + overtimeDays;
