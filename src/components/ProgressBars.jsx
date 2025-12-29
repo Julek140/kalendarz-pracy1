@@ -103,12 +103,12 @@ export default function ProgressBars() {
             <TrendingUp className="w-4 h-4 text-emerald-600" />
             <span className="text-sm font-semibold text-emerald-900">Cel finansowy</span>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1">
             <Select value={selectedYear.toString()} onValueChange={(val) => setSelectedYear(parseInt(val))}>
-              <SelectTrigger className="h-6 w-16 text-xs border-emerald-300">
+              <SelectTrigger className="h-7 w-[70px] text-xs border-emerald-300">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent align="end">
                 <SelectItem value="2024">2024</SelectItem>
                 <SelectItem value="2025">2025</SelectItem>
                 <SelectItem value="2026">2026</SelectItem>
@@ -119,7 +119,7 @@ export default function ProgressBars() {
             </Select>
             <button
               onClick={() => setIsEditingGoal(!isEditingGoal)}
-              className="text-emerald-600 hover:text-emerald-800 transition-colors"
+              className="text-emerald-600 hover:text-emerald-800 transition-colors p-1"
             >
               <Edit2 className="w-3 h-3" />
             </button>

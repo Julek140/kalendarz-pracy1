@@ -331,10 +331,10 @@ Format odpowiedzi jako JSON:
                 </CardHeader>
                 <CardContent className="p-6">
                   <ResponsiveContainer width="100%" height={300}>
-                    <LineChart data={reportData.monthlyData}>
+                    <LineChart data={reportData.monthlyData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
                       <CartesianGrid strokeDasharray="3 3" />
                       <XAxis dataKey="month" angle={-45} textAnchor="end" height={80} />
-                      <YAxis />
+                      <YAxis width={80} tickFormatter={(value) => `${(value / 1000000).toFixed(1)}M`} />
                       <Tooltip formatter={(value) => formatCurrency(value)} />
                       <Legend />
                       <Line type="monotone" dataKey="totalRevenue" stroke="#4F46E5" strokeWidth={3} name="Obrót" />
@@ -350,10 +350,10 @@ Format odpowiedzi jako JSON:
                 </CardHeader>
                 <CardContent className="p-6">
                   <ResponsiveContainer width="100%" height={300}>
-                    <BarChart data={reportData.monthlyData}>
+                    <BarChart data={reportData.monthlyData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
                       <CartesianGrid strokeDasharray="3 3" />
                       <XAxis dataKey="month" angle={-45} textAnchor="end" height={80} />
-                      <YAxis />
+                      <YAxis width={80} tickFormatter={(value) => `${(value / 1000000).toFixed(1)}M`} />
                       <Tooltip formatter={(value) => formatCurrency(value)} />
                       <Legend />
                       <Bar dataKey="totalRevenue" fill="#10B981" name="Obrót" />
@@ -370,10 +370,10 @@ Format odpowiedzi jako JSON:
               </CardHeader>
               <CardContent className="p-6">
                 <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={reportData.quarterlyData}>
+                  <BarChart data={reportData.quarterlyData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="quarter" />
-                    <YAxis />
+                    <YAxis width={80} tickFormatter={(value) => `${(value / 1000000).toFixed(1)}M`} />
                     <Tooltip formatter={(value) => formatCurrency(value)} />
                     <Legend />
                     <Bar dataKey="totalRevenue" fill="#9333EA" name="Obrót kwartału" />
