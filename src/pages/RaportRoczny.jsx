@@ -118,57 +118,69 @@ export default function RaportRocznyPage() {
 
     // Generuj analizę AI
     try {
-      const prompt = `Jesteś ekspertem analityki biznesowej. Przeanalizuj dane finansowe zakładu produkcyjnego za rok ${year}.
+      const prompt = `Jesteś ekspertem analityki biznesowej specjalizującym się w produkcji kontraktowej.
 
-DANE ROCZNE:
-- Całkowity obrót: ${formatCurrency(totalYearRevenue)}
-- Średni obrót miesięczny: ${formatCurrency(avgMonthlyRevenue)}
-- Przepracowane dni: ${totalYearDays}
-- Przepracowane zmiany: ${totalYearShifts}
+      KONTEKST FIRMY:
+      CONSTRACT to zakład produkcji kontraktowej, który wytwarza wyroby dla dużych korporacji (m.in. IKEA). 
+      Firma NIE ma własnych produktów i NIE prowadzi działań marketingowych konsumenckich.
+      Obroty zależą od zamówień od klientów B2B, ich sezonowości i cykli produkcyjnych.
 
-DANE MIESIĘCZNE:
-${monthlyData.map(m => `${m.month}: ${formatCurrency(m.totalRevenue)} (${m.totalDays} dni, ${m.totalShifts} zmian)`).join('\n')}
+      DANE ROCZNE ${year}:
+      - Całkowity obrót: ${formatCurrency(totalYearRevenue)}
+      - Średni obrót miesięczny: ${formatCurrency(avgMonthlyRevenue)}
+      - Przepracowane dni: ${totalYearDays}
+      - Przepracowane zmiany: ${totalYearShifts}
 
-NAJLEPSZY MIESIĄC: ${bestMonth.month} - ${formatCurrency(bestMonth.totalRevenue)}
-NAJSŁABSZY MIESIĄC: ${worstMonth.month} - ${formatCurrency(worstMonth.totalRevenue)}
+      DANE MIESIĘCZNE:
+      ${monthlyData.map(m => `${m.month}: ${formatCurrency(m.totalRevenue)} (${m.totalDays} dni, ${m.totalShifts} zmian)`).join('\n')}
 
-KWARTAŁY:
-Q1: ${formatCurrency(quarterlyData[0].totalRevenue)}
-Q2: ${formatCurrency(quarterlyData[1].totalRevenue)}
-Q3: ${formatCurrency(quarterlyData[2].totalRevenue)}
-Q4: ${formatCurrency(quarterlyData[3].totalRevenue)}
+      NAJLEPSZY MIESIĄC: ${bestMonth.month} - ${formatCurrency(bestMonth.totalRevenue)}
+      NAJSŁABSZY MIESIĄC: ${worstMonth.month} - ${formatCurrency(worstMonth.totalRevenue)}
 
-Wygeneruj PROFESJONALNY RAPORT zawierający:
+      KWARTAŁY:
+      Q1: ${formatCurrency(quarterlyData[0].totalRevenue)}
+      Q2: ${formatCurrency(quarterlyData[1].totalRevenue)}
+      Q3: ${formatCurrency(quarterlyData[2].totalRevenue)}
+      Q4: ${formatCurrency(quarterlyData[3].totalRevenue)}
 
-1. PODSUMOWANIE ROKU (3-4 zdania):
-   - Ogólna charakterystyka roku
-   - Porównanie pierwszej i drugiej połowy roku
-   - Główne obserwacje
+      Wygeneruj PROFESJONALNY RAPORT DLA ZARZĄDU zawierający:
 
-2. ANALIZA MIESIĘCZNA (1-2 zdania dla każdego miesiąca):
-   - Komentarz dla każdego miesiąca
-   - Czy był powyżej/poniżej średniej
-   - Zauważalne wzorce
+      1. PODSUMOWANIE ROKU (3-4 zdania):
+      - Ocena realizacji produkcji i wykorzystania mocy wytwórczych
+      - Porównanie dynamiki zamówień między pierwszą a drugą połową roku
+      - Wpływ sezonowości klientów i okresów przestojowych
+      - Ogólna wydajność operacyjna zakładu
 
-3. TREND ROCZNY:
-   - Określ czy rok był: wzrostowy, spadkowy, stabilny czy sezonowy
-   - Uzasadnienie
+      2. ANALIZA MIESIĘCZNA (1-2 zwięzłe zdania dla każdego miesiąca):
+      - Ocena poziomu produkcji względem średniej
+      - Związek z sezonowością zamówień od klientów B2B
+      - Ewentualne przestoje lub okresy intensywnej produkcji
 
-4. WNIOSKI I REKOMENDACJE (4-5 punktów):
-   - Konkretne wnioski biznesowe
-   - Rekomendacje na przyszłość
+      3. TREND ROCZNY:
+      - Określ charakterystykę roku: wzrostowy, spadkowy, stabilny, sezonowy
+      - Powiąż z cyklami zamówień od głównych klientów
+      - Ocena przewidywalności wolumenu produkcji
 
-Format odpowiedzi jako JSON:
-{
-  "podsumowanie_roku": "tekst",
-  "analiza_miesieczna": {
-    "styczeń": "tekst",
-    "luty": "tekst",
-    ...
-  },
-  "trend": "tekst",
-  "wnioski": ["punkt 1", "punkt 2", ...]
-}`;
+      4. WNIOSKI I REKOMENDACJE (5-6 punktów):
+      - Konkretne wnioski operacyjne dotyczące wykorzystania mocy produkcyjnych
+      - Rekomendacje dotyczące planowania produkcji i zarządzania personelem
+      - Propozycje optymalizacji w relacjach z klientami B2B
+      - Obszary do poprawy w zakresie efektywności produkcji
+      - NIE PROPONUJ akcji marketingowych ani rozwoju własnych produktów
+
+      Styl komunikacji: biznesowy, merytoryczny, skoncentrowany na produkcji kontraktowej i relacjach B2B.
+
+      Format odpowiedzi jako JSON:
+      {
+      "podsumowanie_roku": "tekst",
+      "analiza_miesieczna": {
+      "styczeń": "tekst",
+      "luty": "tekst",
+      ...
+      },
+      "trend": "tekst",
+      "wnioski": ["punkt 1", "punkt 2", ...]
+      }`;
 
       const analysis = await base44.integrations.Core.InvokeLLM({
         prompt,
