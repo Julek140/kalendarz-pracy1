@@ -4,7 +4,7 @@ import { createPageUrl } from "@/utils";
 import { Calendar, FileBarChart, Factory, Languages } from "lucide-react";
 import FloatingAssistant from "@/components/FloatingAssistant";
 import ProgressBars from "@/components/ProgressBars";
-import { useLanguage } from "@/components/LanguageContext";
+import { LanguageProvider, useLanguage } from "@/components/LanguageContext";
 import { t } from "@/components/translations";
 import { Button } from "@/components/ui/button";
 import {
@@ -21,7 +21,7 @@ import {
   SidebarFooter,
 } from "@/components/ui/sidebar";
 
-export default function Layout({ children }) {
+function LayoutContent({ children }) {
   const location = useLocation();
   const { language, changeLanguage } = useLanguage();
   
@@ -157,7 +157,15 @@ export default function Layout({ children }) {
         </main>
 
         <FloatingAssistant />
-        </div>
-        </SidebarProvider>
-        );
-        }
+      </div>
+    </SidebarProvider>
+  );
+}
+
+export default function Layout({ children }) {
+  return (
+    <LanguageProvider>
+      <LayoutContent>{children}</LayoutContent>
+    </LanguageProvider>
+  );
+}
