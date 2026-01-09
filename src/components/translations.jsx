@@ -1,0 +1,234 @@
+export const translations = {
+  pl: {
+    // Navigation
+    calendar: "Kalendarz",
+    reports: "Raporty",
+    financialReports: "Raporty Finansowe",
+    annualReport: "Raport Roczny",
+    workCalendar: "Kalendarz Pracy",
+    
+    // Common
+    save: "Zapisz",
+    cancel: "Anuluj",
+    delete: "Usuń",
+    edit: "Edytuj",
+    add: "Dodaj",
+    close: "Zamknij",
+    generate: "Generuj",
+    export: "Eksportuj",
+    
+    // Departments
+    maszynownia: "MASZYNOWNIA",
+    pakownia: "PAKOWNIA",
+    obaDzialy: "OBA DZIAŁY",
+    
+    // Calendar
+    legend: "Legenda:",
+    normalDay: "Dzień normalny",
+    holiday: "Święto",
+    downtime: "Przestój",
+    weekend: "Weekend",
+    addHolidays: "Dodaj święta",
+    
+    // Work details
+    dayDetails: "Szczegóły dnia",
+    department: "Dział",
+    shifts: "Zmiany",
+    downtime: "Przestój",
+    revenueIkea: "Obrót IKEA SUPPLY (PLN)",
+    revenueOthers: "Obrót POZOSTALI (PLN)",
+    notes: "Uwagi",
+    workEntries: "Wpisy pracy",
+    addNewEntry: "Dodaj nowy wpis",
+    
+    // Progress bars
+    dayOfYear: "Dzień roku",
+    day: "Dzień",
+    daysRemaining: "Pozostało {days} dni",
+    financialGoal: "Cel finansowy",
+    achieved: "Osiągnięte:",
+    goal: "Cel:",
+    progress: "Postęp:",
+    setYearlyGoal: "Ustaw cel roczny",
+    yearlyGoalFor: "Cel dla roku {year}",
+    
+    // Reports
+    selectDateRange: "Wybierz zakres dat",
+    startDate: "Data początkowa",
+    endDate: "Data końcowa",
+    generateReport: "Generuj raport",
+    totalRevenue: "Całkowity obrót",
+    avgWeeklyRevenue: "Śr. obrót tygodniowy",
+    avgMonthlyRevenue: "Śr. obrót miesięczny",
+    requiredAvgMonthly: "Potrzebny śr. obrót miesięczny",
+    shiftsWorked: "Zmiany przepracowane",
+    financialPerformance: "Wydajność finansowa",
+    revenuePerDay: "Obrót na dzień przepracowany",
+    revenuePerShift: "Obrót na zmianę przepracowaną",
+    daysWorked: "dni przepracowanych",
+    shiftsWorkedCount: "zmian przepracowanych",
+    weeklyRevenue: "Obroty tygodniowe",
+    monthlyRevenue: "Obroty miesięczne",
+    
+    // Annual report
+    selectYear: "Wybierz rok do analizy",
+    generateAnnualReport: "Generuj raport roczny",
+    generating: "Generowanie...",
+    totalYearRevenue: "Całkowity obrót {year}",
+    yearSummary: "Podsumowanie roku {year}",
+    monthlyTrend: "Trend miesięczny",
+    monthComparison: "Porównanie miesięcy",
+    quarterlyAnalysis: "Analiza kwartalna",
+    bestMonth: "Najlepszy miesiąc",
+    worstMonth: "Najsłabszy miesiąc",
+    bestQuarter: "Najlepszy kwartał",
+    worstQuarter: "Najsłabszy kwartał",
+    monthlyAnalysis: "Analiza miesięczna",
+    aboveAverage: "Powyżej średniej",
+    belowAverage: "Poniżej średniej",
+    yearlyTrend: "Trend roczny",
+    conclusionsRecommendations: "Wnioski końcowe i rekomendacje",
+    
+    // Revenue breakdown
+    combinedRevenue: "Obrót łączny",
+    ikeaRevenue: "Obrót IKEA SUPPLY",
+    othersRevenue: "Obrót POZOSTALI",
+    revenueBreakdown: "Podział obrotu",
+    
+    // Months
+    january: "Styczeń",
+    february: "Luty",
+    march: "Marzec",
+    april: "Kwiecień",
+    may: "Maj",
+    june: "Czerwiec",
+    july: "Lipiec",
+    august: "Sierpień",
+    september: "Wrzesień",
+    october: "Październik",
+    november: "Listopad",
+    december: "Grudzień",
+  },
+  
+  en: {
+    // Navigation
+    calendar: "Calendar",
+    reports: "Reports",
+    financialReports: "Financial Reports",
+    annualReport: "Annual Report",
+    workCalendar: "Work Calendar",
+    
+    // Common
+    save: "Save",
+    cancel: "Cancel",
+    delete: "Delete",
+    edit: "Edit",
+    add: "Add",
+    close: "Close",
+    generate: "Generate",
+    export: "Export",
+    
+    // Departments
+    maszynownia: "MACHINE SHOP",
+    pakownia: "PACKING",
+    obaDzialy: "BOTH DEPARTMENTS",
+    
+    // Calendar
+    legend: "Legend:",
+    normalDay: "Normal day",
+    holiday: "Holiday",
+    downtime: "Downtime",
+    weekend: "Weekend",
+    addHolidays: "Add holidays",
+    
+    // Work details
+    dayDetails: "Day details",
+    department: "Department",
+    shifts: "Shifts",
+    downtime: "Downtime",
+    revenueIkea: "IKEA SUPPLY Revenue (PLN)",
+    revenueOthers: "OTHER CLIENTS Revenue (PLN)",
+    notes: "Notes",
+    workEntries: "Work entries",
+    addNewEntry: "Add new entry",
+    
+    // Progress bars
+    dayOfYear: "Day of year",
+    day: "Day",
+    daysRemaining: "{days} days remaining",
+    financialGoal: "Financial goal",
+    achieved: "Achieved:",
+    goal: "Goal:",
+    progress: "Progress:",
+    setYearlyGoal: "Set yearly goal",
+    yearlyGoalFor: "Goal for year {year}",
+    
+    // Reports
+    selectDateRange: "Select date range",
+    startDate: "Start date",
+    endDate: "End date",
+    generateReport: "Generate report",
+    totalRevenue: "Total revenue",
+    avgWeeklyRevenue: "Avg. weekly revenue",
+    avgMonthlyRevenue: "Avg. monthly revenue",
+    requiredAvgMonthly: "Required avg. monthly",
+    shiftsWorked: "Shifts worked",
+    financialPerformance: "Financial performance",
+    revenuePerDay: "Revenue per worked day",
+    revenuePerShift: "Revenue per shift worked",
+    daysWorked: "days worked",
+    shiftsWorkedCount: "shifts worked",
+    weeklyRevenue: "Weekly revenue",
+    monthlyRevenue: "Monthly revenue",
+    
+    // Annual report
+    selectYear: "Select year for analysis",
+    generateAnnualReport: "Generate annual report",
+    generating: "Generating...",
+    totalYearRevenue: "Total revenue {year}",
+    yearSummary: "Summary of year {year}",
+    monthlyTrend: "Monthly trend",
+    monthComparison: "Month comparison",
+    quarterlyAnalysis: "Quarterly analysis",
+    bestMonth: "Best month",
+    worstMonth: "Worst month",
+    bestQuarter: "Best quarter",
+    worstQuarter: "Worst quarter",
+    monthlyAnalysis: "Monthly analysis",
+    aboveAverage: "Above average",
+    belowAverage: "Below average",
+    yearlyTrend: "Yearly trend",
+    conclusionsRecommendations: "Final conclusions and recommendations",
+    
+    // Revenue breakdown
+    combinedRevenue: "Combined revenue",
+    ikeaRevenue: "IKEA SUPPLY Revenue",
+    othersRevenue: "OTHER CLIENTS Revenue",
+    revenueBreakdown: "Revenue breakdown",
+    
+    // Months
+    january: "January",
+    february: "February",
+    march: "March",
+    april: "April",
+    may: "May",
+    june: "June",
+    july: "July",
+    august: "August",
+    september: "September",
+    october: "October",
+    november: "November",
+    december: "December",
+  }
+};
+
+export const t = (key, language = 'pl', params = {}) => {
+  let text = translations[language]?.[key] || translations['pl']?.[key] || key;
+  
+  // Replace parameters in text
+  Object.keys(params).forEach(param => {
+    text = text.replace(`{${param}}`, params[param]);
+  });
+  
+  return text;
+};
