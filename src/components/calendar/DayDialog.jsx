@@ -15,6 +15,8 @@ import { format, isWeekend, getDay } from "date-fns";
 import { pl } from "date-fns/locale";
 import { Save, Trash2, X, Plus } from "lucide-react";
 import { Card } from "@/components/ui/card";
+import { useLanguage } from "@/components/LanguageContext";
+import { t } from "@/components/translations";
 
 export default function DayDialog({
   selectedDay,
@@ -36,14 +38,17 @@ export default function DayDialog({
   const isWeekday = dayOfWeek >= 1 && dayOfWeek <= 5;
   const defaultShifts = isWeekday ? 3 : 1;
   const [shifts, setShifts] = useState(defaultShifts);
-  const [revenue, setRevenue] = useState("");
+  const [revenueIkea, setRevenueIkea] = useState("");
+  const [revenueOthers, setRevenueOthers] = useState("");
+  const { language } = useLanguage();
 
   const startNewEntry = () => {
     setEditingId(null);
     setDepartment("OBA_DZIALY");
     setIsDowntime(false);
     setShifts(defaultShifts);
-    setRevenue("");
+    setRevenueIkea("");
+    setRevenueOthers("");
     setNotes("");
     setShowForm(true);
   };
@@ -53,7 +58,8 @@ export default function DayDialog({
     setDepartment(workDay.department);
     setIsDowntime(workDay.is_downtime || false);
     setShifts(workDay.shifts || defaultShifts);
-    setRevenue(workDay.revenue ? workDay.revenue.toString() : "");
+    setRevenueIkea(workDay.revenue_ikea ? workDay.revenue_ikea.toString() : "");
+    setRevenueOthers(workDay.revenue_others ? workDay.revenue_others.toString() : "");
     setNotes(workDay.notes || "");
     setShowForm(true);
   };
@@ -64,7 +70,8 @@ export default function DayDialog({
       department,
       shifts: isDowntime ? 0 : shifts,
       is_downtime: isDowntime,
-      revenue: revenue ? parseFloat(revenue) : undefined,
+      revenue_ikea: revenueIkea ? parseFloat(revenueIkea) : 0,
+      revenue_others: revenueOthers ? parseFloat(revenueOthers) : 0,
       notes: notes.trim() || undefined,
     };
 
@@ -78,9 +85,9 @@ export default function DayDialog({
   };
 
   const getDepartmentBadge = (dept) => {
-    if (dept === "MASZYNOWNIA") return "🏭 Maszynownia";
-    if (dept === "PAKOWNIA") return "📦 Pakownia";
-    if (dept === "OBA_DZIALY") return "🏭📦 Oba działy";
+    if (dept === "MASZYNOWNIA") return `🏭 ${t('maszynownia', language)}`;
+    if (dept === "PAKOWNIA") return `📦 ${t('pakownia', language)}`;
+    if (dept === "OBA_DZIALY") return `🏭📦 ${t('obaDzialy', language)}`;
     return dept;
   };
 
@@ -114,21 +121,32 @@ export default function DayDialog({
                           </span>
                           {workDay.is_downtime && (
                             <span className="text-sm bg-gray-200 text-gray-800 px-2 py-1 rounded">
-                              ⏸️ Przestój
+                              ⏸️ {t('downtime', language)}
                             </span>
                           )}
                         </div>
-                        <div className="text-sm text-slate-600">
-                          <span className="font-medium">Zmiany:</span> {workDay.shifts || 0}
-                          {workDay.revenue && (
-                            <span className="ml-3">
-                              <span className="font-medium">Obrót:</span> {new Intl.NumberFormat('pl-PL', { style: 'currency', currency: 'PLN' }).format(workDay.revenue)}
-                            </span>
+                        <div className="text-sm text-slate-600 space-y-1">
+                          <div>
+                            <span className="font-medium">{t('shifts', language)}:</span> {workDay.shifts || 0}
+                          </div>
+                          {(workDay.revenue_ikea > 0 || workDay.revenue_others > 0) && (
+                            <div className="space-y-1">
+                              {workDay.revenue_ikea > 0 && (
+                                <div className="text-blue-700">
+                                  <span className="font-medium">IKEA SUPPLY:</span> {new Intl.NumberFormat('pl-PL', { style: 'currency', currency: 'PLN' }).format(workDay.revenue_ikea)}
+                                </div>
+                              )}
+                              {workDay.revenue_others > 0 && (
+                                <div className="text-green-700">
+                                  <span className="font-medium">{language === 'pl' ? 'POZOSTALI' : 'OTHERS'}:</span> {new Intl.NumberFormat('pl-PL', { style: 'currency', currency: 'PLN' }).format(workDay.revenue_others)}
+                                </div>
+                              )}
+                            </div>
                           )}
                           {workDay.notes && (
-                            <span className="ml-3">
-                              <span className="font-medium">Uwagi:</span> {workDay.notes}
-                            </span>
+                            <div>
+                              <span className="font-medium">{t('notes', language)}:</span> {workDay.notes}
+                            </div>
                           )}
                         </div>
                       </div>
@@ -139,7 +157,7 @@ export default function DayDialog({
                           onClick={() => startEdit(workDay)}
                           disabled={isProcessing}
                         >
-                          Edytuj
+                          {t('edit', language)}
                         </Button>
                         <Button
                           size="sm"
@@ -165,7 +183,7 @@ export default function DayDialog({
               disabled={isProcessing}
             >
               <Plus className="w-4 h-4 mr-2" />
-              Dodaj {existingWorkDays.length > 0 ? 'kolejny' : ''} wpis
+              {t('addNewEntry', language)}
             </Button>
           )}
 
@@ -173,30 +191,30 @@ export default function DayDialog({
           {showForm && (
             <Card className="p-4 bg-blue-50 border-2 border-blue-300">
               <h3 className="font-semibold mb-4">
-                {editingId ? 'Edytuj wpis' : 'Nowy wpis'}
+                {editingId ? t('edit', language) : t('add', language)} {t('workEntries', language).toLowerCase()}
               </h3>
               
               <div className="space-y-4">
                 {/* Department Selection */}
                 <div>
-                  <Label className="text-base font-semibold mb-3 block">Wybierz dział:</Label>
+                  <Label className="text-base font-semibold mb-3 block">{t('department', language)}:</Label>
                   <RadioGroup value={department} onValueChange={setDepartment}>
                     <div className="flex items-center space-x-2 p-3 rounded-lg hover:bg-blue-100 transition-colors">
                       <RadioGroupItem value="MASZYNOWNIA" id="maszynownia" />
                       <Label htmlFor="maszynownia" className="cursor-pointer flex-1">
-                        🏭 Maszynownia
+                        🏭 {t('maszynownia', language)}
                       </Label>
                     </div>
                     <div className="flex items-center space-x-2 p-3 rounded-lg hover:bg-green-100 transition-colors">
                       <RadioGroupItem value="PAKOWNIA" id="pakownia" />
                       <Label htmlFor="pakownia" className="cursor-pointer flex-1">
-                        📦 Pakownia
+                        📦 {t('pakownia', language)}
                       </Label>
                     </div>
                     <div className="flex items-center space-x-2 p-3 rounded-lg hover:bg-purple-100 transition-colors">
                       <RadioGroupItem value="OBA_DZIALY" id="oba" />
                       <Label htmlFor="oba" className="cursor-pointer flex-1">
-                        🏭📦 Oba działy
+                        🏭📦 {t('obaDzialy', language)}
                       </Label>
                     </div>
                   </RadioGroup>
@@ -206,9 +224,9 @@ export default function DayDialog({
                 {!isDowntime && (
                   <div className="p-4 rounded-lg bg-white border border-indigo-200">
                     <Label className="text-base font-semibold mb-3 block">
-                      Liczba zmian:
+                      {t('shifts', language)}:
                       <span className="text-sm font-normal text-slate-600 ml-2">
-                        ({isWeekday ? 'Pn-Pt: domyślnie 3 zmiany' : 'Weekend: domyślnie 1 zmiana'})
+                        ({isWeekday ? (language === 'pl' ? 'Pn-Pt: domyślnie 3 zmiany' : 'Mon-Fri: default 3 shifts') : (language === 'pl' ? 'Weekend: domyślnie 1 zmiana' : 'Weekend: default 1 shift')})
                       </span>
                     </Label>
                     <div className="space-y-2">
@@ -229,7 +247,7 @@ export default function DayDialog({
                             }}
                           />
                           <Label htmlFor={`shift-${shiftNum}`} className="cursor-pointer flex-1 font-medium">
-                            {shiftNum} {shiftNum === 1 ? 'zmiana' : shiftNum <= 4 ? 'zmiany' : 'zmian'}
+                            {shiftNum} {language === 'pl' ? (shiftNum === 1 ? 'zmiana' : shiftNum <= 4 ? 'zmiany' : 'zmian') : (shiftNum === 1 ? 'shift' : 'shifts')}
                           </Label>
                         </div>
                       ))}
@@ -245,37 +263,55 @@ export default function DayDialog({
                     onCheckedChange={setIsDowntime}
                   />
                   <Label htmlFor="downtime" className="cursor-pointer flex-1 font-medium">
-                    ⏸️ Przestój (brak pracy)
+                    ⏸️ {t('downtime', language)}
                   </Label>
                 </div>
 
-                {/* Revenue Input */}
-                <div>
-                  <Label htmlFor="revenue" className="text-base font-semibold mb-2 block">
-                    Obrót finansowy (PLN):
-                  </Label>
-                  <Input
-                    id="revenue"
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    value={revenue}
-                    onChange={(e) => setRevenue(e.target.value)}
-                    placeholder="np. 15000.00"
-                    className="text-lg"
-                  />
+                {/* Revenue Inputs */}
+                <div className="space-y-3">
+                  <div>
+                    <Label htmlFor="revenue-ikea" className="text-base font-semibold mb-2 block text-blue-700">
+                      {t('revenueIkea', language)}:
+                    </Label>
+                    <Input
+                      id="revenue-ikea"
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={revenueIkea}
+                      onChange={(e) => setRevenueIkea(e.target.value)}
+                      placeholder="0.00"
+                      className="text-lg border-blue-300"
+                    />
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="revenue-others" className="text-base font-semibold mb-2 block text-green-700">
+                      {t('revenueOthers', language)}:
+                    </Label>
+                    <Input
+                      id="revenue-others"
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={revenueOthers}
+                      onChange={(e) => setRevenueOthers(e.target.value)}
+                      placeholder="0.00"
+                      className="text-lg border-green-300"
+                    />
+                  </div>
                 </div>
 
                 {/* Notes */}
                 <div>
                   <Label htmlFor="notes" className="text-base font-semibold mb-2 block">
-                    Uwagi (opcjonalnie):
+                    {t('notes', language)}:
                   </Label>
                   <Textarea
                     id="notes"
                     value={notes}
                     onChange={(e) => setNotes(e.target.value)}
-                    placeholder="Dodatkowe informacje..."
+                    placeholder={language === 'pl' ? 'Dodatkowe informacje...' : 'Additional information...'}
                     rows={3}
                     className="resize-none"
                   />
@@ -290,7 +326,7 @@ export default function DayDialog({
                     className="flex-1"
                   >
                     <X className="w-4 h-4 mr-2" />
-                    Anuluj
+                    {t('cancel', language)}
                   </Button>
                   <Button
                     onClick={handleSave}
@@ -298,7 +334,7 @@ export default function DayDialog({
                     className="flex-1 bg-blue-600 hover:bg-blue-700"
                   >
                     <Save className="w-4 h-4 mr-2" />
-                    Zapisz
+                    {t('save', language)}
                   </Button>
                 </div>
               </div>
@@ -310,7 +346,7 @@ export default function DayDialog({
         {!showForm && (
           <div className="flex justify-end">
             <Button variant="outline" onClick={onClose} disabled={isProcessing}>
-              Zamknij
+              {t('close', language)}
             </Button>
           </div>
         )}
