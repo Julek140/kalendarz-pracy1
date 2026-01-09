@@ -1,9 +1,12 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { Calendar, FileBarChart, Factory } from "lucide-react";
+import { Calendar, FileBarChart, Factory, Languages } from "lucide-react";
 import FloatingAssistant from "@/components/FloatingAssistant";
 import ProgressBars from "@/components/ProgressBars";
+import { useLanguage } from "@/components/LanguageContext";
+import { t } from "@/components/translations";
+import { Button } from "@/components/ui/button";
 import {
   Sidebar,
   SidebarContent,
@@ -18,31 +21,32 @@ import {
   SidebarFooter,
 } from "@/components/ui/sidebar";
 
-const navigationItems = [
-  {
-    title: "Kalendarz",
-    url: createPageUrl("Kalendarz"),
-    icon: Calendar,
-  },
-  {
-    title: "Raporty",
-    url: createPageUrl("Raporty"),
-    icon: FileBarChart,
-  },
-  {
-    title: "Raporty Finansowe",
-    url: createPageUrl("RaportyFinansowe"),
-    icon: Factory,
-  },
-  {
-    title: "Raport Roczny",
-    url: createPageUrl("RaportRoczny"),
-    icon: FileBarChart,
-  },
-];
-
 export default function Layout({ children }) {
   const location = useLocation();
+  const { language, changeLanguage } = useLanguage();
+  
+  const navigationItems = [
+    {
+      title: t('calendar', language),
+      url: createPageUrl("Kalendarz"),
+      icon: Calendar,
+    },
+    {
+      title: t('reports', language),
+      url: createPageUrl("Raporty"),
+      icon: FileBarChart,
+    },
+    {
+      title: t('financialReports', language),
+      url: createPageUrl("RaportyFinansowe"),
+      icon: Factory,
+    },
+    {
+      title: t('annualReport', language),
+      url: createPageUrl("RaportRoczny"),
+      icon: FileBarChart,
+    },
+  ];
 
   return (
     <SidebarProvider>
@@ -56,8 +60,26 @@ export default function Layout({ children }) {
                 className="h-10 w-auto object-contain"
               />
             </div>
-            <div className="mt-2">
-              <p className="text-xs text-slate-500 font-medium">Kalendarz Pracy</p>
+            <div className="mt-2 flex items-center justify-between gap-2">
+              <p className="text-xs text-slate-500 font-medium">{t('workCalendar', language)}</p>
+              <div className="flex items-center gap-1">
+                <Button
+                  variant={language === 'pl' ? 'default' : 'ghost'}
+                  size="sm"
+                  className="h-6 px-2 text-xs"
+                  onClick={() => changeLanguage('pl')}
+                >
+                  PL
+                </Button>
+                <Button
+                  variant={language === 'en' ? 'default' : 'ghost'}
+                  size="sm"
+                  className="h-6 px-2 text-xs"
+                  onClick={() => changeLanguage('en')}
+                >
+                  EN
+                </Button>
+              </div>
             </div>
           </SidebarHeader>
           
@@ -103,9 +125,29 @@ export default function Layout({ children }) {
 
         <main className="flex-1 flex flex-col">
           <header className="bg-white/80 backdrop-blur-sm border-b border-slate-200 px-6 py-4 md:hidden sticky top-0 z-10">
-            <div className="flex items-center gap-4">
-              <SidebarTrigger className="hover:bg-slate-100 p-2 rounded-lg transition-colors duration-200" />
-              <h1 className="text-xl font-bold text-slate-900">Kalendarz Pracy CONSTRACT</h1>
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex items-center gap-4">
+                <SidebarTrigger className="hover:bg-slate-100 p-2 rounded-lg transition-colors duration-200" />
+                <h1 className="text-xl font-bold text-slate-900">{t('workCalendar', language)} CONSTRACT</h1>
+              </div>
+              <div className="flex items-center gap-1">
+                <Button
+                  variant={language === 'pl' ? 'default' : 'ghost'}
+                  size="sm"
+                  className="h-7 px-2 text-xs"
+                  onClick={() => changeLanguage('pl')}
+                >
+                  PL
+                </Button>
+                <Button
+                  variant={language === 'en' ? 'default' : 'ghost'}
+                  size="sm"
+                  className="h-7 px-2 text-xs"
+                  onClick={() => changeLanguage('en')}
+                >
+                  EN
+                </Button>
+              </div>
             </div>
           </header>
 
