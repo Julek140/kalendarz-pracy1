@@ -9,26 +9,29 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DollarSign, TrendingUp, Calendar, BarChart3 } from "lucide-react";
 import { format, parseISO, isWithinInterval, eachWeekOfInterval, startOfWeek, endOfWeek, getWeek, startOfMonth, endOfMonth, eachMonthOfInterval, getYear } from "date-fns";
-import { pl } from "date-fns/locale";
+import { pl, enUS } from "date-fns/locale";
+import { useLanguage } from "@/components/LanguageContext";
+import { t } from "@/components/translations";
 
-const MONTHS = [
-  { value: "01", label: "Styczeń" },
-  { value: "02", label: "Luty" },
-  { value: "03", label: "Marzec" },
-  { value: "04", label: "Kwiecień" },
-  { value: "05", label: "Maj" },
-  { value: "06", label: "Czerwiec" },
-  { value: "07", label: "Lipiec" },
-  { value: "08", label: "Sierpień" },
-  { value: "09", label: "Wrzesień" },
-  { value: "10", label: "Październik" },
-  { value: "11", label: "Listopad" },
-  { value: "12", label: "Grudzień" },
+const getMonths = (lang) => [
+  { value: "01", label: lang === 'pl' ? "Styczeń" : "January" },
+  { value: "02", label: lang === 'pl' ? "Luty" : "February" },
+  { value: "03", label: lang === 'pl' ? "Marzec" : "March" },
+  { value: "04", label: lang === 'pl' ? "Kwiecień" : "April" },
+  { value: "05", label: lang === 'pl' ? "Maj" : "May" },
+  { value: "06", label: lang === 'pl' ? "Czerwiec" : "June" },
+  { value: "07", label: lang === 'pl' ? "Lipiec" : "July" },
+  { value: "08", label: lang === 'pl' ? "Sierpień" : "August" },
+  { value: "09", label: lang === 'pl' ? "Wrzesień" : "September" },
+  { value: "10", label: lang === 'pl' ? "Październik" : "October" },
+  { value: "11", label: lang === 'pl' ? "Listopad" : "November" },
+  { value: "12", label: lang === 'pl' ? "Grudzień" : "December" },
 ];
 
 const YEARS = ["2024", "2025", "2026", "2027", "2028", "2029"];
 
 export default function RaportyFinansowePage() {
+  const { language } = useLanguage();
   const [mode, setMode] = useState("month");
   const [selectedMonth, setSelectedMonth] = useState("");
   const [selectedYear, setSelectedYear] = useState(getYear(new Date()).toString());
@@ -37,6 +40,8 @@ export default function RaportyFinansowePage() {
   const [endDate, setEndDate] = useState("");
   const [reportGenerated, setReportGenerated] = useState(false);
   const [reportData, setReportData] = useState(null);
+  
+  const locale = language === 'pl' ? pl : enUS;
 
   const { data: workDays = [] } = useQuery({
     queryKey: ['workDays'],
@@ -70,7 +75,7 @@ export default function RaportyFinansowePage() {
       const weekNum = parseInt(selectedWeek);
       const yearStart = new Date(parseInt(selectedYear), 0, 1);
       const weeks = eachWeekOfInterval({ start: yearStart, end: new Date(parseInt(selectedYear), 11, 31) }, { weekStartsOn: 1 });
-      const targetWeek = weeks.find(w => getWeek(w, { weekStartsOn: 1, locale: pl }) === weekNum);
+      const targetWeek = weeks.find(w => getWeek(w, { weekStartsOn: 1, locale }) === weekNum);
       if (targetWeek) {
         const start = startOfWeek(targetWeek, { weekStartsOn: 1 });
         const end = endOfWeek(targetWeek, { weekStartsOn: 1 });
@@ -103,7 +108,7 @@ export default function RaportyFinansowePage() {
     const weeks = eachWeekOfInterval({ start, end }, { weekStartsOn: 1 });
     const weeklyData = weeks.map(weekStart => {
       const weekEnd = endOfWeek(weekStart, { weekStartsOn: 1 });
-      const weekNumber = getWeek(weekStart, { weekStartsOn: 1, locale: pl });
+      const weekNumber = getWeek(weekStart, { weekStartsOn: 1, locale });
       
       const weekDays = filteredDays.filter(wd => {
         const date = parseISO(wd.date);
@@ -136,12 +141,12 @@ export default function RaportyFinansowePage() {
         return isWithinInterval(date, { start: monthStart, end: monthEnd });
       });
 
-      const totalRevenue = monthDays.reduce((sum, wd) => sum + (wd.revenue || 0), 0);
+      const totalRevenue = monthDays.reduce((sum, wd) => sum + ((wd.revenue_ikea || 0) + (wd.revenue_ikea_industry || 0) + (wd.revenue_others || 0)), 0);
       const totalShifts = monthDays.reduce((sum, wd) => sum + (wd.shifts || 0), 0);
       const totalDays = monthDays.length;
 
       return {
-        month: format(monthStart, 'LLLL yyyy', { locale: pl }),
+        month: format(monthStart, 'LLLL yyyy', { locale }),
         totalRevenue,
         totalDays,
         totalShifts,
@@ -151,7 +156,7 @@ export default function RaportyFinansowePage() {
     });
 
     // Statystyki ogólne
-    const totalRevenue = filteredDays.reduce((sum, wd) => sum + (wd.revenue || 0), 0);
+    const totalRevenue = filteredDays.reduce((sum, wd) => sum + ((wd.revenue_ikea || 0) + (wd.revenue_ikea_industry || 0) + (wd.revenue_others || 0)), 0);
     const totalDays = filteredDays.length;
     const totalShifts = filteredDays.reduce((sum, wd) => sum + (wd.shifts || 0), 0);
     const avgWeeklyRevenue = weeklyData.length > 0 ? weeklyData.reduce((sum, w) => sum + w.totalRevenue, 0) / weeklyData.length : 0;
@@ -183,12 +188,12 @@ export default function RaportyFinansowePage() {
     const yearEnd = new Date(parseInt(year), 11, 31);
     const weeks = eachWeekOfInterval({ start: yearStart, end: yearEnd }, { weekStartsOn: 1 });
     return weeks.map(w => {
-      const weekNum = getWeek(w, { weekStartsOn: 1, locale: pl });
+      const weekNum = getWeek(w, { weekStartsOn: 1, locale });
       const wStart = startOfWeek(w, { weekStartsOn: 1 });
       const wEnd = endOfWeek(w, { weekStartsOn: 1 });
       return {
         value: weekNum.toString(),
-        label: `Tydzień ${weekNum} (${format(wStart, 'd MMM', { locale: pl })} - ${format(wEnd, 'd MMM', { locale: pl })})`
+        label: `${language === 'pl' ? 'Tydzień' : 'Week'} ${weekNum} (${format(wStart, 'd MMM', { locale })} - ${format(wEnd, 'd MMM', { locale })})`
       };
     });
   };
@@ -208,8 +213,8 @@ export default function RaportyFinansowePage() {
               className="h-12 w-auto object-contain"
             />
             <div className="text-center">
-              <h1 className="text-3xl font-bold text-slate-900">Raporty Finansowe</h1>
-              <p className="text-slate-600 mt-1">Analiza obrotów i wydajności finansowej</p>
+              <h1 className="text-3xl font-bold text-slate-900">{t('financialReports', language)}</h1>
+              <p className="text-slate-600 mt-1">{language === 'pl' ? 'Analiza obrotów i wydajności finansowej' : 'Revenue and financial performance analysis'}</p>
             </div>
           </div>
         </div>
@@ -218,34 +223,34 @@ export default function RaportyFinansowePage() {
           <CardHeader className="bg-gradient-to-r from-emerald-50 to-green-50 border-b">
             <CardTitle className="flex items-center gap-2">
               <Calendar className="w-5 h-5 text-emerald-600" />
-              Wybierz okres raportu
+              {language === 'pl' ? 'Wybierz okres raportu' : 'Select report period'}
             </CardTitle>
           </CardHeader>
           <CardContent className="p-6">
             <Tabs value={mode} onValueChange={setMode} className="w-full">
               <TabsList className="grid w-full grid-cols-3 mb-6">
-                <TabsTrigger value="month">Miesiąc</TabsTrigger>
-                <TabsTrigger value="week">Tydzień</TabsTrigger>
-                <TabsTrigger value="custom">Własny zakres</TabsTrigger>
+                <TabsTrigger value="month">{t('month', language)}</TabsTrigger>
+                <TabsTrigger value="week">{language === 'pl' ? 'Tydzień' : 'Week'}</TabsTrigger>
+                <TabsTrigger value="custom">{t('customRange', language)}</TabsTrigger>
               </TabsList>
 
               <TabsContent value="month">
                 <div className="grid md:grid-cols-2 gap-4">
                   <div>
-                    <Label className="text-sm font-medium mb-2 block">Miesiąc</Label>
+                    <Label className="text-sm font-medium mb-2 block">{t('month', language)}</Label>
                     <Select value={selectedMonth} onValueChange={setSelectedMonth}>
                       <SelectTrigger>
-                        <SelectValue placeholder="Wybierz miesiąc" />
+                        <SelectValue placeholder={t('selectMonth', language)} />
                       </SelectTrigger>
                       <SelectContent>
-                        {MONTHS.map(m => (
+                        {getMonths(language).map(m => (
                           <SelectItem key={m.value} value={m.value}>{m.label}</SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
                   </div>
                   <div>
-                    <Label className="text-sm font-medium mb-2 block">Rok</Label>
+                    <Label className="text-sm font-medium mb-2 block">{t('year', language)}</Label>
                     <Select value={selectedYear} onValueChange={setSelectedYear}>
                       <SelectTrigger>
                         <SelectValue />
@@ -263,10 +268,10 @@ export default function RaportyFinansowePage() {
               <TabsContent value="week">
                 <div className="grid md:grid-cols-2 gap-4">
                   <div>
-                    <Label className="text-sm font-medium mb-2 block">Tydzień</Label>
+                    <Label className="text-sm font-medium mb-2 block">{language === 'pl' ? 'Tydzień' : 'Week'}</Label>
                     <Select value={selectedWeek} onValueChange={setSelectedWeek}>
                       <SelectTrigger>
-                        <SelectValue placeholder="Wybierz tydzień" />
+                        <SelectValue placeholder={t('selectWeek', language)} />
                       </SelectTrigger>
                       <SelectContent>
                         {getWeeksForYear(selectedYear).map(w => (
@@ -276,7 +281,7 @@ export default function RaportyFinansowePage() {
                     </Select>
                   </div>
                   <div>
-                    <Label className="text-sm font-medium mb-2 block">Rok</Label>
+                    <Label className="text-sm font-medium mb-2 block">{t('year', language)}</Label>
                     <Select value={selectedYear} onValueChange={setSelectedYear}>
                       <SelectTrigger>
                         <SelectValue />
@@ -295,7 +300,7 @@ export default function RaportyFinansowePage() {
                 <div className="grid md:grid-cols-3 gap-6 items-end">
                   <div>
                     <Label htmlFor="startDate" className="text-sm font-medium mb-2 block">
-                      Data początkowa
+                      {t('startDate', language)}
                     </Label>
                     <Input
                       id="startDate"
@@ -307,7 +312,7 @@ export default function RaportyFinansowePage() {
                   </div>
                   <div>
                     <Label htmlFor="endDate" className="text-sm font-medium mb-2 block">
-                      Data końcowa
+                      {t('endDate', language)}
                     </Label>
                     <Input
                       id="endDate"
@@ -323,7 +328,7 @@ export default function RaportyFinansowePage() {
                     className="bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 h-10"
                   >
                     <BarChart3 className="w-4 h-4 mr-2" />
-                    Generuj raport
+                    {t('generateReport', language)}
                   </Button>
                 </div>
               </TabsContent>
@@ -338,7 +343,7 @@ export default function RaportyFinansowePage() {
               <Card className="shadow-lg border-none bg-gradient-to-br from-emerald-500 to-green-600 text-white">
                 <CardContent className="p-6">
                   <DollarSign className="w-10 h-10 mb-3 opacity-80" />
-                  <p className="text-sm opacity-90 mb-1">Całkowity obrót</p>
+                  <p className="text-sm opacity-90 mb-1">{t('totalRevenue', language)}</p>
                   <p className="text-3xl font-bold">{formatCurrency(reportData.totalRevenue)}</p>
                 </CardContent>
               </Card>
@@ -346,7 +351,7 @@ export default function RaportyFinansowePage() {
               <Card className="shadow-lg border-none bg-gradient-to-br from-blue-500 to-indigo-600 text-white">
                 <CardContent className="p-6">
                   <TrendingUp className="w-10 h-10 mb-3 opacity-80" />
-                  <p className="text-sm opacity-90 mb-1">Śr. obrót tygodniowy</p>
+                  <p className="text-sm opacity-90 mb-1">{t('avgWeeklyRevenue', language)}</p>
                   <p className="text-3xl font-bold">{formatCurrency(reportData.avgWeeklyRevenue)}</p>
                 </CardContent>
               </Card>
@@ -354,16 +359,16 @@ export default function RaportyFinansowePage() {
               <Card className="shadow-lg border-none bg-gradient-to-br from-purple-500 to-pink-600 text-white">
                 <CardContent className="p-6">
                   <Calendar className="w-10 h-10 mb-3 opacity-80" />
-                  <p className="text-sm opacity-90 mb-1">Potrzebny śr. obrót miesięczny</p>
+                  <p className="text-sm opacity-90 mb-1">{t('requiredAvgMonthly', language)}</p>
                   <p className="text-3xl font-bold">{formatCurrency(reportData.requiredAvgMonthlyRevenue)}</p>
-                  <p className="text-xs opacity-75 mt-1">Do celu roku {new Date(reportData.startDate).getFullYear()}</p>
+                  <p className="text-xs opacity-75 mt-1">{t('toGoalYear', language, { year: new Date(reportData.startDate).getFullYear() })}</p>
                 </CardContent>
               </Card>
 
               <Card className="shadow-lg border-none bg-gradient-to-br from-orange-500 to-red-600 text-white">
                 <CardContent className="p-6">
                   <BarChart3 className="w-10 h-10 mb-3 opacity-80" />
-                  <p className="text-sm opacity-90 mb-1">Zmiany przepracowane</p>
+                  <p className="text-sm opacity-90 mb-1">{t('shiftsWorked', language)}</p>
                   <p className="text-3xl font-bold">{reportData.totalShifts}</p>
                 </CardContent>
               </Card>
@@ -372,23 +377,23 @@ export default function RaportyFinansowePage() {
             {/* Wydajność */}
             <Card className="shadow-lg border-none">
               <CardHeader className="bg-gradient-to-r from-amber-50 to-yellow-50 border-b">
-                <CardTitle>Wydajność finansowa</CardTitle>
+                <CardTitle>{t('financialPerformance', language)}</CardTitle>
               </CardHeader>
               <CardContent className="p-6">
                 <div className="grid md:grid-cols-2 gap-6">
                   <div className="bg-amber-50 rounded-xl p-6 border-2 border-amber-200">
-                    <p className="text-sm text-amber-700 mb-2">Obrót na dzień przepracowany</p>
+                    <p className="text-sm text-amber-700 mb-2">{t('revenuePerDay', language)}</p>
                     <p className="text-4xl font-bold text-amber-900">{formatCurrency(reportData.revenuePerDay)}</p>
                     <p className="text-xs text-slate-600 mt-2">
-                      {reportData.totalDays} dni przepracowanych
+                      {t('daysWorkedCount', language, { count: reportData.totalDays })}
                     </p>
                   </div>
 
                   <div className="bg-orange-50 rounded-xl p-6 border-2 border-orange-200">
-                    <p className="text-sm text-orange-700 mb-2">Obrót na zmianę przepracowaną</p>
+                    <p className="text-sm text-orange-700 mb-2">{t('revenuePerShift', language)}</p>
                     <p className="text-4xl font-bold text-orange-900">{formatCurrency(reportData.revenuePerShift)}</p>
                     <p className="text-xs text-slate-600 mt-2">
-                      {reportData.totalShifts} zmian przepracowanych
+                      {t('shiftsWorkedCount', language, { count: reportData.totalShifts })}
                     </p>
                   </div>
                 </div>
@@ -398,28 +403,28 @@ export default function RaportyFinansowePage() {
             {/* Dane tygodniowe */}
             <Card className="shadow-lg border-none">
               <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b">
-                <CardTitle>Obroty tygodniowe</CardTitle>
+                <CardTitle>{t('weeklyRevenue', language)}</CardTitle>
               </CardHeader>
               <CardContent className="p-6">
                 <div className="overflow-x-auto">
                   <table className="w-full">
                     <thead>
                       <tr className="border-b-2 border-slate-200">
-                        <th className="text-left p-3 font-semibold">Tydzień</th>
-                        <th className="text-left p-3 font-semibold">Okres</th>
-                        <th className="text-right p-3 font-semibold">Obrót</th>
-                        <th className="text-center p-3 font-semibold">Dni</th>
-                        <th className="text-center p-3 font-semibold">Zmiany</th>
-                        <th className="text-right p-3 font-semibold">Obrót/Dzień</th>
-                        <th className="text-right p-3 font-semibold">Obrót/Zmianę</th>
+                        <th className="text-left p-3 font-semibold">{language === 'pl' ? 'Tydzień' : 'Week'}</th>
+                        <th className="text-left p-3 font-semibold">{t('period', language)}</th>
+                        <th className="text-right p-3 font-semibold">{language === 'pl' ? 'Obrót' : 'Revenue'}</th>
+                        <th className="text-center p-3 font-semibold">{language === 'pl' ? 'Dni' : 'Days'}</th>
+                        <th className="text-center p-3 font-semibold">{t('shifts', language)}</th>
+                        <th className="text-right p-3 font-semibold">{language === 'pl' ? 'Obrót/Dzień' : 'Revenue/Day'}</th>
+                        <th className="text-right p-3 font-semibold">{language === 'pl' ? 'Obrót/Zmianę' : 'Revenue/Shift'}</th>
                       </tr>
                     </thead>
                     <tbody>
                       {reportData.weeklyData.map((week, idx) => (
                         <tr key={idx} className="border-b border-slate-100 hover:bg-slate-50">
-                          <td className="p-3">Tydzień {week.weekNumber}</td>
+                          <td className="p-3">{language === 'pl' ? 'Tydzień' : 'Week'} {week.weekNumber}</td>
                           <td className="p-3 text-sm text-slate-600">
-                            {format(week.weekStart, 'd MMM', { locale: pl })} - {format(week.weekEnd, 'd MMM', { locale: pl })}
+                            {format(week.weekStart, 'd MMM', { locale })} - {format(week.weekEnd, 'd MMM', { locale })}
                           </td>
                           <td className="p-3 text-right font-semibold text-emerald-700">
                             {formatCurrency(week.totalRevenue)}
@@ -439,19 +444,19 @@ export default function RaportyFinansowePage() {
             {/* Dane miesięczne */}
             <Card className="shadow-lg border-none">
               <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50 border-b">
-                <CardTitle>Obroty miesięczne</CardTitle>
+                <CardTitle>{t('monthlyRevenue', language)}</CardTitle>
               </CardHeader>
               <CardContent className="p-6">
                 <div className="overflow-x-auto">
                   <table className="w-full">
                     <thead>
                       <tr className="border-b-2 border-slate-200">
-                        <th className="text-left p-3 font-semibold">Miesiąc</th>
-                        <th className="text-right p-3 font-semibold">Obrót</th>
-                        <th className="text-center p-3 font-semibold">Dni</th>
-                        <th className="text-center p-3 font-semibold">Zmiany</th>
-                        <th className="text-right p-3 font-semibold">Obrót/Dzień</th>
-                        <th className="text-right p-3 font-semibold">Obrót/Zmianę</th>
+                        <th className="text-left p-3 font-semibold">{t('month', language)}</th>
+                        <th className="text-right p-3 font-semibold">{language === 'pl' ? 'Obrót' : 'Revenue'}</th>
+                        <th className="text-center p-3 font-semibold">{language === 'pl' ? 'Dni' : 'Days'}</th>
+                        <th className="text-center p-3 font-semibold">{t('shifts', language)}</th>
+                        <th className="text-right p-3 font-semibold">{language === 'pl' ? 'Obrót/Dzień' : 'Revenue/Day'}</th>
+                        <th className="text-right p-3 font-semibold">{language === 'pl' ? 'Obrót/Zmianę' : 'Revenue/Shift'}</th>
                       </tr>
                     </thead>
                     <tbody>
