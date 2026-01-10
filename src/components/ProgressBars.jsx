@@ -59,7 +59,7 @@ export default function ProgressBars() {
       const date = new Date(wd.date);
       return date.getFullYear() === selectedYear;
     })
-    .reduce((sum, wd) => sum + ((wd.revenue_ikea || 0) + (wd.revenue_others || 0)), 0);
+    .reduce((sum, wd) => sum + ((wd.revenue_ikea || 0) + (wd.revenue_ikea_industry || 0) + (wd.revenue_others || 0)), 0);
 
   const financialProgress = yearlyGoal > 0 ? (selectedYearRevenue / yearlyGoal) * 100 : 0;
 

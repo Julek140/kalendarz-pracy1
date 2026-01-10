@@ -39,6 +39,7 @@ export default function DayDialog({
   const defaultShifts = isWeekday ? 3 : 1;
   const [shifts, setShifts] = useState(defaultShifts);
   const [revenueIkea, setRevenueIkea] = useState("");
+  const [revenueIkeaIndustry, setRevenueIkeaIndustry] = useState("");
   const [revenueOthers, setRevenueOthers] = useState("");
   const { language } = useLanguage();
 
@@ -48,6 +49,7 @@ export default function DayDialog({
     setIsDowntime(false);
     setShifts(defaultShifts);
     setRevenueIkea("");
+    setRevenueIkeaIndustry("");
     setRevenueOthers("");
     setNotes("");
     setShowForm(true);
@@ -59,6 +61,7 @@ export default function DayDialog({
     setIsDowntime(workDay.is_downtime || false);
     setShifts(workDay.shifts || defaultShifts);
     setRevenueIkea(workDay.revenue_ikea ? workDay.revenue_ikea.toString() : "");
+    setRevenueIkeaIndustry(workDay.revenue_ikea_industry ? workDay.revenue_ikea_industry.toString() : "");
     setRevenueOthers(workDay.revenue_others ? workDay.revenue_others.toString() : "");
     setNotes(workDay.notes || "");
     setShowForm(true);
@@ -71,6 +74,7 @@ export default function DayDialog({
       shifts: isDowntime ? 0 : shifts,
       is_downtime: isDowntime,
       revenue_ikea: revenueIkea ? parseFloat(revenueIkea) : 0,
+      revenue_ikea_industry: revenueIkeaIndustry ? parseFloat(revenueIkeaIndustry) : 0,
       revenue_others: revenueOthers ? parseFloat(revenueOthers) : 0,
       notes: notes.trim() || undefined,
     };
@@ -129,11 +133,16 @@ export default function DayDialog({
                           <div>
                             <span className="font-medium">{t('shifts', language)}:</span> {workDay.shifts || 0}
                           </div>
-                          {(workDay.revenue_ikea > 0 || workDay.revenue_others > 0) && (
+                          {(workDay.revenue_ikea > 0 || workDay.revenue_ikea_industry > 0 || workDay.revenue_others > 0) && (
                             <div className="space-y-1">
                               {workDay.revenue_ikea > 0 && (
                                 <div className="text-blue-700">
                                   <span className="font-medium">IKEA SUPPLY:</span> {new Intl.NumberFormat('pl-PL', { style: 'currency', currency: 'PLN' }).format(workDay.revenue_ikea)}
+                                </div>
+                              )}
+                              {workDay.revenue_ikea_industry > 0 && (
+                                <div className="text-purple-700">
+                                  <span className="font-medium">IKEA INDUSTRY:</span> {new Intl.NumberFormat('pl-PL', { style: 'currency', currency: 'PLN' }).format(workDay.revenue_ikea_industry)}
                                 </div>
                               )}
                               {workDay.revenue_others > 0 && (
@@ -282,6 +291,22 @@ export default function DayDialog({
                       onChange={(e) => setRevenueIkea(e.target.value)}
                       placeholder="0.00"
                       className="text-lg border-blue-300"
+                    />
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="revenue-ikea-industry" className="text-base font-semibold mb-2 block text-purple-700">
+                      {t('revenueIkeaIndustry', language)}:
+                    </Label>
+                    <Input
+                      id="revenue-ikea-industry"
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={revenueIkeaIndustry}
+                      onChange={(e) => setRevenueIkeaIndustry(e.target.value)}
+                      placeholder="0.00"
+                      className="text-lg border-purple-300"
                     />
                   </div>
                   
