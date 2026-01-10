@@ -44,7 +44,10 @@ export default function RaportRocznyPage() {
         return date >= monthStart && date <= monthEnd;
       });
 
-      const totalRevenue = monthDays.reduce((sum, wd) => sum + (wd.revenue || 0), 0);
+      const revenueIkea = monthDays.reduce((sum, wd) => sum + (wd.revenue_ikea || 0), 0);
+      const revenueIkeaIndustry = monthDays.reduce((sum, wd) => sum + (wd.revenue_ikea_industry || 0), 0);
+      const revenueOthers = monthDays.reduce((sum, wd) => sum + (wd.revenue_others || 0), 0);
+      const totalRevenue = revenueIkea + revenueIkeaIndustry + revenueOthers;
       const totalShifts = monthDays.reduce((sum, wd) => sum + (wd.shifts || 0), 0);
       const totalDays = monthDays.length;
       const avgDailyRevenue = totalDays > 0 ? totalRevenue / totalDays : 0;
@@ -53,6 +56,9 @@ export default function RaportRocznyPage() {
         month: format(monthStart, 'LLLL', { locale: pl }),
         monthNum: month + 1,
         totalRevenue,
+        revenueIkea,
+        revenueIkeaIndustry,
+        revenueOthers,
         totalDays,
         totalShifts,
         avgDailyRevenue,
@@ -79,21 +85,33 @@ export default function RaportRocznyPage() {
         quarter: "Q1",
         months: monthlyData.slice(0, 3),
         totalRevenue: monthlyData.slice(0, 3).reduce((sum, m) => sum + m.totalRevenue, 0),
+        revenueIkea: monthlyData.slice(0, 3).reduce((sum, m) => sum + m.revenueIkea, 0),
+        revenueIkeaIndustry: monthlyData.slice(0, 3).reduce((sum, m) => sum + m.revenueIkeaIndustry, 0),
+        revenueOthers: monthlyData.slice(0, 3).reduce((sum, m) => sum + m.revenueOthers, 0),
       },
       {
         quarter: "Q2",
         months: monthlyData.slice(3, 6),
         totalRevenue: monthlyData.slice(3, 6).reduce((sum, m) => sum + m.totalRevenue, 0),
+        revenueIkea: monthlyData.slice(3, 6).reduce((sum, m) => sum + m.revenueIkea, 0),
+        revenueIkeaIndustry: monthlyData.slice(3, 6).reduce((sum, m) => sum + m.revenueIkeaIndustry, 0),
+        revenueOthers: monthlyData.slice(3, 6).reduce((sum, m) => sum + m.revenueOthers, 0),
       },
       {
         quarter: "Q3",
         months: monthlyData.slice(6, 9),
         totalRevenue: monthlyData.slice(6, 9).reduce((sum, m) => sum + m.totalRevenue, 0),
+        revenueIkea: monthlyData.slice(6, 9).reduce((sum, m) => sum + m.revenueIkea, 0),
+        revenueIkeaIndustry: monthlyData.slice(6, 9).reduce((sum, m) => sum + m.revenueIkeaIndustry, 0),
+        revenueOthers: monthlyData.slice(6, 9).reduce((sum, m) => sum + m.revenueOthers, 0),
       },
       {
         quarter: "Q4",
         months: monthlyData.slice(9, 12),
         totalRevenue: monthlyData.slice(9, 12).reduce((sum, m) => sum + m.totalRevenue, 0),
+        revenueIkea: monthlyData.slice(9, 12).reduce((sum, m) => sum + m.revenueIkea, 0),
+        revenueIkeaIndustry: monthlyData.slice(9, 12).reduce((sum, m) => sum + m.revenueIkeaIndustry, 0),
+        revenueOthers: monthlyData.slice(9, 12).reduce((sum, m) => sum + m.revenueOthers, 0),
       },
     ];
 
@@ -336,10 +354,10 @@ export default function RaportRocznyPage() {
 
             {/* Wykresy */}
             <div className="grid md:grid-cols-2 gap-6">
-              {/* Wykres liniowy */}
+              {/* Wykres liniowy - Łączny obrót */}
               <Card className="shadow-lg border-none">
                 <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50">
-                  <CardTitle>Trend miesięczny</CardTitle>
+                  <CardTitle>Trend miesięczny - Obrót łączny</CardTitle>
                 </CardHeader>
                 <CardContent className="p-6">
                   <ResponsiveContainer width="100%" height={300}>
@@ -349,16 +367,16 @@ export default function RaportRocznyPage() {
                       <YAxis width={80} tickFormatter={(value) => `${(value / 1000000).toFixed(1)}M`} />
                       <Tooltip formatter={(value) => formatCurrency(value)} />
                       <Legend />
-                      <Line type="monotone" dataKey="totalRevenue" stroke="#4F46E5" strokeWidth={3} name="Obrót" />
+                      <Line type="monotone" dataKey="totalRevenue" stroke="#4F46E5" strokeWidth={3} name="Obrót łączny" />
                     </LineChart>
                   </ResponsiveContainer>
                 </CardContent>
               </Card>
 
-              {/* Wykres słupkowy */}
+              {/* Wykres słupkowy - Łączny obrót */}
               <Card className="shadow-lg border-none">
                 <CardHeader className="bg-gradient-to-r from-emerald-50 to-green-50">
-                  <CardTitle>Porównanie miesięcy</CardTitle>
+                  <CardTitle>Porównanie miesięcy - Obrót łączny</CardTitle>
                 </CardHeader>
                 <CardContent className="p-6">
                   <ResponsiveContainer width="100%" height={300}>
@@ -368,17 +386,62 @@ export default function RaportRocznyPage() {
                       <YAxis width={80} tickFormatter={(value) => `${(value / 1000000).toFixed(1)}M`} />
                       <Tooltip formatter={(value) => formatCurrency(value)} />
                       <Legend />
-                      <Bar dataKey="totalRevenue" fill="#10B981" name="Obrót" />
+                      <Bar dataKey="totalRevenue" fill="#10B981" name="Obrót łączny" />
                     </BarChart>
                   </ResponsiveContainer>
                 </CardContent>
               </Card>
             </div>
 
-            {/* Wykres kwartalny */}
+            {/* Wykresy z podziałem na źródła */}
+            <div className="grid md:grid-cols-2 gap-6">
+              {/* Wykres liniowy - Podział źródeł */}
+              <Card className="shadow-lg border-none">
+                <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50">
+                  <CardTitle>Trend miesięczny - Podział źródeł</CardTitle>
+                </CardHeader>
+                <CardContent className="p-6">
+                  <ResponsiveContainer width="100%" height={300}>
+                    <LineChart data={reportData.monthlyData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="month" angle={-45} textAnchor="end" height={80} />
+                      <YAxis width={80} tickFormatter={(value) => `${(value / 1000000).toFixed(1)}M`} />
+                      <Tooltip formatter={(value) => formatCurrency(value)} />
+                      <Legend />
+                      <Line type="monotone" dataKey="revenueIkea" stroke="#3B82F6" strokeWidth={2} name="IKEA SUPPLY" />
+                      <Line type="monotone" dataKey="revenueIkeaIndustry" stroke="#9333EA" strokeWidth={2} name="IKEA INDUSTRY" />
+                      <Line type="monotone" dataKey="revenueOthers" stroke="#10B981" strokeWidth={2} name="POZOSTALI" />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+
+              {/* Wykres słupkowy - Podział źródeł */}
+              <Card className="shadow-lg border-none">
+                <CardHeader className="bg-gradient-to-r from-amber-50 to-orange-50">
+                  <CardTitle>Porównanie miesięcy - Podział źródeł</CardTitle>
+                </CardHeader>
+                <CardContent className="p-6">
+                  <ResponsiveContainer width="100%" height={300}>
+                    <BarChart data={reportData.monthlyData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="month" angle={-45} textAnchor="end" height={80} />
+                      <YAxis width={80} tickFormatter={(value) => `${(value / 1000000).toFixed(1)}M`} />
+                      <Tooltip formatter={(value) => formatCurrency(value)} />
+                      <Legend />
+                      <Bar dataKey="revenueIkea" fill="#3B82F6" name="IKEA SUPPLY" />
+                      <Bar dataKey="revenueIkeaIndustry" fill="#9333EA" name="IKEA INDUSTRY" />
+                      <Bar dataKey="revenueOthers" fill="#10B981" name="POZOSTALI" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Wykres kwartalny - Łączny */}
             <Card className="shadow-lg border-none">
               <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50">
-                <CardTitle>Analiza kwartalna</CardTitle>
+                <CardTitle>Analiza kwartalna - Obrót łączny</CardTitle>
               </CardHeader>
               <CardContent className="p-6">
                 <ResponsiveContainer width="100%" height={300}>
@@ -388,7 +451,7 @@ export default function RaportRocznyPage() {
                     <YAxis width={80} tickFormatter={(value) => `${(value / 1000000).toFixed(1)}M`} />
                     <Tooltip formatter={(value) => formatCurrency(value)} />
                     <Legend />
-                    <Bar dataKey="totalRevenue" fill="#9333EA" name="Obrót kwartału" />
+                    <Bar dataKey="totalRevenue" fill="#9333EA" name="Obrót łączny" />
                   </BarChart>
                 </ResponsiveContainer>
                 <div className="mt-4 grid grid-cols-2 gap-4">
@@ -403,6 +466,27 @@ export default function RaportRocznyPage() {
                     <p className="text-sm text-red-600">{formatCurrency(reportData.worstQuarter.totalRevenue)}</p>
                   </div>
                 </div>
+              </CardContent>
+            </Card>
+
+            {/* Wykres kwartalny - Podział źródeł */}
+            <Card className="shadow-lg border-none">
+              <CardHeader className="bg-gradient-to-r from-cyan-50 to-sky-50">
+                <CardTitle>Analiza kwartalna - Podział źródeł</CardTitle>
+              </CardHeader>
+              <CardContent className="p-6">
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart data={reportData.quarterlyData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="quarter" />
+                    <YAxis width={80} tickFormatter={(value) => `${(value / 1000000).toFixed(1)}M`} />
+                    <Tooltip formatter={(value) => formatCurrency(value)} />
+                    <Legend />
+                    <Bar dataKey="revenueIkea" fill="#3B82F6" name="IKEA SUPPLY" />
+                    <Bar dataKey="revenueIkeaIndustry" fill="#9333EA" name="IKEA INDUSTRY" />
+                    <Bar dataKey="revenueOthers" fill="#10B981" name="POZOSTALI" />
+                  </BarChart>
+                </ResponsiveContainer>
               </CardContent>
             </Card>
 
