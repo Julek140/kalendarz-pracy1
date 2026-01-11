@@ -151,6 +151,18 @@ export const translations = {
     totalYearRevenue: "Całkowity obrót {year}",
     yearSummary: "Podsumowanie roku {year}",
     workCalendar: "Kalendarz Pracy",
+    
+    // Annual Report additional
+    businessAnalysisSummary: "Podsumowanie i analiza biznesowa",
+    selectYearToAnalyze: "Wybierz rok do analizy",
+    monthlyTrendTotal: "Trend miesięczny - Obrót łączny",
+    monthComparisonTotal: "Porównanie miesięcy - Obrót łączny",
+    monthlyTrendBreakdown: "Trend miesięczny - Podział źródeł",
+    monthComparisonBreakdown: "Porównanie miesięcy - Podział źródeł",
+    quarterlyAnalysisTotal: "Analiza kwartalna - Obrót łączny",
+    quarterlyAnalysisBreakdown: "Analiza kwartalna - Podział źródeł",
+    daysWorkedCount: "{count} dni przepracowanych",
+    toGoalYear: "Do celu roku {year}",
   },
   
   en: {
