@@ -223,14 +223,14 @@ export default function RaportyFinansowePage() {
           <CardHeader className="bg-gradient-to-r from-emerald-50 to-green-50 border-b">
             <CardTitle className="flex items-center gap-2">
               <Calendar className="w-5 h-5 text-emerald-600" />
-              {language === 'pl' ? 'Wybierz okres raportu' : 'Select report period'}
+              {t('selectReportPeriod', language)}
             </CardTitle>
           </CardHeader>
           <CardContent className="p-6">
             <Tabs value={mode} onValueChange={setMode} className="w-full">
               <TabsList className="grid w-full grid-cols-3 mb-6">
                 <TabsTrigger value="month">{t('month', language)}</TabsTrigger>
-                <TabsTrigger value="week">{language === 'pl' ? 'Tydzień' : 'Week'}</TabsTrigger>
+                <TabsTrigger value="week">{t('week', language)}</TabsTrigger>
                 <TabsTrigger value="custom">{t('customRange', language)}</TabsTrigger>
               </TabsList>
 
@@ -268,7 +268,7 @@ export default function RaportyFinansowePage() {
               <TabsContent value="week">
                 <div className="grid md:grid-cols-2 gap-4">
                   <div>
-                    <Label className="text-sm font-medium mb-2 block">{language === 'pl' ? 'Tydzień' : 'Week'}</Label>
+                    <Label className="text-sm font-medium mb-2 block">{t('week', language)}</Label>
                     <Select value={selectedWeek} onValueChange={setSelectedWeek}>
                       <SelectTrigger>
                         <SelectValue placeholder={t('selectWeek', language)} />
@@ -410,19 +410,19 @@ export default function RaportyFinansowePage() {
                   <table className="w-full">
                     <thead>
                       <tr className="border-b-2 border-slate-200">
-                        <th className="text-left p-3 font-semibold">{language === 'pl' ? 'Tydzień' : 'Week'}</th>
+                        <th className="text-left p-3 font-semibold">{t('week', language)}</th>
                         <th className="text-left p-3 font-semibold">{t('period', language)}</th>
-                        <th className="text-right p-3 font-semibold">{language === 'pl' ? 'Obrót' : 'Revenue'}</th>
-                        <th className="text-center p-3 font-semibold">{language === 'pl' ? 'Dni' : 'Days'}</th>
+                        <th className="text-right p-3 font-semibold">{t('revenue', language)}</th>
+                        <th className="text-center p-3 font-semibold">{t('days', language)}</th>
                         <th className="text-center p-3 font-semibold">{t('shifts', language)}</th>
-                        <th className="text-right p-3 font-semibold">{language === 'pl' ? 'Obrót/Dzień' : 'Revenue/Day'}</th>
-                        <th className="text-right p-3 font-semibold">{language === 'pl' ? 'Obrót/Zmianę' : 'Revenue/Shift'}</th>
+                        <th className="text-right p-3 font-semibold">{t('revenuePerDay', language)}</th>
+                        <th className="text-right p-3 font-semibold">{t('revenuePerShift', language)}</th>
                       </tr>
                     </thead>
                     <tbody>
                       {reportData.weeklyData.map((week, idx) => (
                         <tr key={idx} className="border-b border-slate-100 hover:bg-slate-50">
-                          <td className="p-3">{language === 'pl' ? 'Tydzień' : 'Week'} {week.weekNumber}</td>
+                          <td className="p-3">{t('week', language)} {week.weekNumber}</td>
                           <td className="p-3 text-sm text-slate-600">
                             {format(week.weekStart, 'd MMM', { locale })} - {format(week.weekEnd, 'd MMM', { locale })}
                           </td>
@@ -452,11 +452,11 @@ export default function RaportyFinansowePage() {
                     <thead>
                       <tr className="border-b-2 border-slate-200">
                         <th className="text-left p-3 font-semibold">{t('month', language)}</th>
-                        <th className="text-right p-3 font-semibold">{language === 'pl' ? 'Obrót' : 'Revenue'}</th>
-                        <th className="text-center p-3 font-semibold">{language === 'pl' ? 'Dni' : 'Days'}</th>
+                        <th className="text-right p-3 font-semibold">{t('revenue', language)}</th>
+                        <th className="text-center p-3 font-semibold">{t('days', language)}</th>
                         <th className="text-center p-3 font-semibold">{t('shifts', language)}</th>
-                        <th className="text-right p-3 font-semibold">{language === 'pl' ? 'Obrót/Dzień' : 'Revenue/Day'}</th>
-                        <th className="text-right p-3 font-semibold">{language === 'pl' ? 'Obrót/Zmianę' : 'Revenue/Shift'}</th>
+                        <th className="text-right p-3 font-semibold">{t('revenuePerDay', language)}</th>
+                        <th className="text-right p-3 font-semibold">{t('revenuePerShift', language)}</th>
                       </tr>
                     </thead>
                     <tbody>

@@ -163,6 +163,16 @@ export const translations = {
     quarterlyAnalysisBreakdown: "Analiza kwartalna - Podział źródeł",
     daysWorkedCount: "{count} dni przepracowanych",
     toGoalYear: "Do celu roku {year}",
+    selectReportPeriod: "Wybierz okres raportu",
+    selectMonth: "Wybierz miesiąc",
+    selectWeek: "Wybierz tydzień",
+    month: "Miesiąc",
+    year: "Rok",
+    week: "Tydzień",
+    period: "Okres",
+    revenue: "Obrót",
+    days: "Dni",
+    customRange: "Własny zakres",
   },
   
   en: {
@@ -371,6 +381,16 @@ export const translations = {
     daysWorkedCount: "{count} days worked",
     shiftsWorkedCount: "{count} shifts worked",
     avgDailyRevenue: "Avg. daily revenue",
+    selectReportPeriod: "Select report period",
+    selectMonth: "Select month",
+    selectWeek: "Select week",
+    month: "Month",
+    year: "Year",
+    week: "Week",
+    period: "Period",
+    revenue: "Revenue",
+    days: "Days",
+    customRange: "Custom range",
 
     // Annual Report
     annualReport: "Annual Report",
