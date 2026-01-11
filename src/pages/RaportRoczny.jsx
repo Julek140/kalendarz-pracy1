@@ -7,15 +7,20 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { FileText, TrendingUp, Calendar, Loader2, Download } from "lucide-react";
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import { startOfMonth, endOfMonth, format, parseISO } from "date-fns";
-import { pl } from "date-fns/locale";
+import { pl, enUS } from "date-fns/locale";
+import { useLanguage } from "@/components/LanguageContext";
+import { t } from "@/components/translations";
 
 const YEARS = ["2024", "2025", "2026", "2027", "2028", "2029"];
 
 export default function RaportRocznyPage() {
+  const { language } = useLanguage();
   const [selectedYear, setSelectedYear] = useState("2025");
   const [reportData, setReportData] = useState(null);
   const [aiAnalysis, setAiAnalysis] = useState(null);
   const [isGenerating, setIsGenerating] = useState(false);
+  
+  const locale = language === 'pl' ? pl : enUS;
 
   const { data: workDays = [] } = useQuery({
     queryKey: ['workDays'],
@@ -53,7 +58,7 @@ export default function RaportRocznyPage() {
       const avgDailyRevenue = totalDays > 0 ? totalRevenue / totalDays : 0;
 
       monthlyData.push({
-        month: format(monthStart, 'LLLL', { locale: pl }),
+        month: format(monthStart, 'LLLL', { locale }),
         monthNum: month + 1,
         totalRevenue,
         revenueIkea,
@@ -253,8 +258,8 @@ export default function RaportRocznyPage() {
               className="h-12 w-auto object-contain"
             />
             <div className="text-center">
-              <h1 className="text-3xl font-bold text-slate-900">Raport Roczny</h1>
-              <p className="text-slate-600 mt-1">Podsumowanie i analiza biznesowa</p>
+              <h1 className="text-3xl font-bold text-slate-900">{t('annualReport', language)}</h1>
+              <p className="text-slate-600 mt-1">{t('businessAnalysisSummary', language)}</p>
             </div>
           </div>
         </div>
@@ -264,7 +269,7 @@ export default function RaportRocznyPage() {
           <CardHeader className="bg-gradient-to-r from-indigo-50 to-purple-50 border-b">
             <CardTitle className="flex items-center gap-2">
               <Calendar className="w-5 h-5 text-indigo-600" />
-              Wybierz rok do analizy
+              {t('selectYearToAnalyze', language)}
             </CardTitle>
           </CardHeader>
           <CardContent className="p-6">
@@ -289,12 +294,12 @@ export default function RaportRocznyPage() {
                 {isGenerating ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Generowanie...
+                    {t('generating', language)}
                   </>
                 ) : (
                   <>
                     <FileText className="w-4 h-4 mr-2" />
-                    Generuj raport roczny
+                    {t('generateAnnualReport', language)}
                   </>
                 )}
               </Button>
@@ -310,7 +315,7 @@ export default function RaportRocznyPage() {
               <Card className="shadow-lg border-none bg-gradient-to-br from-emerald-500 to-green-600 text-white">
                 <CardContent className="p-6">
                   <TrendingUp className="w-10 h-10 mb-3 opacity-80" />
-                  <p className="text-sm opacity-90 mb-1">Całkowity obrót {reportData.year}</p>
+                  <p className="text-sm opacity-90 mb-1">{t('totalYearRevenue', language, { year: reportData.year })}</p>
                   <p className="text-3xl font-bold">{formatCurrency(reportData.totalYearRevenue)}</p>
                 </CardContent>
               </Card>
@@ -318,7 +323,7 @@ export default function RaportRocznyPage() {
               <Card className="shadow-lg border-none bg-gradient-to-br from-blue-500 to-indigo-600 text-white">
                 <CardContent className="p-6">
                   <FileText className="w-10 h-10 mb-3 opacity-80" />
-                  <p className="text-sm opacity-90 mb-1">Średni obrót miesięczny</p>
+                  <p className="text-sm opacity-90 mb-1">{t('avgMonthlyRevenue', language)}</p>
                   <p className="text-3xl font-bold">{formatCurrency(reportData.avgMonthlyRevenue)}</p>
                 </CardContent>
               </Card>
@@ -326,7 +331,7 @@ export default function RaportRocznyPage() {
               <Card className="shadow-lg border-none bg-gradient-to-br from-purple-500 to-pink-600 text-white">
                 <CardContent className="p-6">
                   <Calendar className="w-10 h-10 mb-3 opacity-80" />
-                  <p className="text-sm opacity-90 mb-1">Przepracowane dni</p>
+                  <p className="text-sm opacity-90 mb-1">{t('daysWorked', language)}</p>
                   <p className="text-3xl font-bold">{reportData.totalYearDays}</p>
                 </CardContent>
               </Card>
@@ -334,7 +339,7 @@ export default function RaportRocznyPage() {
               <Card className="shadow-lg border-none bg-gradient-to-br from-orange-500 to-red-600 text-white">
                 <CardContent className="p-6">
                   <TrendingUp className="w-10 h-10 mb-3 opacity-80" />
-                  <p className="text-sm opacity-90 mb-1">Przepracowane zmiany</p>
+                  <p className="text-sm opacity-90 mb-1">{t('shiftsWorked', language)}</p>
                   <p className="text-3xl font-bold">{reportData.totalYearShifts}</p>
                 </CardContent>
               </Card>
@@ -344,7 +349,7 @@ export default function RaportRocznyPage() {
             {aiAnalysis && (
               <Card className="shadow-lg border-none border-l-4 border-l-indigo-600">
                 <CardHeader className="bg-gradient-to-r from-indigo-50 to-purple-50">
-                  <CardTitle>Podsumowanie roku {reportData.year}</CardTitle>
+                  <CardTitle>{t('yearSummary', language, { year: reportData.year })}</CardTitle>
                 </CardHeader>
                 <CardContent className="p-6">
                   <p className="text-slate-700 leading-relaxed text-lg">{aiAnalysis.podsumowanie_roku}</p>
@@ -357,7 +362,7 @@ export default function RaportRocznyPage() {
               {/* Wykres liniowy - Łączny obrót */}
               <Card className="shadow-lg border-none">
                 <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50">
-                  <CardTitle>Trend miesięczny - Obrót łączny</CardTitle>
+                  <CardTitle>{t('monthlyTrendTotal', language)}</CardTitle>
                 </CardHeader>
                 <CardContent className="p-6">
                   <ResponsiveContainer width="100%" height={300}>
@@ -367,7 +372,7 @@ export default function RaportRocznyPage() {
                       <YAxis width={80} tickFormatter={(value) => `${(value / 1000000).toFixed(1)}M`} />
                       <Tooltip formatter={(value) => formatCurrency(value)} />
                       <Legend />
-                      <Line type="monotone" dataKey="totalRevenue" stroke="#4F46E5" strokeWidth={3} name="Obrót łączny" />
+                      <Line type="monotone" dataKey="totalRevenue" stroke="#4F46E5" strokeWidth={3} name={t('totalRevenue', language)} />
                     </LineChart>
                   </ResponsiveContainer>
                 </CardContent>
@@ -376,7 +381,7 @@ export default function RaportRocznyPage() {
               {/* Wykres słupkowy - Łączny obrót */}
               <Card className="shadow-lg border-none">
                 <CardHeader className="bg-gradient-to-r from-emerald-50 to-green-50">
-                  <CardTitle>Porównanie miesięcy - Obrót łączny</CardTitle>
+                  <CardTitle>{t('monthComparisonTotal', language)}</CardTitle>
                 </CardHeader>
                 <CardContent className="p-6">
                   <ResponsiveContainer width="100%" height={300}>
@@ -386,7 +391,7 @@ export default function RaportRocznyPage() {
                       <YAxis width={80} tickFormatter={(value) => `${(value / 1000000).toFixed(1)}M`} />
                       <Tooltip formatter={(value) => formatCurrency(value)} />
                       <Legend />
-                      <Bar dataKey="totalRevenue" fill="#10B981" name="Obrót łączny" />
+                      <Bar dataKey="totalRevenue" fill="#10B981" name={t('totalRevenue', language)} />
                     </BarChart>
                   </ResponsiveContainer>
                 </CardContent>
@@ -398,7 +403,7 @@ export default function RaportRocznyPage() {
               {/* Wykres liniowy - Podział źródeł */}
               <Card className="shadow-lg border-none">
                 <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50">
-                  <CardTitle>Trend miesięczny - Podział źródeł</CardTitle>
+                  <CardTitle>{t('monthlyTrendBreakdown', language)}</CardTitle>
                 </CardHeader>
                 <CardContent className="p-6">
                   <ResponsiveContainer width="100%" height={300}>
@@ -419,7 +424,7 @@ export default function RaportRocznyPage() {
               {/* Wykres słupkowy - Podział źródeł */}
               <Card className="shadow-lg border-none">
                 <CardHeader className="bg-gradient-to-r from-amber-50 to-orange-50">
-                  <CardTitle>Porównanie miesięcy - Podział źródeł</CardTitle>
+                  <CardTitle>{t('monthComparisonBreakdown', language)}</CardTitle>
                 </CardHeader>
                 <CardContent className="p-6">
                   <ResponsiveContainer width="100%" height={300}>
@@ -441,7 +446,7 @@ export default function RaportRocznyPage() {
             {/* Wykres kwartalny - Łączny */}
             <Card className="shadow-lg border-none">
               <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50">
-                <CardTitle>Analiza kwartalna - Obrót łączny</CardTitle>
+                <CardTitle>{t('quarterlyAnalysisTotal', language)}</CardTitle>
               </CardHeader>
               <CardContent className="p-6">
                 <ResponsiveContainer width="100%" height={300}>
@@ -451,17 +456,17 @@ export default function RaportRocznyPage() {
                     <YAxis width={80} tickFormatter={(value) => `${(value / 1000000).toFixed(1)}M`} />
                     <Tooltip formatter={(value) => formatCurrency(value)} />
                     <Legend />
-                    <Bar dataKey="totalRevenue" fill="#9333EA" name="Obrót łączny" />
+                    <Bar dataKey="totalRevenue" fill="#9333EA" name={t('totalRevenue', language)} />
                   </BarChart>
                 </ResponsiveContainer>
                 <div className="mt-4 grid grid-cols-2 gap-4">
                   <div className="bg-green-50 p-4 rounded-lg border border-green-200">
-                    <p className="text-sm text-green-700 mb-1">Najlepszy kwartał</p>
+                    <p className="text-sm text-green-700 mb-1">{t('bestQuarter', language)}</p>
                     <p className="text-2xl font-bold text-green-900">{reportData.bestQuarter.quarter}</p>
                     <p className="text-sm text-green-600">{formatCurrency(reportData.bestQuarter.totalRevenue)}</p>
                   </div>
                   <div className="bg-red-50 p-4 rounded-lg border border-red-200">
-                    <p className="text-sm text-red-700 mb-1">Najsłabszy kwartał</p>
+                    <p className="text-sm text-red-700 mb-1">{t('worstQuarter', language)}</p>
                     <p className="text-2xl font-bold text-red-900">{reportData.worstQuarter.quarter}</p>
                     <p className="text-sm text-red-600">{formatCurrency(reportData.worstQuarter.totalRevenue)}</p>
                   </div>
@@ -472,7 +477,7 @@ export default function RaportRocznyPage() {
             {/* Wykres kwartalny - Podział źródeł */}
             <Card className="shadow-lg border-none">
               <CardHeader className="bg-gradient-to-r from-cyan-50 to-sky-50">
-                <CardTitle>Analiza kwartalna - Podział źródeł</CardTitle>
+                <CardTitle>{t('quarterlyAnalysisBreakdown', language)}</CardTitle>
               </CardHeader>
               <CardContent className="p-6">
                 <ResponsiveContainer width="100%" height={300}>
@@ -494,30 +499,30 @@ export default function RaportRocznyPage() {
             <div className="grid md:grid-cols-2 gap-6">
               <Card className="shadow-lg border-none border-l-4 border-l-green-600">
                 <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50">
-                  <CardTitle className="text-green-900">Najlepszy miesiąc</CardTitle>
+                  <CardTitle className="text-green-900">{t('bestMonth', language)}</CardTitle>
                 </CardHeader>
                 <CardContent className="p-6">
                   <p className="text-4xl font-bold text-green-700 mb-2 capitalize">{reportData.bestMonth.month}</p>
                   <p className="text-2xl text-green-600 mb-4">{formatCurrency(reportData.bestMonth.totalRevenue)}</p>
                   <div className="space-y-2 text-sm text-slate-600">
-                    <p>Przepracowane dni: {reportData.bestMonth.totalDays}</p>
-                    <p>Przepracowane zmiany: {reportData.bestMonth.totalShifts}</p>
-                    <p>Średni obrót dzienny: {formatCurrency(reportData.bestMonth.avgDailyRevenue)}</p>
+                    <p>{t('daysWorked', language)}: {reportData.bestMonth.totalDays}</p>
+                    <p>{t('shiftsWorked', language)}: {reportData.bestMonth.totalShifts}</p>
+                    <p>{t('avgDailyRevenue', language)}: {formatCurrency(reportData.bestMonth.avgDailyRevenue)}</p>
                   </div>
                 </CardContent>
               </Card>
 
               <Card className="shadow-lg border-none border-l-4 border-l-red-600">
                 <CardHeader className="bg-gradient-to-r from-red-50 to-orange-50">
-                  <CardTitle className="text-red-900">Najsłabszy miesiąc</CardTitle>
+                  <CardTitle className="text-red-900">{t('worstMonth', language)}</CardTitle>
                 </CardHeader>
                 <CardContent className="p-6">
                   <p className="text-4xl font-bold text-red-700 mb-2 capitalize">{reportData.worstMonth.month}</p>
                   <p className="text-2xl text-red-600 mb-4">{formatCurrency(reportData.worstMonth.totalRevenue)}</p>
                   <div className="space-y-2 text-sm text-slate-600">
-                    <p>Przepracowane dni: {reportData.worstMonth.totalDays}</p>
-                    <p>Przepracowane zmiany: {reportData.worstMonth.totalShifts}</p>
-                    <p>Średni obrót dzienny: {formatCurrency(reportData.worstMonth.avgDailyRevenue)}</p>
+                    <p>{t('daysWorked', language)}: {reportData.worstMonth.totalDays}</p>
+                    <p>{t('shiftsWorked', language)}: {reportData.worstMonth.totalShifts}</p>
+                    <p>{t('avgDailyRevenue', language)}: {formatCurrency(reportData.worstMonth.avgDailyRevenue)}</p>
                   </div>
                 </CardContent>
               </Card>
@@ -527,7 +532,7 @@ export default function RaportRocznyPage() {
             {aiAnalysis && (
               <Card className="shadow-lg border-none">
                 <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50">
-                  <CardTitle>Analiza miesięczna</CardTitle>
+                  <CardTitle>{t('monthlyAnalysis', language)}</CardTitle>
                 </CardHeader>
                 <CardContent className="p-6">
                   <div className="grid md:grid-cols-2 gap-4">
@@ -540,7 +545,7 @@ export default function RaportRocznyPage() {
                           <div className="flex items-center justify-between mb-2">
                             <h3 className="font-bold capitalize text-slate-900">{month}</h3>
                             <span className={`text-xs px-2 py-1 rounded-full ${isAboveAvg ? 'bg-green-200 text-green-800' : 'bg-slate-200 text-slate-700'}`}>
-                              {isAboveAvg ? 'Powyżej średniej' : 'Poniżej średniej'}
+                              {isAboveAvg ? t('aboveAverage', language) : t('belowAverage', language)}
                             </span>
                           </div>
                           <p className="text-sm text-slate-700">{analysis}</p>
@@ -556,7 +561,7 @@ export default function RaportRocznyPage() {
             {aiAnalysis && (
               <Card className="shadow-lg border-none border-l-4 border-l-purple-600">
                 <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50">
-                  <CardTitle>Trend roczny</CardTitle>
+                  <CardTitle>{t('yearlyTrend', language)}</CardTitle>
                 </CardHeader>
                 <CardContent className="p-6">
                   <p className="text-slate-700 leading-relaxed">{aiAnalysis.trend}</p>
@@ -568,7 +573,7 @@ export default function RaportRocznyPage() {
             {aiAnalysis && (
               <Card className="shadow-lg border-none border-l-4 border-l-amber-600">
                 <CardHeader className="bg-gradient-to-r from-amber-50 to-yellow-50">
-                  <CardTitle>Wnioski końcowe i rekomendacje</CardTitle>
+                  <CardTitle>{t('conclusionsRecommendations', language)}</CardTitle>
                 </CardHeader>
                 <CardContent className="p-6">
                   <ul className="space-y-3">
@@ -592,7 +597,9 @@ export default function RaportRocznyPage() {
             <CardContent className="p-12 text-center">
               <FileText className="w-16 h-16 text-slate-400 mx-auto mb-4" />
               <p className="text-slate-600 text-lg">
-                Wybierz rok i wygeneruj raport roczny z pełną analizą biznesową
+                {language === 'pl' 
+                  ? 'Wybierz rok i wygeneruj raport roczny z pełną analizą biznesową'
+                  : 'Select a year and generate an annual report with full business analysis'}
               </p>
             </CardContent>
           </Card>
