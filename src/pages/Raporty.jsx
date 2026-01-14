@@ -177,7 +177,8 @@ export default function RaportyPage() {
       const regularDays = deptDays.filter(wd => {
         const date = parseISO(wd.date);
         return !isWeekend(date) && 
-               !allHolidays.some(h => h.date === wd.date);
+               !allHolidays.some(h => h.date === wd.date) &&
+               !wd.is_downtime;
       }).length;
 
       const overtimeDays = deptDays.filter(wd => {
