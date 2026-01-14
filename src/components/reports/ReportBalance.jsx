@@ -115,7 +115,7 @@ export default function ReportBalance({ reportData, language = 'pl' }) {
                 <div className="space-y-3">
                   <div>
                     <div className="flex justify-between text-sm mb-1">
-                      <span>Dni robocze (Pn-Pt):</span>
+                      <span>{t('weekdaysUsed', language)}:</span>
                       <span className="font-semibold">
                         {balance.usedWeekdaysMaszynownia} / {balance.availableWeekdays} ({maszynowniaWeekdaysPercent.toFixed(1)}%)
                       </span>
@@ -125,7 +125,7 @@ export default function ReportBalance({ reportData, language = 'pl' }) {
 
                   <div>
                     <div className="flex justify-between text-sm mb-1">
-                      <span>Soboty (nadgodziny):</span>
+                      <span>{t('saturdaysOvertime', language)}:</span>
                       <span className="font-semibold">
                         {balance.usedSaturdaysMaszynownia} / {balance.availableSaturdays} ({maszynowniaSaturdaysPercent.toFixed(1)}%)
                       </span>
@@ -135,7 +135,7 @@ export default function ReportBalance({ reportData, language = 'pl' }) {
                   
                   <div>
                     <div className="flex justify-between text-sm mb-1">
-                      <span>Zmiany ogółem (+nadgodziny):</span>
+                      <span>{t('shiftsTotal', language)}:</span>
                       <span className="font-semibold">
                         {balance.usedShiftsMaszynownia} / {balance.totalAvailableShifts} ({maszynowniaShiftsPercent.toFixed(1)}%)
                       </span>
@@ -148,12 +148,12 @@ export default function ReportBalance({ reportData, language = 'pl' }) {
               {/* Pakownia */}
               <div>
                 <div className="flex justify-between items-center mb-2">
-                  <span className="font-semibold text-green-700">📦 Pakownia</span>
+                  <span className="font-semibold text-green-700">📦 {t('pakownia', language)}</span>
                 </div>
                 <div className="space-y-3">
                   <div>
                     <div className="flex justify-between text-sm mb-1">
-                      <span>Dni robocze (Pn-Pt):</span>
+                      <span>{t('weekdaysUsed', language)}:</span>
                       <span className="font-semibold">
                         {balance.usedWeekdaysPakownia} / {balance.availableWeekdays} ({pakowniaWeekdaysPercent.toFixed(1)}%)
                       </span>
@@ -163,7 +163,7 @@ export default function ReportBalance({ reportData, language = 'pl' }) {
 
                   <div>
                     <div className="flex justify-between text-sm mb-1">
-                      <span>Soboty (nadgodziny):</span>
+                      <span>{t('saturdaysOvertime', language)}:</span>
                       <span className="font-semibold">
                         {balance.usedSaturdaysPakownia} / {balance.availableSaturdays} ({pakowniaSaturdaysPercent.toFixed(1)}%)
                       </span>
@@ -173,7 +173,7 @@ export default function ReportBalance({ reportData, language = 'pl' }) {
                   
                   <div>
                     <div className="flex justify-between text-sm mb-1">
-                      <span>Zmiany ogółem (+nadgodziny):</span>
+                      <span>{t('shiftsTotal', language)}:</span>
                       <span className="font-semibold">
                         {balance.usedShiftsPakownia} / {balance.totalAvailableShifts} ({pakowniaShiftsPercent.toFixed(1)}%)
                       </span>
@@ -189,23 +189,23 @@ export default function ReportBalance({ reportData, language = 'pl' }) {
         {/* Summary Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="bg-white rounded-xl p-4 text-center shadow-sm">
-            <p className="text-sm text-slate-600 mb-1">Dni robocze (Pn-Pt)</p>
-            <p className="text-sm font-medium text-blue-700">Maszynownia</p>
+            <p className="text-sm text-slate-600 mb-1">{t('weekdaysUsed', language)}</p>
+            <p className="text-sm font-medium text-blue-700">{t('maszynownia', language)}</p>
             <p className="text-3xl font-bold text-blue-900">{balance.usedWeekdaysMaszynownia}</p>
           </div>
           <div className="bg-white rounded-xl p-4 text-center shadow-sm">
-            <p className="text-sm text-slate-600 mb-1">Wykorzystane zmiany</p>
-            <p className="text-sm font-medium text-blue-700">Maszynownia</p>
+            <p className="text-sm text-slate-600 mb-1">{t('usedShifts', language)}</p>
+            <p className="text-sm font-medium text-blue-700">{t('maszynownia', language)}</p>
             <p className="text-3xl font-bold text-blue-900">{balance.usedShiftsMaszynownia}</p>
           </div>
           <div className="bg-white rounded-xl p-4 text-center shadow-sm">
-            <p className="text-sm text-slate-600 mb-1">Dni robocze (Pn-Pt)</p>
-            <p className="text-sm font-medium text-green-700">Pakownia</p>
+            <p className="text-sm text-slate-600 mb-1">{t('weekdaysUsed', language)}</p>
+            <p className="text-sm font-medium text-green-700">{t('pakownia', language)}</p>
             <p className="text-3xl font-bold text-green-900">{balance.usedWeekdaysPakownia}</p>
           </div>
           <div className="bg-white rounded-xl p-4 text-center shadow-sm">
-            <p className="text-sm text-slate-600 mb-1">Wykorzystane zmiany</p>
-            <p className="text-sm font-medium text-green-700">Pakownia</p>
+            <p className="text-sm text-slate-600 mb-1">{t('usedShifts', language)}</p>
+            <p className="text-sm font-medium text-green-700">{t('pakownia', language)}</p>
             <p className="text-3xl font-bold text-green-900">{balance.usedShiftsPakownia}</p>
           </div>
         </div>
