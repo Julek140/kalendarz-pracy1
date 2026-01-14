@@ -266,7 +266,7 @@ export const translations = {
     selectYear: "Select year for analysis",
     generateAnnualReport: "Generate annual report",
     generating: "Generating...",
-    totalYearRevenue: "Total revenue {year}",
+    totalYearRevenue: "Total turnover {year}",
     yearSummary: "Summary of year {year}",
     monthlyTrend: "Monthly trend",
     monthComparison: "Month comparison",
@@ -385,11 +385,11 @@ export const translations = {
     // Annual Report
     businessAnalysisSummary: "Business analysis and summary",
     selectYearToAnalyze: "Select year to analyze",
-    monthlyTrendTotal: "Monthly trend - Total revenue",
-    monthComparisonTotal: "Month comparison - Total revenue",
+    monthlyTrendTotal: "Monthly trend - Total turnover",
+    monthComparisonTotal: "Month comparison - Total turnover",
     monthlyTrendBreakdown: "Monthly trend - Source breakdown",
     monthComparisonBreakdown: "Month comparison - Source breakdown",
-    quarterlyAnalysisTotal: "Quarterly analysis - Total revenue",
+    quarterlyAnalysisTotal: "Quarterly analysis - Total turnover",
     quarterlyAnalysisBreakdown: "Quarterly analysis - Source breakdown",
   }
 };
