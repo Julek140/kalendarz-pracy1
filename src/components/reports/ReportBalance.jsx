@@ -192,23 +192,23 @@ export default function ReportBalance({ reportData, language = 'pl' }) {
         {/* Summary Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="bg-white rounded-xl p-4 text-center shadow-sm">
-            <p className="text-sm text-slate-600 mb-1">{t('weekdaysUsed', language)}</p>
             <p className="text-sm font-medium text-blue-700">{t('maszynownia', language)}</p>
+            <p className="text-sm text-slate-600 mb-1">{t('weekdaysUsed', language)}</p>
             <p className="text-3xl font-bold text-blue-900">{balance.usedWeekdaysMaszynownia}</p>
           </div>
           <div className="bg-white rounded-xl p-4 text-center shadow-sm">
-            <p className="text-sm text-slate-600 mb-1">{t('usedShifts', language)}</p>
             <p className="text-sm font-medium text-blue-700">{t('maszynownia', language)}</p>
+            <p className="text-sm text-slate-600 mb-1">{t('shiftsUsed', language)}</p>
             <p className="text-3xl font-bold text-blue-900">{balance.usedShiftsMaszynownia}</p>
           </div>
           <div className="bg-white rounded-xl p-4 text-center shadow-sm">
-            <p className="text-sm text-slate-600 mb-1">{t('weekdaysUsed', language)}</p>
             <p className="text-sm font-medium text-green-700">{t('pakownia', language)}</p>
+            <p className="text-sm text-slate-600 mb-1">{t('weekdaysUsed', language)}</p>
             <p className="text-3xl font-bold text-green-900">{balance.usedWeekdaysPakownia}</p>
           </div>
           <div className="bg-white rounded-xl p-4 text-center shadow-sm">
-            <p className="text-sm text-slate-600 mb-1">{t('usedShifts', language)}</p>
             <p className="text-sm font-medium text-green-700">{t('pakownia', language)}</p>
+            <p className="text-sm text-slate-600 mb-1">{t('shiftsUsed', language)}</p>
             <p className="text-3xl font-bold text-green-900">{balance.usedShiftsPakownia}</p>
           </div>
         </div>
