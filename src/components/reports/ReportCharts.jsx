@@ -2,6 +2,7 @@ import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from "recharts";
 import { TrendingUp } from "lucide-react";
+import { t } from "@/components/translations";
 
 const COLORS = {
   used: '#3B82F6',
@@ -10,7 +11,7 @@ const COLORS = {
   unusedPakownia: '#D1FAE5',
 };
 
-export default function ReportCharts({ reportData }) {
+export default function ReportCharts({ reportData, language = 'pl' }) {
   const { balance } = reportData;
 
   // Procent wykorzystania dni roboczych Maszynownia
@@ -21,8 +22,8 @@ export default function ReportCharts({ reportData }) {
     : 0;
 
   const maszynowniaWeekdaysData = [
-    { name: 'Wykorzystane', value: maszynowniaWeekdaysUsed, color: COLORS.used },
-    { name: 'Niewykorzystane', value: maszynowniaWeekdaysUnused, color: COLORS.unused },
+    { name: t('used', language), value: maszynowniaWeekdaysUsed, color: COLORS.used },
+    { name: t('unused', language), value: maszynowniaWeekdaysUnused, color: COLORS.unused },
   ];
 
   // Procent wykorzystania dni roboczych Pakownia
@@ -33,8 +34,8 @@ export default function ReportCharts({ reportData }) {
     : 0;
 
   const pakowniaWeekdaysData = [
-    { name: 'Wykorzystane', value: pakowniaWeekdaysUsed, color: COLORS.usedPakownia },
-    { name: 'Niewykorzystane', value: pakowniaWeekdaysUnused, color: COLORS.unusedPakownia },
+    { name: t('used', language), value: pakowniaWeekdaysUsed, color: COLORS.usedPakownia },
+    { name: t('unused', language), value: pakowniaWeekdaysUnused, color: COLORS.unusedPakownia },
   ];
 
   // Procent wykorzystania zmian Maszynownia
@@ -45,8 +46,8 @@ export default function ReportCharts({ reportData }) {
     : 0;
 
   const maszynowniaShiftsData = [
-    { name: 'Wykorzystane', value: maszynowniaShiftsUsed, color: COLORS.used },
-    { name: 'Niewykorzystane', value: maszynowniaShiftsUnused, color: COLORS.unused },
+    { name: t('used', language), value: maszynowniaShiftsUsed, color: COLORS.used },
+    { name: t('unused', language), value: maszynowniaShiftsUnused, color: COLORS.unused },
   ];
 
   // Procent wykorzystania zmian Pakownia
@@ -57,8 +58,8 @@ export default function ReportCharts({ reportData }) {
     : 0;
 
   const pakowniaShiftsData = [
-    { name: 'Wykorzystane', value: pakowniaShiftsUsed, color: COLORS.usedPakownia },
-    { name: 'Niewykorzystane', value: pakowniaShiftsUnused, color: COLORS.unusedPakownia },
+    { name: t('used', language), value: pakowniaShiftsUsed, color: COLORS.usedPakownia },
+    { name: t('unused', language), value: pakowniaShiftsUnused, color: COLORS.unusedPakownia },
   ];
 
   const renderCustomLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent }) => {
@@ -89,7 +90,7 @@ export default function ReportCharts({ reportData }) {
           <CardHeader className="bg-gradient-to-r from-blue-50 to-blue-100 border-b">
             <CardTitle className="flex items-center gap-2">
               <TrendingUp className="w-5 h-5 text-blue-600" />
-              🏭 Maszynownia - Dni robocze (Pn-Pt)
+              🏭 {t('maszynownia', language)} - {t('weekdaysChart', language)}
             </CardTitle>
           </CardHeader>
           <CardContent className="p-6">
@@ -115,15 +116,15 @@ export default function ReportCharts({ reportData }) {
             </ResponsiveContainer>
             <div className="mt-4 grid grid-cols-3 gap-2 text-center">
               <div className="p-3 bg-blue-50 rounded-lg">
-                <p className="text-xs text-slate-600 mb-1">Wykorzystane</p>
+                <p className="text-xs text-slate-600 mb-1">{t('used', language)}</p>
                 <p className="text-2xl font-bold text-blue-700">{maszynowniaWeekdaysUsed}</p>
               </div>
               <div className="p-3 bg-slate-50 rounded-lg">
-                <p className="text-xs text-slate-600 mb-1">Niewykorzystane</p>
+                <p className="text-xs text-slate-600 mb-1">{t('unused', language)}</p>
                 <p className="text-2xl font-bold text-slate-700">{maszynowniaWeekdaysUnused}</p>
               </div>
               <div className="p-3 bg-indigo-50 rounded-lg">
-                <p className="text-xs text-slate-600 mb-1">Procent</p>
+                <p className="text-xs text-slate-600 mb-1">{t('percent', language)}</p>
                 <p className="text-2xl font-bold text-indigo-700">{maszynowniaWeekdaysPercent}%</p>
               </div>
             </div>
@@ -135,7 +136,7 @@ export default function ReportCharts({ reportData }) {
           <CardHeader className="bg-gradient-to-r from-green-50 to-green-100 border-b">
             <CardTitle className="flex items-center gap-2">
               <TrendingUp className="w-5 h-5 text-green-600" />
-              📦 Pakownia - Dni robocze (Pn-Pt)
+              📦 {t('pakownia', language)} - {t('weekdaysChart', language)}
             </CardTitle>
           </CardHeader>
           <CardContent className="p-6">
@@ -161,15 +162,15 @@ export default function ReportCharts({ reportData }) {
             </ResponsiveContainer>
             <div className="mt-4 grid grid-cols-3 gap-2 text-center">
               <div className="p-3 bg-green-50 rounded-lg">
-                <p className="text-xs text-slate-600 mb-1">Wykorzystane</p>
+                <p className="text-xs text-slate-600 mb-1">{t('used', language)}</p>
                 <p className="text-2xl font-bold text-green-700">{pakowniaWeekdaysUsed}</p>
               </div>
               <div className="p-3 bg-slate-50 rounded-lg">
-                <p className="text-xs text-slate-600 mb-1">Niewykorzystane</p>
+                <p className="text-xs text-slate-600 mb-1">{t('unused', language)}</p>
                 <p className="text-2xl font-bold text-slate-700">{pakowniaWeekdaysUnused}</p>
               </div>
               <div className="p-3 bg-emerald-50 rounded-lg">
-                <p className="text-xs text-slate-600 mb-1">Procent</p>
+                <p className="text-xs text-slate-600 mb-1">{t('percent', language)}</p>
                 <p className="text-2xl font-bold text-emerald-700">{pakowniaWeekdaysPercent}%</p>
               </div>
             </div>
@@ -184,7 +185,7 @@ export default function ReportCharts({ reportData }) {
           <CardHeader className="bg-gradient-to-r from-indigo-50 to-indigo-100 border-b">
             <CardTitle className="flex items-center gap-2">
               <TrendingUp className="w-5 h-5 text-indigo-600" />
-              🏭 Maszynownia - Zmiany ogółem
+              🏭 {t('maszynownia', language)} - {t('shiftsOverallChart', language)}
             </CardTitle>
           </CardHeader>
           <CardContent className="p-6">
@@ -210,15 +211,15 @@ export default function ReportCharts({ reportData }) {
             </ResponsiveContainer>
             <div className="mt-4 grid grid-cols-3 gap-2 text-center">
               <div className="p-3 bg-blue-50 rounded-lg">
-                <p className="text-xs text-slate-600 mb-1">Wykorzystane</p>
+                <p className="text-xs text-slate-600 mb-1">{t('used', language)}</p>
                 <p className="text-2xl font-bold text-blue-700">{maszynowniaShiftsUsed}</p>
               </div>
               <div className="p-3 bg-slate-50 rounded-lg">
-                <p className="text-xs text-slate-600 mb-1">Dostępne</p>
+                <p className="text-xs text-slate-600 mb-1">{t('available', language)}</p>
                 <p className="text-2xl font-bold text-slate-700">{balance.totalAvailableShifts}</p>
               </div>
               <div className="p-3 bg-indigo-50 rounded-lg">
-                <p className="text-xs text-slate-600 mb-1">Procent</p>
+                <p className="text-xs text-slate-600 mb-1">{t('percent', language)}</p>
                 <p className="text-2xl font-bold text-indigo-700">{maszynowniaShiftsPercent}%</p>
               </div>
             </div>
@@ -230,7 +231,7 @@ export default function ReportCharts({ reportData }) {
           <CardHeader className="bg-gradient-to-r from-emerald-50 to-emerald-100 border-b">
             <CardTitle className="flex items-center gap-2">
               <TrendingUp className="w-5 h-5 text-emerald-600" />
-              📦 Pakownia - Zmiany ogółem
+              📦 {t('pakownia', language)} - {t('shiftsOverallChart', language)}
             </CardTitle>
           </CardHeader>
           <CardContent className="p-6">
@@ -256,15 +257,15 @@ export default function ReportCharts({ reportData }) {
             </ResponsiveContainer>
             <div className="mt-4 grid grid-cols-3 gap-2 text-center">
               <div className="p-3 bg-green-50 rounded-lg">
-                <p className="text-xs text-slate-600 mb-1">Wykorzystane</p>
+                <p className="text-xs text-slate-600 mb-1">{t('used', language)}</p>
                 <p className="text-2xl font-bold text-green-700">{pakowniaShiftsUsed}</p>
               </div>
               <div className="p-3 bg-slate-50 rounded-lg">
-                <p className="text-xs text-slate-600 mb-1">Dostępne</p>
+                <p className="text-xs text-slate-600 mb-1">{t('available', language)}</p>
                 <p className="text-2xl font-bold text-slate-700">{balance.totalAvailableShifts}</p>
               </div>
               <div className="p-3 bg-emerald-50 rounded-lg">
-                <p className="text-xs text-slate-600 mb-1">Procent</p>
+                <p className="text-xs text-slate-600 mb-1">{t('percent', language)}</p>
                 <p className="text-2xl font-bold text-emerald-700">{pakowniaShiftsPercent}%</p>
               </div>
             </div>
