@@ -166,8 +166,8 @@ export default function RaportyPage() {
 
     const totalAvailableDays = allDaysInRange.length;
     
-    // NOWA LOGIKA: Dostępne zmiany = TYLKO dni robocze Pn-Pt × 3 (15/tydzień)
-    const totalAvailableShifts = availableWeekdays * 3;
+    // NOWA LOGIKA: Dostępne zmiany = (dni robocze Pn-Pt × 3) + (soboty × 1)
+    const totalAvailableShifts = (availableWeekdays * 3) + (availableSaturdays * 1);
 
     const calculateStats = (department) => {
       const deptDays = filteredDays.filter(wd => 
@@ -212,6 +212,9 @@ export default function RaportyPage() {
 
       const totalShifts = regularShifts + overtimeShifts;
 
+      // Teoretyczne zmiany = (dni Pn-Pt × 3) + (soboty × 1)
+      const theoreticalShifts = (regularDays * 3) + (usedSaturdays * 1);
+
       return {
         totalWorkDays,
         regularDays,
@@ -221,6 +224,7 @@ export default function RaportyPage() {
         totalShifts,
         regularShifts,
         overtimeShifts,
+        theoreticalShifts,
         details: deptDays,
       };
     };
@@ -249,8 +253,8 @@ export default function RaportyPage() {
         usedWeekdaysPakownia: pakowniaStats.regularDays,
         usedSaturdaysMaszynownia: maszynowniaStats.usedSaturdays,
         usedSaturdaysPakownia: pakowniaStats.usedSaturdays,
-        usedShiftsMaszynownia: maszynowniaStats.regularShifts,
-        usedShiftsPakownia: pakowniaStats.regularShifts,
+        usedShiftsMaszynownia: maszynowniaStats.theoreticalShifts,
+        usedShiftsPakownia: pakowniaStats.theoreticalShifts,
       },
     });
 
