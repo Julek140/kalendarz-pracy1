@@ -342,7 +342,7 @@ export const translations = {
     year: "Year",
     customRange: "Custom range",
     toGoalYear: "To goal for year {year}",
-    sourceBreakdown: "Source breakdown",
+    sourceBreakdown: "Receivers",
     totalRevenueCombined: "Total turnover (combined)",
     daysWorkedCount: "{count} days worked",
     avgDailyRevenue: "Avg. daily turnover",
@@ -387,10 +387,10 @@ export const translations = {
     selectYearToAnalyze: "Select year to analyze",
     monthlyTrendTotal: "Monthly trend - Total turnover",
     monthComparisonTotal: "Month comparison - Total turnover",
-    monthlyTrendBreakdown: "Monthly trend - Source breakdown",
-    monthComparisonBreakdown: "Month comparison - Source breakdown",
+    monthlyTrendBreakdown: "Monthly trend - Receivers",
+    monthComparisonBreakdown: "Month comparison - Receivers",
     quarterlyAnalysisTotal: "Quarterly analysis - Total turnover",
-    quarterlyAnalysisBreakdown: "Quarterly analysis - Source breakdown",
+    quarterlyAnalysisBreakdown: "Quarterly analysis - Receivers",
   }
 };
 
