@@ -12,7 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
 import { format, isWeekend, getDay } from "date-fns";
-import { pl } from "date-fns/locale";
+import { pl, enUS } from "date-fns/locale";
 import { Save, Trash2, X, Plus } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { useLanguage } from "@/components/LanguageContext";
@@ -100,11 +100,11 @@ export default function DayDialog({
       <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold">
-            {format(selectedDay, 'd MMMM yyyy', { locale: pl })}
+            {format(selectedDay, 'd MMMM yyyy', { locale: language === 'pl' ? pl : enUS })}
           </DialogTitle>
           <p className="text-sm text-slate-600 mt-1">
-            {format(selectedDay, 'EEEE', { locale: pl })}
-            {isWeekendDay && " • Weekend (nadgodziny)"}
+            {format(selectedDay, 'EEEE', { locale: language === 'pl' ? pl : enUS })}
+            {isWeekendDay && ` • ${t('weekendOvertime', language)}`}
             {holiday && ` • ${holiday.name} 🎉`}
           </p>
         </DialogHeader>
@@ -113,7 +113,7 @@ export default function DayDialog({
           {/* Lista istniejących wpisów */}
           {existingWorkDays.length > 0 && (
             <div>
-              <h3 className="font-semibold mb-3">Wpisy dla tego dnia:</h3>
+              <h3 className="font-semibold mb-3">{t('entriesForDay', language)}</h3>
               <div className="space-y-2">
                 {existingWorkDays.map((workDay) => (
                   <Card key={workDay.id} className="p-4 bg-slate-50">

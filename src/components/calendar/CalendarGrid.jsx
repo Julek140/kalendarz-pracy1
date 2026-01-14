@@ -1,10 +1,8 @@
 import React from "react";
 import { Card } from "@/components/ui/card";
 import { format, isSameMonth, isWeekend, getWeek } from "date-fns";
-import { pl } from "date-fns/locale";
 import { Skeleton } from "@/components/ui/skeleton";
-
-const weekDays = ["Pon", "Wt", "Śr", "Czw", "Pt", "Sob", "Ndz"];
+import { t } from "@/components/translations";
 
 export default function CalendarGrid({
   calendarDays,
@@ -13,7 +11,12 @@ export default function CalendarGrid({
   getHolidayForDate,
   onDayClick,
   isLoading,
+  language = 'pl',
+  locale,
 }) {
+  const weekDays = language === 'pl' 
+    ? ["Pon", "Wt", "Śr", "Czw", "Pt", "Sob", "Ndz"]
+    : ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
   const getDayStyle = (day) => {
     const workDay = getWorkDayForDate(day);
     const holiday = getHolidayForDate(day);
@@ -39,11 +42,11 @@ export default function CalendarGrid({
     const holiday = getHolidayForDate(day);
 
     if (holiday) return <div className="text-xs mt-1 font-medium">🎉 {holiday.name}</div>;
-    if (workDay?.is_downtime) return <div className="text-xs mt-1">⏸️ Przestój</div>;
+    if (workDay?.is_downtime) return <div className="text-xs mt-1">⏸️ {t('downtime', language)}</div>;
     if (workDay) {
-      if (workDay.department === "MASZYNOWNIA") return <div className="text-xs mt-1">🏭 Maszynownia</div>;
-      if (workDay.department === "PAKOWNIA") return <div className="text-xs mt-1">📦 Pakownia</div>;
-      if (workDay.department === "OBA_DZIALY") return <div className="text-xs mt-1">🏭📦 Oba działy</div>;
+      if (workDay.department === "MASZYNOWNIA") return <div className="text-xs mt-1">🏭 {t('maszynownia', language)}</div>;
+      if (workDay.department === "PAKOWNIA") return <div className="text-xs mt-1">📦 {t('pakownia', language)}</div>;
+      if (workDay.department === "OBA_DZIALY") return <div className="text-xs mt-1">🏭📦 {t('bothDepartments', language)}</div>;
     }
     return null;
   };
@@ -70,7 +73,7 @@ export default function CalendarGrid({
     <Card className="p-6 shadow-lg border-none bg-white">
       {/* Week days header */}
       <div className="grid grid-cols-8 gap-2 mb-4">
-        <div className="text-center font-bold text-slate-500 text-xs py-2">TYG</div>
+        <div className="text-center font-bold text-slate-500 text-xs py-2">{t('week', language)}</div>
         {weekDays.map((day) => (
           <div key={day} className="text-center font-bold text-slate-700 text-sm py-2">
             {day}
@@ -80,7 +83,7 @@ export default function CalendarGrid({
 
       {/* Calendar weeks */}
       {weeks.map((week, weekIndex) => {
-        const weekNumber = getWeek(week[0], { weekStartsOn: 1, locale: pl });
+        const weekNumber = getWeek(week[0], { weekStartsOn: 1, locale });
         return (
           <div key={weekIndex} className="grid grid-cols-8 gap-2 mb-2">
             {/* Week number */}

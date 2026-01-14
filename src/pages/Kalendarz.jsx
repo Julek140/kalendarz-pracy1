@@ -4,7 +4,9 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isWeekend, addMonths, subMonths, startOfWeek, endOfWeek } from "date-fns";
-import { pl } from "date-fns/locale";
+import { pl, enUS } from "date-fns/locale";
+import { useLanguage } from "@/components/LanguageContext";
+import { t } from "@/components/translations";
 
 import CalendarGrid from "../components/calendar/CalendarGrid";
 import CalendarLegend from "../components/calendar/CalendarLegend";
@@ -90,6 +92,8 @@ const polishHolidays = [
 ];
 
 export default function KalendarzPage() {
+  const { language } = useLanguage();
+  const locale = language === 'pl' ? pl : enUS;
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedDay, setSelectedDay] = useState(null);
   const [showDialog, setShowDialog] = useState(false);
@@ -189,8 +193,8 @@ export default function KalendarzPage() {
                 className="h-12 w-auto object-contain"
               />
               <div>
-                <h1 className="text-3xl font-bold text-slate-900">Kalendarz Pracy Zakładu CONSTRACT</h1>
-                <p className="text-slate-600 mt-1">Zarządzaj harmonogramem pracy działów</p>
+                <h1 className="text-3xl font-bold text-slate-900">{t('workCalendarConstract', language)}</h1>
+                <p className="text-slate-600 mt-1">{t('manageSchedule', language)}</p>
               </div>
             </div>
             <div className="flex items-center gap-3 flex-wrap">
@@ -200,7 +204,7 @@ export default function KalendarzPage() {
                 className="bg-red-50 hover:bg-red-100 border-red-200 text-red-700"
               >
                 <Plus className="w-4 h-4 mr-2" />
-                Dodaj święto
+                {t('addHoliday', language)}
               </Button>
               <div className="flex items-center gap-3">
                 <Button
@@ -213,7 +217,7 @@ export default function KalendarzPage() {
                 </Button>
                 <div className="min-w-[200px] text-center">
                   <h2 className="text-xl font-bold text-slate-900">
-                    {format(currentMonth, 'LLLL yyyy', { locale: pl })}
+                    {format(currentMonth, 'LLLL yyyy', { locale })}
                   </h2>
                 </div>
                 <Button
@@ -230,7 +234,7 @@ export default function KalendarzPage() {
         </div>
 
         {/* Legend */}
-        <CalendarLegend />
+        <CalendarLegend language={language} />
 
         {/* Calendar Grid */}
         <CalendarGrid
@@ -240,6 +244,8 @@ export default function KalendarzPage() {
           getHolidayForDate={getHolidayForDate}
           onDayClick={handleDayClick}
           isLoading={isLoading}
+          language={language}
+          locale={locale}
         />
 
         {/* Day Dialog */}
@@ -260,6 +266,8 @@ export default function KalendarzPage() {
           <HolidayDialog
             onClose={() => setShowHolidayDialog(false)}
             customHolidays={customHolidays}
+            language={language}
+            locale={locale}
           />
         )}
       </div>

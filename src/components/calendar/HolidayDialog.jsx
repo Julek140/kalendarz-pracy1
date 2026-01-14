@@ -13,10 +13,14 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { Plus, Trash2, PartyPopper } from "lucide-react";
 import { format, parseISO } from "date-fns";
-import { pl } from "date-fns/locale";
+import { pl, enUS } from "date-fns/locale";
 import { Badge } from "@/components/ui/badge";
+import { useLanguage } from "@/components/LanguageContext";
+import { t } from "@/components/translations";
 
 export default function HolidayDialog({ onClose, customHolidays }) {
+  const { language } = useLanguage();
+  const locale = language === 'pl' ? pl : enUS;
   const [date, setDate] = useState("");
   const [name, setName] = useState("");
   const queryClient = useQueryClient();
@@ -57,21 +61,21 @@ export default function HolidayDialog({ onClose, customHolidays }) {
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold flex items-center gap-2">
             <PartyPopper className="w-6 h-6 text-red-500" />
-            Zarządzaj świętami
+            {t('manageHolidays', language)}
           </DialogTitle>
           <p className="text-sm text-slate-600 mt-2">
-            Dodaj dodatkowe dni wolne od pracy (np. Wigilia, lokalne święta)
+            {t('addExtraDays', language)}
           </p>
         </DialogHeader>
 
         {/* Add new holiday */}
         <Card className="border-2 border-dashed border-red-200 bg-red-50/30">
           <CardContent className="p-6">
-            <h3 className="font-semibold text-lg mb-4">Dodaj nowe święto</h3>
+            <h3 className="font-semibold text-lg mb-4">{t('addNewHoliday', language)}</h3>
             <div className="grid gap-4">
               <div>
                 <Label htmlFor="holidayDate" className="text-sm font-medium mb-2 block">
-                  Data święta
+                  {t('holidayDate', language)}
                 </Label>
                 <Input
                   id="holidayDate"
@@ -83,11 +87,11 @@ export default function HolidayDialog({ onClose, customHolidays }) {
               </div>
               <div>
                 <Label htmlFor="holidayName" className="text-sm font-medium mb-2 block">
-                  Nazwa święta
+                  {t('holidayName', language)}
                 </Label>
                 <Input
                   id="holidayName"
-                  placeholder="np. Wigilia"
+                  placeholder={language === 'pl' ? 'np. Wigilia' : 'e.g. Christmas Eve'}
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   className="w-full"
@@ -99,7 +103,7 @@ export default function HolidayDialog({ onClose, customHolidays }) {
                 className="bg-red-600 hover:bg-red-700 w-full"
               >
                 <Plus className="w-4 h-4 mr-2" />
-                Dodaj święto
+                {t('addHoliday', language)}
               </Button>
             </div>
           </CardContent>
@@ -107,10 +111,10 @@ export default function HolidayDialog({ onClose, customHolidays }) {
 
         {/* List of custom holidays */}
         <div className="mt-6">
-          <h3 className="font-semibold text-lg mb-4">Twoje niestandardowe święta ({sortedHolidays.length})</h3>
+          <h3 className="font-semibold text-lg mb-4">{t('yourCustomHolidays', language)} ({sortedHolidays.length})</h3>
           {sortedHolidays.length === 0 ? (
             <div className="text-center py-8 text-slate-500 bg-slate-50 rounded-lg">
-              <p>Nie dodano jeszcze żadnych niestandardowych świąt</p>
+              <p>{t('noCustomHolidaysYet', language)}</p>
             </div>
           ) : (
             <div className="space-y-2 max-h-[300px] overflow-y-auto">
@@ -121,7 +125,7 @@ export default function HolidayDialog({ onClose, customHolidays }) {
                 >
                   <div className="flex items-center gap-3">
                     <Badge variant="secondary" className="bg-red-100 text-red-800">
-                      {format(parseISO(holiday.date), 'd MMM yyyy', { locale: pl })}
+                      {format(parseISO(holiday.date), 'd MMM yyyy', { locale })}
                     </Badge>
                     <span className="font-medium">🎉 {holiday.name}</span>
                   </div>
@@ -142,7 +146,7 @@ export default function HolidayDialog({ onClose, customHolidays }) {
 
         <div className="flex justify-end pt-4 border-t">
           <Button onClick={onClose} variant="outline">
-            Zamknij
+            {t('close', language)}
           </Button>
         </div>
       </DialogContent>
