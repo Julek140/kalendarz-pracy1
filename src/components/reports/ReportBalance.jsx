@@ -66,7 +66,10 @@ export default function ReportBalance({ reportData, language = 'pl' }) {
               </div>
               <div className="flex justify-between items-center p-3 bg-blue-50 rounded-lg border-2 border-blue-300">
                 <span className="text-blue-700 font-semibold">{t('weekdaysMF', language)}:</span>
-...
+                <span className="text-2xl font-bold text-blue-900">
+                  {balance.availableWeekdays}
+                </span>
+              </div>
               <div className="flex justify-between items-center p-3 bg-orange-50 rounded-lg border-2 border-orange-300">
                 <span className="text-orange-700 font-semibold">{t('saturdays', language)}:</span>
                 <span className="text-2xl font-bold text-orange-900">
