@@ -248,8 +248,8 @@ export default function RaportyPage() {
         usedWeekdaysPakownia: pakowniaStats.regularDays,
         usedSaturdaysMaszynownia: maszynowniaStats.usedSaturdays,
         usedSaturdaysPakownia: pakowniaStats.usedSaturdays,
-        usedShiftsMaszynownia: maszynowniaStats.totalShifts,
-        usedShiftsPakownia: pakowniaStats.totalShifts,
+        usedShiftsMaszynownia: maszynowniaStats.regularShifts,
+        usedShiftsPakownia: pakowniaStats.regularShifts,
       },
     });
 
