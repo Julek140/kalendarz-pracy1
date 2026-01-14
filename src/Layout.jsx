@@ -5,6 +5,7 @@ import { Calendar, FileBarChart, Factory, Languages } from "lucide-react";
 import FloatingAssistant from "@/components/FloatingAssistant";
 import ProgressBars from "@/components/ProgressBars";
 import { LanguageProvider, useLanguage } from "@/components/LanguageContext";
+import { ThemeProvider, useTheme } from "@/components/ThemeContext";
 import { t } from "@/components/translations";
 import { Button } from "@/components/ui/button";
 import {
@@ -24,6 +25,7 @@ import {
 function LayoutContent({ children }) {
   const location = useLocation();
   const { language, changeLanguage } = useLanguage();
+  const { theme, toggleTheme } = useTheme();
   
   const navigationItems = [
     {
@@ -50,9 +52,9 @@ function LayoutContent({ children }) {
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full bg-gradient-to-br from-slate-50 to-blue-50">
-        <Sidebar className="border-r border-slate-200">
-          <SidebarHeader className="border-b border-slate-200 p-4">
+      <div className="min-h-screen flex w-full bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-900 dark:to-slate-800 transition-colors duration-300">
+        <Sidebar className="border-r border-slate-200 dark:border-slate-700 dark:bg-slate-900">
+          <SidebarHeader className="border-b border-slate-200 dark:border-slate-700 p-4">
             <div className="flex items-center gap-3">
               <img 
                 src="https://constract.pl/wp-content/uploads/2024/09/cropped-Constract_logo-2024-01-e1744010411889-2048x557.png" 
@@ -61,8 +63,8 @@ function LayoutContent({ children }) {
               />
             </div>
             <div className="mt-2 flex items-center justify-between gap-2">
-              <p className="text-xs text-slate-500 font-medium">{t('workCalendar', language)}</p>
-              <div className="flex items-center gap-1">
+              <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">{t('workCalendar', language)}</p>
+              <div className="flex items-center gap-1 flex-wrap">
                 <Button
                   variant={language === 'pl' ? 'default' : 'ghost'}
                   size="sm"
@@ -79,7 +81,16 @@ function LayoutContent({ children }) {
                 >
                   EN
                 </Button>
-              </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-6 px-2 text-xs"
+                  onClick={toggleTheme}
+                  title={theme === 'light' ? t('darkTheme', language) : t('lightTheme', language)}
+                >
+                  {theme === 'light' ? '🌙' : '☀️'}
+                </Button>
+                </div>
             </div>
           </SidebarHeader>
           
@@ -91,8 +102,8 @@ function LayoutContent({ children }) {
                     <SidebarMenuItem key={item.title}>
                       <SidebarMenuButton 
                         asChild 
-                        className={`hover:bg-blue-50 hover:text-blue-700 transition-all duration-200 rounded-xl mb-2 ${
-                          location.pathname === item.url ? 'bg-blue-100 text-blue-700 shadow-sm' : ''
+                        className={`hover:bg-blue-50 dark:hover:bg-slate-800 hover:text-blue-700 dark:hover:text-blue-400 transition-all duration-200 rounded-xl mb-2 ${
+                          location.pathname === item.url ? 'bg-blue-100 dark:bg-slate-800 text-blue-700 dark:text-blue-400 shadow-sm' : 'dark:text-slate-300'
                         }`}
                       >
                         <Link to={item.url} className="flex items-center gap-3 px-4 py-3">
@@ -108,10 +119,10 @@ function LayoutContent({ children }) {
           </SidebarContent>
 
           <SidebarFooter className="p-0">
-                    <ProgressBars />
-                    <div className="text-center py-2 border-t border-slate-200">
-                      <div className="flex items-center justify-center gap-1.5 text-xs text-slate-500">
-                        <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-slate-200 text-slate-600 font-semibold text-[10px]">
+                  <ProgressBars />
+                  <div className="text-center py-2 border-t border-slate-200 dark:border-slate-700">
+                      <div className="flex items-center justify-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
+                        <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 font-semibold text-[10px]">
                           ©
                         </span>
                         <span>2025 CONSTRACT</span>
@@ -124,13 +135,13 @@ function LayoutContent({ children }) {
         </Sidebar>
 
         <main className="flex-1 flex flex-col">
-          <header className="bg-white/80 backdrop-blur-sm border-b border-slate-200 px-6 py-4 md:hidden sticky top-0 z-10">
+          <header className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm border-b border-slate-200 dark:border-slate-700 px-6 py-4 md:hidden sticky top-0 z-10">
             <div className="flex items-center justify-between gap-4">
               <div className="flex items-center gap-4">
-                <SidebarTrigger className="hover:bg-slate-100 p-2 rounded-lg transition-colors duration-200" />
-                <h1 className="text-xl font-bold text-slate-900">{t('workCalendar', language)} CONSTRACT</h1>
+                <SidebarTrigger className="hover:bg-slate-100 dark:hover:bg-slate-800 p-2 rounded-lg transition-colors duration-200" />
+                <h1 className="text-xl font-bold text-slate-900 dark:text-slate-100">{t('workCalendar', language)} CONSTRACT</h1>
               </div>
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-1 flex-wrap">
                 <Button
                   variant={language === 'pl' ? 'default' : 'ghost'}
                   size="sm"
@@ -147,7 +158,15 @@ function LayoutContent({ children }) {
                 >
                   EN
                 </Button>
-              </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-7 px-2 text-xs"
+                  onClick={toggleTheme}
+                >
+                  {theme === 'light' ? '🌙' : '☀️'}
+                </Button>
+                </div>
             </div>
           </header>
 
@@ -164,8 +183,10 @@ function LayoutContent({ children }) {
 
 export default function Layout({ children }) {
   return (
-    <LanguageProvider>
-      <LayoutContent>{children}</LayoutContent>
-    </LanguageProvider>
+    <ThemeProvider>
+      <LanguageProvider>
+        <LayoutContent>{children}</LayoutContent>
+      </LanguageProvider>
+    </ThemeProvider>
   );
 }
