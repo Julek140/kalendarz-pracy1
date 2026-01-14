@@ -4,10 +4,13 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ArrowRightLeft, TrendingUp, TrendingDown, Minus, Factory, Package, CalendarDays } from "lucide-react";
 import { format, parseISO, isWeekend, startOfYear, endOfYear, eachDayOfInterval, getDay } from "date-fns";
+import { useLanguage } from "@/components/LanguageContext";
+import { t } from "@/components/translations";
 
 const YEARS = ["2024", "2025", "2026", "2027", "2028", "2029"];
 
 export default function ReportYearComparison({ workDays, holidays, polishHolidays }) {
+  const { language } = useLanguage();
   const [year1, setYear1] = useState("2024");
   const [year2, setYear2] = useState("2025");
   const [comparisonData, setComparisonData] = useState(null);
@@ -93,7 +96,7 @@ export default function ReportYearComparison({ workDays, holidays, polishHoliday
 
     return {
       year,
-      label: `Rok ${year}`,
+      label: language === 'pl' ? `Rok ${year}` : `Year ${year}`,
       availableWeekdays,
       availableSaturdays,
       totalAvailableShifts,
@@ -123,17 +126,17 @@ export default function ReportYearComparison({ workDays, holidays, polishHoliday
       <CardHeader className="bg-gradient-to-r from-amber-50 to-orange-50 border-b">
         <CardTitle className="flex items-center gap-2">
           <CalendarDays className="w-5 h-5 text-amber-600" />
-          Porównanie lat
+          {t('yearComparison', language)}
         </CardTitle>
       </CardHeader>
       <CardContent className="p-6">
         {/* Selektory */}
         <div className="grid md:grid-cols-3 gap-4 items-end mb-6">
           <div>
-            <p className="text-sm font-medium mb-2 text-slate-700">Rok 1</p>
+            <p className="text-sm font-medium mb-2 text-slate-700">{t('year1', language)}</p>
             <Select value={year1} onValueChange={setYear1}>
               <SelectTrigger>
-                <SelectValue placeholder="Wybierz rok" />
+                <SelectValue placeholder={t('selectYear', language)} />
               </SelectTrigger>
               <SelectContent>
                 {YEARS.map(y => (
@@ -148,10 +151,10 @@ export default function ReportYearComparison({ workDays, holidays, polishHoliday
           </div>
 
           <div>
-            <p className="text-sm font-medium mb-2 text-slate-700">Rok 2</p>
+            <p className="text-sm font-medium mb-2 text-slate-700">{t('year2', language)}</p>
             <Select value={year2} onValueChange={setYear2}>
               <SelectTrigger>
-                <SelectValue placeholder="Wybierz rok" />
+                <SelectValue placeholder={t('selectYear', language)} />
               </SelectTrigger>
               <SelectContent>
                 {YEARS.map(y => (
@@ -168,7 +171,7 @@ export default function ReportYearComparison({ workDays, holidays, polishHoliday
           className="w-full bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 mb-6"
         >
           <ArrowRightLeft className="w-4 h-4 mr-2" />
-          Porównaj lata
+          {t('compareYears', language)}
         </Button>
 
         {/* Wyniki porównania */}
@@ -189,24 +192,24 @@ export default function ReportYearComparison({ workDays, holidays, polishHoliday
 
             {/* Dostępne zasoby */}
             <div className="bg-slate-50 rounded-xl p-4">
-              <h4 className="font-semibold text-slate-700 mb-3">Dostępne zasoby</h4>
+              <h4 className="font-semibold text-slate-700 mb-3">{t('availableResources', language)}</h4>
               <div className="grid grid-cols-4 gap-4 text-sm">
-                <div className="font-medium text-slate-600">Metryka</div>
+                <div className="font-medium text-slate-600">{t('metric', language)}</div>
                 <div className="text-center text-amber-700">{comparisonData.year1.label}</div>
                 <div className="text-center text-orange-700">{comparisonData.year2.label}</div>
-                <div className="text-center text-slate-600">Różnica</div>
+                <div className="text-center text-slate-600">{t('difference', language)}</div>
 
-                <div>Dni robocze (Pn-Pt)</div>
+                <div>{t('weekdaysMonFri', language)}</div>
                 <div className="text-center font-semibold">{comparisonData.year1.availableWeekdays}</div>
                 <div className="text-center font-semibold">{comparisonData.year2.availableWeekdays}</div>
                 <div className="text-center">{renderDiff(comparisonData.year1.availableWeekdays, comparisonData.year2.availableWeekdays)}</div>
 
-                <div>Soboty</div>
+                <div>{t('saturdaysLabel', language)}</div>
                 <div className="text-center font-semibold">{comparisonData.year1.availableSaturdays}</div>
                 <div className="text-center font-semibold">{comparisonData.year2.availableSaturdays}</div>
                 <div className="text-center">{renderDiff(comparisonData.year1.availableSaturdays, comparisonData.year2.availableSaturdays)}</div>
 
-                <div>Dostępne zmiany</div>
+                <div>{t('availableShiftsLabel', language)}</div>
                 <div className="text-center font-semibold">{comparisonData.year1.totalAvailableShifts}</div>
                 <div className="text-center font-semibold">{comparisonData.year2.totalAvailableShifts}</div>
                 <div className="text-center">{renderDiff(comparisonData.year1.totalAvailableShifts, comparisonData.year2.totalAvailableShifts)}</div>
@@ -216,35 +219,35 @@ export default function ReportYearComparison({ workDays, holidays, polishHoliday
             {/* Maszynownia */}
             <div className="bg-blue-50 rounded-xl p-4">
               <h4 className="font-semibold text-blue-700 mb-3 flex items-center gap-2">
-                <Factory className="w-5 h-5" /> Maszynownia
+                <Factory className="w-5 h-5" /> {t('maszynownia', language)}
               </h4>
               <div className="grid grid-cols-4 gap-4 text-sm">
-                <div className="font-medium text-slate-600">Metryka</div>
+                <div className="font-medium text-slate-600">{t('metric', language)}</div>
                 <div className="text-center text-amber-700">{comparisonData.year1.label}</div>
                 <div className="text-center text-orange-700">{comparisonData.year2.label}</div>
-                <div className="text-center text-slate-600">Różnica</div>
+                <div className="text-center text-slate-600">{t('difference', language)}</div>
 
-                <div>Dni pracy</div>
+                <div>{t('workDaysLabel', language)}</div>
                 <div className="text-center font-semibold">{comparisonData.year1.maszynownia.totalWorkDays}</div>
                 <div className="text-center font-semibold">{comparisonData.year2.maszynownia.totalWorkDays}</div>
                 <div className="text-center">{renderDiff(comparisonData.year1.maszynownia.totalWorkDays, comparisonData.year2.maszynownia.totalWorkDays)}</div>
 
-                <div>Dni robocze (Pn-Pt)</div>
+                <div>{t('weekdaysMonFri', language)}</div>
                 <div className="text-center font-semibold">{comparisonData.year1.maszynownia.regularDays}</div>
                 <div className="text-center font-semibold">{comparisonData.year2.maszynownia.regularDays}</div>
                 <div className="text-center">{renderDiff(comparisonData.year1.maszynownia.regularDays, comparisonData.year2.maszynownia.regularDays)}</div>
 
-                <div>Soboty (nadgodziny)</div>
+                <div>{t('saturdaysOvertime', language)}</div>
                 <div className="text-center font-semibold">{comparisonData.year1.maszynownia.usedSaturdays}</div>
                 <div className="text-center font-semibold">{comparisonData.year2.maszynownia.usedSaturdays}</div>
                 <div className="text-center">{renderDiff(comparisonData.year1.maszynownia.usedSaturdays, comparisonData.year2.maszynownia.usedSaturdays)}</div>
 
-                <div>Zmiany ogółem</div>
+                <div>{t('shiftsTotal', language)}</div>
                 <div className="text-center font-semibold">{comparisonData.year1.maszynownia.totalShifts}</div>
                 <div className="text-center font-semibold">{comparisonData.year2.maszynownia.totalShifts}</div>
                 <div className="text-center">{renderDiff(comparisonData.year1.maszynownia.totalShifts, comparisonData.year2.maszynownia.totalShifts)}</div>
 
-                <div>Przestoje</div>
+                <div>{t('downtimeLabel', language)}</div>
                 <div className="text-center font-semibold">{comparisonData.year1.maszynownia.downtimeDays}</div>
                 <div className="text-center font-semibold">{comparisonData.year2.maszynownia.downtimeDays}</div>
                 <div className="text-center">{renderDiff(comparisonData.year1.maszynownia.downtimeDays, comparisonData.year2.maszynownia.downtimeDays)}</div>
@@ -254,35 +257,35 @@ export default function ReportYearComparison({ workDays, holidays, polishHoliday
             {/* Pakownia */}
             <div className="bg-green-50 rounded-xl p-4">
               <h4 className="font-semibold text-green-700 mb-3 flex items-center gap-2">
-                <Package className="w-5 h-5" /> Pakownia
+                <Package className="w-5 h-5" /> {t('pakownia', language)}
               </h4>
               <div className="grid grid-cols-4 gap-4 text-sm">
-                <div className="font-medium text-slate-600">Metryka</div>
+                <div className="font-medium text-slate-600">{t('metric', language)}</div>
                 <div className="text-center text-amber-700">{comparisonData.year1.label}</div>
                 <div className="text-center text-orange-700">{comparisonData.year2.label}</div>
-                <div className="text-center text-slate-600">Różnica</div>
+                <div className="text-center text-slate-600">{t('difference', language)}</div>
 
-                <div>Dni pracy</div>
+                <div>{t('workDaysLabel', language)}</div>
                 <div className="text-center font-semibold">{comparisonData.year1.pakownia.totalWorkDays}</div>
                 <div className="text-center font-semibold">{comparisonData.year2.pakownia.totalWorkDays}</div>
                 <div className="text-center">{renderDiff(comparisonData.year1.pakownia.totalWorkDays, comparisonData.year2.pakownia.totalWorkDays)}</div>
 
-                <div>Dni robocze (Pn-Pt)</div>
+                <div>{t('weekdaysMonFri', language)}</div>
                 <div className="text-center font-semibold">{comparisonData.year1.pakownia.regularDays}</div>
                 <div className="text-center font-semibold">{comparisonData.year2.pakownia.regularDays}</div>
                 <div className="text-center">{renderDiff(comparisonData.year1.pakownia.regularDays, comparisonData.year2.pakownia.regularDays)}</div>
 
-                <div>Soboty (nadgodziny)</div>
+                <div>{t('saturdaysOvertime', language)}</div>
                 <div className="text-center font-semibold">{comparisonData.year1.pakownia.usedSaturdays}</div>
                 <div className="text-center font-semibold">{comparisonData.year2.pakownia.usedSaturdays}</div>
                 <div className="text-center">{renderDiff(comparisonData.year1.pakownia.usedSaturdays, comparisonData.year2.pakownia.usedSaturdays)}</div>
 
-                <div>Zmiany ogółem</div>
+                <div>{t('shiftsTotal', language)}</div>
                 <div className="text-center font-semibold">{comparisonData.year1.pakownia.totalShifts}</div>
                 <div className="text-center font-semibold">{comparisonData.year2.pakownia.totalShifts}</div>
                 <div className="text-center">{renderDiff(comparisonData.year1.pakownia.totalShifts, comparisonData.year2.pakownia.totalShifts)}</div>
 
-                <div>Przestoje</div>
+                <div>{t('downtimeLabel', language)}</div>
                 <div className="text-center font-semibold">{comparisonData.year1.pakownia.downtimeDays}</div>
                 <div className="text-center font-semibold">{comparisonData.year2.pakownia.downtimeDays}</div>
                 <div className="text-center">{renderDiff(comparisonData.year1.pakownia.downtimeDays, comparisonData.year2.pakownia.downtimeDays)}</div>
