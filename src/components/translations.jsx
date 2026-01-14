@@ -234,8 +234,6 @@ export const translations = {
     sat: "Sob",
     sun: "Ndz",
     week: "TYG",
-    lightTheme: "Jasny",
-    darkTheme: "Ciemny",
     },
   
   en: {
@@ -473,8 +471,6 @@ export const translations = {
     sat: "Sat",
     sun: "Sun",
     week: "WK",
-    lightTheme: "Light",
-    darkTheme: "Dark",
 
     // Annual Report
     businessAnalysisSummary: "Business analysis and summary",
