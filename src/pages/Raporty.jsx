@@ -7,7 +7,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Calendar, FileText, Clock } from "lucide-react";
 import { format, isWeekend, parseISO, isWithinInterval, eachDayOfInterval, getDay, getWeek } from "date-fns";
-import { pl } from "date-fns/locale";
+import { pl, enUS } from "date-fns/locale";
+import { useLanguage } from "@/components/LanguageContext";
+import { t } from "@/components/translations";
 
 import ReportSummary from "../components/reports/ReportSummary";
 import ReportDetails from "../components/reports/ReportDetails";
@@ -95,6 +97,8 @@ const polishHolidays = [
 ];
 
 export default function RaportyPage() {
+  const { language } = useLanguage();
+  const locale = language === 'pl' ? pl : enUS;
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [reportGenerated, setReportGenerated] = useState(false);
@@ -287,8 +291,8 @@ export default function RaportyPage() {
               className="h-12 w-auto object-contain"
             />
             <div className="text-center">
-              <h1 className="text-3xl font-bold text-slate-900">Kalendarz Pracy Zakładu CONSTRACT</h1>
-              <p className="text-slate-600 mt-1">System zarządzania harmonogramem pracy</p>
+              <h1 className="text-3xl font-bold text-slate-900">{t('workCalendarConstract', language)}</h1>
+              <p className="text-slate-600 mt-1">{t('workManagementSystem', language)}</p>
             </div>
           </div>
         </div>
@@ -297,14 +301,14 @@ export default function RaportyPage() {
           <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b">
             <CardTitle className="flex items-center gap-2">
               <Calendar className="w-5 h-5 text-blue-600" />
-              Wybierz zakres dat
+              {t('selectDateRange', language)}
             </CardTitle>
           </CardHeader>
           <CardContent className="p-6">
             <div className="grid md:grid-cols-3 gap-6 items-end">
               <div>
                 <Label htmlFor="startDate" className="text-sm font-medium mb-2 block">
-                  Data początkowa
+                  {t('startDate', language)}
                 </Label>
                 <Input
                   id="startDate"
@@ -315,13 +319,13 @@ export default function RaportyPage() {
                 />
                 {startDate && (
                   <p className="text-xs text-slate-500 mt-1">
-                    Tydzień {getWeek(parseISO(startDate), { weekStartsOn: 1, locale: pl })}
+                    {t('week', language)} {getWeek(parseISO(startDate), { weekStartsOn: 1, locale })}
                   </p>
                 )}
               </div>
               <div>
                 <Label htmlFor="endDate" className="text-sm font-medium mb-2 block">
-                  Data końcowa
+                  {t('endDate', language)}
                 </Label>
                 <Input
                   id="endDate"
@@ -332,7 +336,7 @@ export default function RaportyPage() {
                 />
                 {endDate && (
                   <p className="text-xs text-slate-500 mt-1">
-                    Tydzień {getWeek(parseISO(endDate), { weekStartsOn: 1, locale: pl })}
+                    {t('week', language)} {getWeek(parseISO(endDate), { weekStartsOn: 1, locale })}
                   </p>
                 )}
               </div>
@@ -342,7 +346,7 @@ export default function RaportyPage() {
                 className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 h-10"
               >
                 <FileText className="w-4 h-4 mr-2" />
-                Generuj raport
+                {t('generateReport', language)}
               </Button>
             </div>
           </CardContent>
@@ -354,10 +358,10 @@ export default function RaportyPage() {
                 <ReportExport reportData={reportData} />
               </div>
 
-              <ReportBalance reportData={reportData} />
-            <ReportCharts reportData={reportData} />
-            <ReportSummary reportData={reportData} />
-            <ReportDetails reportData={reportData} />
+              <ReportBalance reportData={reportData} language={language} />
+            <ReportCharts reportData={reportData} language={language} />
+            <ReportSummary reportData={reportData} language={language} />
+            <ReportDetails reportData={reportData} language={language} />
           </div>
         )}
 
@@ -380,7 +384,9 @@ export default function RaportyPage() {
             <CardContent className="p-12 text-center">
               <Clock className="w-16 h-16 text-slate-400 mx-auto mb-4" />
               <p className="text-slate-600 text-lg">
-                Wybierz zakres dat i wygeneruj raport, aby zobaczyć szczegółowe statystyki
+                {language === 'pl' 
+                  ? 'Wybierz zakres dat i wygeneruj raport, aby zobaczyć szczegółowe statystyki'
+                  : 'Select a date range and generate a report to see detailed statistics'}
               </p>
             </CardContent>
           </Card>
