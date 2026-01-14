@@ -57,8 +57,13 @@ export default function RaportRocznyPage() {
       const totalDays = monthDays.length;
       const avgDailyRevenue = totalDays > 0 ? totalRevenue / totalDays : 0;
 
+      const monthNames = {
+        pl: ['styczeń', 'luty', 'marzec', 'kwiecień', 'maj', 'czerwiec', 'lipiec', 'sierpień', 'wrzesień', 'październik', 'listopad', 'grudzień'],
+        en: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+      };
+
       monthlyData.push({
-        month: format(monthStart, 'LLLL', { locale }),
+        month: monthNames[language][month],
         monthNum: month + 1,
         totalRevenue,
         revenueIkea,
