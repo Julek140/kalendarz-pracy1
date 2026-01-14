@@ -2,8 +2,9 @@ import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BarChart3, TrendingUp, Calendar, PartyPopper } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
+import { t } from "@/components/translations";
 
-export default function ReportBalance({ reportData }) {
+export default function ReportBalance({ reportData, language = 'pl' }) {
   const { balance } = reportData;
 
   // Procent wykorzystania TYLKO dni roboczych (Pn-Pt)
@@ -41,9 +42,9 @@ export default function ReportBalance({ reportData }) {
             <BarChart3 className="w-6 h-6" />
           </div>
           <div>
-            <span className="text-2xl">Bilans wykorzystania</span>
+            <span className="text-2xl">{t('resourceUtilization', language)}</span>
             <p className="text-sm font-normal text-slate-600 mt-1">
-              Dostępne zmiany = 15/tydzień (Pn-Pt), soboty i niedziele to nadgodziny
+              {t('availableShiftsNote', language)}
             </p>
           </div>
         </CardTitle>
@@ -54,23 +55,20 @@ export default function ReportBalance({ reportData }) {
           <div className="bg-white rounded-xl p-6 shadow-sm">
             <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
               <Calendar className="w-5 h-5 text-slate-600" />
-              Dostępne zasoby
+              {t('availableResources', language)}
             </h3>
             <div className="space-y-4">
               <div className="flex justify-between items-center p-3 bg-slate-50 rounded-lg">
-                <span className="text-slate-700">Wszystkie dni:</span>
+                <span className="text-slate-700">{t('allDays', language)}:</span>
                 <span className="text-2xl font-bold text-slate-900">
                   {balance.totalAvailableDays}
                 </span>
               </div>
               <div className="flex justify-between items-center p-3 bg-blue-50 rounded-lg border-2 border-blue-300">
-                <span className="text-blue-700 font-semibold">Dni robocze (Pn-Pt):</span>
-                <span className="text-2xl font-bold text-blue-900">
-                  {balance.availableWeekdays}
-                </span>
-              </div>
+                <span className="text-blue-700 font-semibold">{t('weekdaysMF', language)}:</span>
+...
               <div className="flex justify-between items-center p-3 bg-orange-50 rounded-lg border-2 border-orange-300">
-                <span className="text-orange-700 font-semibold">Soboty:</span>
+                <span className="text-orange-700 font-semibold">{t('saturdays', language)}:</span>
                 <span className="text-2xl font-bold text-orange-900">
                   {balance.availableSaturdays}
                 </span>
@@ -79,7 +77,7 @@ export default function ReportBalance({ reportData }) {
                 <div className="flex justify-between items-center p-3 bg-red-50 rounded-lg border border-red-200">
                   <span className="text-red-700 flex items-center gap-2">
                     <PartyPopper className="w-4 h-4" />
-                    Święta Pn-Sob (wyłączone):
+                    {t('holidays', language)}:
                   </span>
                   <span className="text-2xl font-bold text-red-900">
                     -{balance.holidaysCount}
@@ -87,17 +85,17 @@ export default function ReportBalance({ reportData }) {
                 </div>
               )}
               <div className="flex justify-between items-center p-3 bg-emerald-50 rounded-lg border-2 border-emerald-300">
-                <span className="text-emerald-700 font-semibold">Dostępne zmiany (Pn-Pt):</span>
+                <span className="text-emerald-700 font-semibold">{t('availableShifts', language)}:</span>
                 <span className="text-2xl font-bold text-emerald-900">
                   {balance.totalAvailableShifts}
                 </span>
               </div>
               <div className="text-xs text-slate-500 italic p-2 bg-slate-50 rounded">
-                * Dni robocze = Pn-Pt minus święta (bez niedziel)
+                {t('resourceNote1', language)}
                 <br />
-                * Soboty = nadgodziny (nie wliczone w dostępne zmiany)
+                {t('resourceNote2', language)}
                 <br />
-                * Dostępne zmiany = dni robocze Pn-Pt × 3 (15/tydzień)
+                {t('resourceNote3', language)}
               </div>
             </div>
           </div>
@@ -106,7 +104,7 @@ export default function ReportBalance({ reportData }) {
           <div className="bg-white rounded-xl p-6 shadow-sm">
             <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
               <TrendingUp className="w-5 h-5 text-emerald-600" />
-              Wykorzystane zasoby
+              {t('usedResources', language)}
             </h3>
             <div className="space-y-6">
               {/* Maszynownia */}
