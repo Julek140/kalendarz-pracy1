@@ -196,7 +196,7 @@ export const translations = {
     calendar: "Calendar",
     reports: "Reports",
     financialReports: "Financial Reports",
-    annualReport: "Annual Report",
+    annualReport: "Yearly Report",
     workCalendar: "Work Calendar",
     
     // Common
@@ -264,7 +264,7 @@ export const translations = {
     
     // Annual report
     selectYear: "Select year for analysis",
-    generateAnnualReport: "Generate annual report",
+    generateAnnualReport: "Generate yearly report",
     generating: "Generating...",
     totalYearRevenue: "Total turnover {year}",
     yearSummary: "Summary of year {year}",
