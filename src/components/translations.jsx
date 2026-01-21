@@ -234,6 +234,18 @@ export const translations = {
     sat: "Sob",
     sun: "Ndz",
     week: "TYG",
+
+    // Year Comparison
+    selectFirstYear: "Wybierz pierwszy rok",
+    selectSecondYear: "Wybierz drugi rok",
+    yearOneSummary: "Podsumowanie roku {year1}",
+    yearTwoSummary: "Podsumowanie roku {year2}",
+    comparisonMetrics: "Metryki porównawcze",
+    totalRevenueYear: "Całkowity obrót roku",
+    avgMonthlyRevenueYear: "Śr. obrót miesięczny roku",
+    totalDaysWorkedYear: "Dni przepracowane roku",
+    totalShiftsWorkedYear: "Zmiany przepracowane roku",
+    cannotCompareSameYear: "Nie możesz porównywać tego samego roku",
     },
   
   en: {
@@ -481,6 +493,18 @@ export const translations = {
     monthComparisonBreakdown: "Month comparison - Receivers",
     quarterlyAnalysisTotal: "Quarterly analysis - Total turnover",
     quarterlyAnalysisBreakdown: "Quarterly analysis - Receivers",
+
+    // Year Comparison
+    selectFirstYear: "Select first year",
+    selectSecondYear: "Select second year",
+    yearOneSummary: "Summary of year {year1}",
+    yearTwoSummary: "Summary of year {year2}",
+    comparisonMetrics: "Comparison Metrics",
+    totalRevenueYear: "Total Revenue of Year",
+    avgMonthlyRevenueYear: "Avg. Monthly Revenue of Year",
+    totalDaysWorkedYear: "Days Worked of Year",
+    totalShiftsWorkedYear: "Shifts Worked of Year",
+    cannotCompareSameYear: "You cannot compare the same year",
   }
 };
 
