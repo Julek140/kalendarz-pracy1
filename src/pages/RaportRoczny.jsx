@@ -25,6 +25,7 @@ export default function RaportRocznyPage() {
   const [selectedYear1, setSelectedYear1] = useState("2024");
   const [selectedYear2, setSelectedYear2] = useState("2025");
   const [comparisonReportData, setComparisonReportData] = useState(null);
+  const [comparisonAiAnalysis, setComparisonAiAnalysis] = useState(null);
   const [isGeneratingComparison, setIsGeneratingComparison] = useState(false);
   
   const locale = language === 'pl' ? pl : enUS;
@@ -227,9 +228,101 @@ export default function RaportRocznyPage() {
       const dataYear1 = fetchDataForYear(selectedYear1);
       const dataYear2 = fetchDataForYear(selectedYear2);
       setComparisonReportData({ year1: dataYear1, year2: dataYear2 });
+
+      // Przygotuj scalone dane dla wykresów
+      const mergedMonthlyData = dataYear1.monthlyData.map((m1, index) => {
+        const m2 = dataYear2.monthlyData[index];
+        return {
+          monthNum: m1.monthNum,
+          month: m1.month,
+          totalRevenue1: m1.totalRevenue,
+          totalRevenue2: m2.totalRevenue,
+          revenueIkea1: m1.revenueIkea,
+          revenueIkea2: m2.revenueIkea,
+          revenueIkeaIndustry1: m1.revenueIkeaIndustry,
+          revenueIkeaIndustry2: m2.revenueIkeaIndustry,
+          revenueOthers1: m1.revenueOthers,
+          revenueOthers2: m2.revenueOthers,
+        };
+      });
+
+      // Generuj analizę AI porównawczą
+      const prompt = `Jesteś ekspertem analityki biznesowej specjalizującym się w produkcji kontraktowej.
+
+      KONTEKST FIRMY:
+      CONSTRACT to zakład produkcji kontraktowej dla dużych korporacji (m.in. IKEA).
+      Firma NIE ma własnych produktów - obroty zależą wyłącznie od zamówień B2B.
+
+      PORÓWNANIE ROK ${dataYear1.year} vs ROK ${dataYear2.year}:
+
+      ROK ${dataYear1.year}:
+      - Całkowity obrót: ${formatCurrency(dataYear1.totalYearRevenue)}
+      - Średni miesięczny: ${formatCurrency(dataYear1.avgMonthlyRevenue)}
+      - Przepracowane dni: ${dataYear1.totalYearDays}
+      - Przepracowane zmiany: ${dataYear1.totalYearShifts}
+
+      ROK ${dataYear2.year}:
+      - Całkowity obrót: ${formatCurrency(dataYear2.totalYearRevenue)}
+      - Średni miesięczny: ${formatCurrency(dataYear2.avgMonthlyRevenue)}
+      - Przepracowane dni: ${dataYear2.totalYearDays}
+      - Przepracowane zmiany: ${dataYear2.totalYearShifts}
+
+      RÓŻNICE:
+      - Obrót: ${formatCurrency(dataYear2.totalYearRevenue - dataYear1.totalYearRevenue)} (${((dataYear2.totalYearRevenue / dataYear1.totalYearRevenue - 1) * 100).toFixed(1)}%)
+      - Dni pracy: ${dataYear2.totalYearDays - dataYear1.totalYearDays}
+      - Zmiany: ${dataYear2.totalYearShifts - dataYear1.totalYearShifts}
+
+      DANE MIESIĘCZNE ${dataYear1.year}:
+      ${dataYear1.monthlyData.map(m => `${m.month}: ${formatCurrency(m.totalRevenue)}`).join('\n')}
+
+      DANE MIESIĘCZNE ${dataYear2.year}:
+      ${dataYear2.monthlyData.map(m => `${m.month}: ${formatCurrency(m.totalRevenue)}`).join('\n')}
+
+      Wygeneruj PROFESJONALNĄ ANALIZĘ PORÓWNAWCZĄ zawierającą:
+
+      1. PODSUMOWANIE PORÓWNANIA (3-4 zdania):
+      - Ogólna ocena zmian między latami
+      - Czy nastąpił wzrost, spadek czy stabilizacja produkcji
+      - Wpływ na wykorzystanie mocy produkcyjnych
+      - Główne różnice w sezonowości i cyklach zamówień
+
+      2. ANALIZA KORELACJI I TRENDÓW:
+      - Czy oba lata mają podobny wzorzec sezonowości
+      - Jakie miesiące rosną/maleją w obu latach
+      - Czy punkty szczytowe i niskie występują w tych samych okresach
+      - Ocena przewidywalności cykli produkcyjnych między latami
+
+      3. WNIOSKI I REKOMENDACJE (4-5 punktów):
+      - Konkretne wnioski z porównania obu lat
+      - Co można przewidzieć na przyszłość na podstawie tych danych
+      - Rekomendacje operacyjne wynikające z porównania
+      - Obszary wymagające uwagi w kontekście obserwowanych zmian
+
+      Format odpowiedzi jako JSON:
+      {
+        "podsumowanie_porownania": "tekst",
+        "analiza_korelacji": "tekst",
+        "wnioski": ["punkt 1", "punkt 2", ...]
+      }`;
+
+      const comparisonAnalysis = await base44.integrations.Core.InvokeLLM({
+        prompt,
+        response_json_schema: {
+          type: "object",
+          properties: {
+            podsumowanie_porownania: { type: "string" },
+            analiza_korelacji: { type: "string" },
+            wnioski: { type: "array", items: { type: "string" } }
+          }
+        }
+      });
+
+      setComparisonAiAnalysis(comparisonAnalysis);
+      setComparisonReportData({ year1: dataYear1, year2: dataYear2, mergedMonthlyData });
     } catch (error) {
       console.error("Błąd generowania raportu porównawczego:", error);
       setComparisonReportData(null);
+      setComparisonAiAnalysis(null);
     } finally {
       setIsGeneratingComparison(false);
     }
@@ -704,6 +797,22 @@ export default function RaportRocznyPage() {
                   </Card>
                 </div>
 
+                {/* Podsumowanie porównania AI */}
+                {comparisonAiAnalysis && (
+                  <Card className="shadow-lg border-none border-l-4 border-l-indigo-600">
+                    <CardHeader className="bg-gradient-to-r from-indigo-50 to-purple-50">
+                      <CardTitle>
+                        {language === 'pl' 
+                          ? `Podsumowanie porównania ${comparisonReportData.year1.year} vs ${comparisonReportData.year2.year}`
+                          : `Comparison Summary ${comparisonReportData.year1.year} vs ${comparisonReportData.year2.year}`}
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-6">
+                      <p className="text-slate-700 leading-relaxed text-lg">{comparisonAiAnalysis.podsumowanie_porownania}</p>
+                    </CardContent>
+                  </Card>
+                )}
+
                 {/* Comparison Metrics Table */}
                 <Card className="shadow-lg border-none">
                   <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50">
@@ -774,19 +883,14 @@ export default function RaportRocznyPage() {
                   </CardHeader>
                   <CardContent className="p-6">
                     <ResponsiveContainer width="100%" height={300}>
-                      <LineChart margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                      <LineChart data={comparisonReportData.mergedMonthlyData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
                         <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="monthNum" tickFormatter={(value) => {
-                          const monthNames = language === 'pl' 
-                            ? ['Sty', 'Lut', 'Mar', 'Kwi', 'Maj', 'Cze', 'Lip', 'Sie', 'Wrz', 'Paź', 'Lis', 'Gru']
-                            : ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-                          return monthNames[value - 1];
-                        }} />
+                        <XAxis dataKey="month" angle={-45} textAnchor="end" height={80} />
                         <YAxis width={80} tickFormatter={(value) => `${(value / 1000000).toFixed(1)}M`} />
                         <Tooltip formatter={(value) => formatCurrency(value)} />
                         <Legend />
-                        <Line type="monotone" data={comparisonReportData.year1.monthlyData} dataKey="totalRevenue" stroke="#4F46E5" strokeWidth={3} name={`${t('totalRevenue', language)} ${comparisonReportData.year1.year}`} />
-                        <Line type="monotone" data={comparisonReportData.year2.monthlyData} dataKey="totalRevenue" stroke="#10B981" strokeWidth={3} name={`${t('totalRevenue', language)} ${comparisonReportData.year2.year}`} />
+                        <Line type="monotone" dataKey="totalRevenue1" stroke="#4F46E5" strokeWidth={3} name={`${comparisonReportData.year1.year}`} />
+                        <Line type="monotone" dataKey="totalRevenue2" stroke="#10B981" strokeWidth={3} name={`${comparisonReportData.year2.year}`} />
                       </LineChart>
                     </ResponsiveContainer>
                   </CardContent>
@@ -799,27 +903,57 @@ export default function RaportRocznyPage() {
                   </CardHeader>
                   <CardContent className="p-6">
                     <ResponsiveContainer width="100%" height={400}>
-                      <LineChart margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                      <LineChart data={comparisonReportData.mergedMonthlyData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
                         <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="monthNum" tickFormatter={(value) => {
-                          const monthNames = language === 'pl' 
-                            ? ['Sty', 'Lut', 'Mar', 'Kwi', 'Maj', 'Cze', 'Lip', 'Sie', 'Wrz', 'Paź', 'Lis', 'Gru']
-                            : ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-                          return monthNames[value - 1];
-                        }} />
+                        <XAxis dataKey="month" angle={-45} textAnchor="end" height={80} />
                         <YAxis width={80} tickFormatter={(value) => `${(value / 1000000).toFixed(1)}M`} />
                         <Tooltip formatter={(value) => formatCurrency(value)} />
                         <Legend />
-                        <Line type="monotone" data={comparisonReportData.year1.monthlyData} dataKey="revenueIkea" stroke="#3B82F6" strokeWidth={2} name={`IKEA SUPPLY ${comparisonReportData.year1.year}`} />
-                        <Line type="monotone" data={comparisonReportData.year2.monthlyData} dataKey="revenueIkea" stroke="#60A5FA" strokeWidth={2} name={`IKEA SUPPLY ${comparisonReportData.year2.year}`} strokeDasharray="5 5" />
-                        <Line type="monotone" data={comparisonReportData.year1.monthlyData} dataKey="revenueIkeaIndustry" stroke="#9333EA" strokeWidth={2} name={`IKEA INDUSTRY ${comparisonReportData.year1.year}`} />
-                        <Line type="monotone" data={comparisonReportData.year2.monthlyData} dataKey="revenueIkeaIndustry" stroke="#C084FC" strokeWidth={2} name={`IKEA INDUSTRY ${comparisonReportData.year2.year}`} strokeDasharray="5 5" />
-                        <Line type="monotone" data={comparisonReportData.year1.monthlyData} dataKey="revenueOthers" stroke="#10B981" strokeWidth={2} name={`POZOSTALI ${comparisonReportData.year1.year}`} />
-                        <Line type="monotone" data={comparisonReportData.year2.monthlyData} dataKey="revenueOthers" stroke="#34D399" strokeWidth={2} name={`POZOSTALI ${comparisonReportData.year2.year}`} strokeDasharray="5 5" />
+                        <Line type="monotone" dataKey="revenueIkea1" stroke="#3B82F6" strokeWidth={2} name={`IKEA SUPPLY ${comparisonReportData.year1.year}`} />
+                        <Line type="monotone" dataKey="revenueIkea2" stroke="#60A5FA" strokeWidth={2} name={`IKEA SUPPLY ${comparisonReportData.year2.year}`} strokeDasharray="5 5" />
+                        <Line type="monotone" dataKey="revenueIkeaIndustry1" stroke="#9333EA" strokeWidth={2} name={`IKEA INDUSTRY ${comparisonReportData.year1.year}`} />
+                        <Line type="monotone" dataKey="revenueIkeaIndustry2" stroke="#C084FC" strokeWidth={2} name={`IKEA INDUSTRY ${comparisonReportData.year2.year}`} strokeDasharray="5 5" />
+                        <Line type="monotone" dataKey="revenueOthers1" stroke="#10B981" strokeWidth={2} name={`POZOSTALI ${comparisonReportData.year1.year}`} />
+                        <Line type="monotone" dataKey="revenueOthers2" stroke="#34D399" strokeWidth={2} name={`POZOSTALI ${comparisonReportData.year2.year}`} strokeDasharray="5 5" />
                       </LineChart>
                     </ResponsiveContainer>
                   </CardContent>
                 </Card>
+
+                {/* Analiza korelacji AI */}
+                {comparisonAiAnalysis && (
+                  <Card className="shadow-lg border-none border-l-4 border-l-purple-600">
+                    <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50">
+                      <CardTitle>
+                        {language === 'pl' ? 'Analiza korelacji i trendów' : 'Correlation and Trends Analysis'}
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-6">
+                      <p className="text-slate-700 leading-relaxed">{comparisonAiAnalysis.analiza_korelacji}</p>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* Wnioski z porównania */}
+                {comparisonAiAnalysis && (
+                  <Card className="shadow-lg border-none border-l-4 border-l-amber-600">
+                    <CardHeader className="bg-gradient-to-r from-amber-50 to-yellow-50">
+                      <CardTitle>{t('conclusionsRecommendations', language)}</CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-6">
+                      <ul className="space-y-3">
+                        {comparisonAiAnalysis.wnioski.map((wniosek, index) => (
+                          <li key={index} className="flex items-start gap-3">
+                            <span className="flex-shrink-0 w-6 h-6 rounded-full bg-amber-500 text-white flex items-center justify-center text-sm font-bold">
+                              {index + 1}
+                            </span>
+                            <p className="text-slate-700 leading-relaxed">{wniosek}</p>
+                          </li>
+                        ))}
+                      </ul>
+                    </CardContent>
+                  </Card>
+                )}
               </div>
             )}
 
@@ -829,8 +963,8 @@ export default function RaportRocznyPage() {
                   <FileText className="w-16 h-16 text-slate-400 mx-auto mb-4" />
                   <p className="text-slate-600 text-lg">
                     {language === 'pl' 
-                      ? 'Wybierz dwa lata powyżej, aby wygenerować raport porównawczy'
-                      : 'Select two years above to generate a comparative report'}
+                      ? 'Wybierz dwa lata powyżej, aby wygenerować raport porównawczy z analizą korelacji'
+                      : 'Select two years above to generate a comparative report with correlation analysis'}
                   </p>
                 </CardContent>
               </Card>
