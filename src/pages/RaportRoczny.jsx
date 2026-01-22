@@ -870,6 +870,36 @@ export default function RaportRocznyPage() {
                               {comparisonReportData.year2.totalYearShifts - comparisonReportData.year1.totalYearShifts}
                             </td>
                           </tr>
+                          <tr>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{t('revenuePerDay', language)}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                              {formatCurrency(comparisonReportData.year1.totalYearDays > 0 ? comparisonReportData.year1.totalYearRevenue / comparisonReportData.year1.totalYearDays : 0)}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                              {formatCurrency(comparisonReportData.year2.totalYearDays > 0 ? comparisonReportData.year2.totalYearRevenue / comparisonReportData.year2.totalYearDays : 0)}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-bold">
+                              {formatCurrency(
+                                (comparisonReportData.year2.totalYearDays > 0 ? comparisonReportData.year2.totalYearRevenue / comparisonReportData.year2.totalYearDays : 0) -
+                                (comparisonReportData.year1.totalYearDays > 0 ? comparisonReportData.year1.totalYearRevenue / comparisonReportData.year1.totalYearDays : 0)
+                              )}
+                            </td>
+                          </tr>
+                          <tr>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{t('revenuePerShift', language)}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                              {formatCurrency(comparisonReportData.year1.totalYearShifts > 0 ? comparisonReportData.year1.totalYearRevenue / comparisonReportData.year1.totalYearShifts : 0)}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                              {formatCurrency(comparisonReportData.year2.totalYearShifts > 0 ? comparisonReportData.year2.totalYearRevenue / comparisonReportData.year2.totalYearShifts : 0)}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-bold">
+                              {formatCurrency(
+                                (comparisonReportData.year2.totalYearShifts > 0 ? comparisonReportData.year2.totalYearRevenue / comparisonReportData.year2.totalYearShifts : 0) -
+                                (comparisonReportData.year1.totalYearShifts > 0 ? comparisonReportData.year1.totalYearRevenue / comparisonReportData.year1.totalYearShifts : 0)
+                              )}
+                            </td>
+                          </tr>
                         </tbody>
                       </table>
                     </div>
