@@ -43,26 +43,43 @@ export default function GoalsDashboard({ reportData, goalsData, language }) {
     sum + (g.revenue_ikea_goal || 0) + (g.revenue_ikea_industry_goal || 0) + (g.revenue_others_goal || 0), 0) || 0;
   const overallAchievement = totalGoalRevenue > 0 ? (totalActualRevenue / totalGoalRevenue * 100) : 0;
 
-  // Oblicz statystyki dla każdego źródła
-  const totalActualIkea = reportData.monthlyData.reduce((sum, m) => sum + (m.revenueIkea || 0), 0);
-  const totalActualIkeaIndustry = reportData.monthlyData.reduce((sum, m) => sum + (m.revenueIkeaIndustry || 0), 0);
-  const totalActualOthers = reportData.monthlyData.reduce((sum, m) => sum + (m.revenueOthers || 0), 0);
+  // Oblicz statystyki dla każdego źródła (tylko do obecnego miesiąca dla bieżącego roku)
+  const currentMonth = new Date().getMonth() + 1;
+  const currentYear = new Date().getFullYear();
+  const isCurrentYear = reportData.year === currentYear;
+  
+  // Dla bieżącego roku: porównuj tylko dane do obecnego miesiąca
+  const monthsToCount = isCurrentYear ? currentMonth : 12;
+  
+  const totalActualIkea = reportData.monthlyData
+    .filter(m => m.monthNum <= monthsToCount)
+    .reduce((sum, m) => sum + (m.revenueIkea || 0), 0);
+  const totalActualIkeaIndustry = reportData.monthlyData
+    .filter(m => m.monthNum <= monthsToCount)
+    .reduce((sum, m) => sum + (m.revenueIkeaIndustry || 0), 0);
+  const totalActualOthers = reportData.monthlyData
+    .filter(m => m.monthNum <= monthsToCount)
+    .reduce((sum, m) => sum + (m.revenueOthers || 0), 0);
 
-  const totalGoalIkea = goalsData?.reduce((sum, g) => sum + (g.revenue_ikea_goal || 0), 0) || 0;
-  const totalGoalIkeaIndustry = goalsData?.reduce((sum, g) => sum + (g.revenue_ikea_industry_goal || 0), 0) || 0;
-  const totalGoalOthers = goalsData?.reduce((sum, g) => sum + (g.revenue_others_goal || 0), 0) || 0;
+  // Cel również tylko do obecnego miesiąca dla bieżącego roku
+  const totalGoalIkea = goalsData
+    ?.filter(g => g.month <= monthsToCount)
+    .reduce((sum, g) => sum + (g.revenue_ikea_goal || 0), 0) || 0;
+  const totalGoalIkeaIndustry = goalsData
+    ?.filter(g => g.month <= monthsToCount)
+    .reduce((sum, g) => sum + (g.revenue_ikea_industry_goal || 0), 0) || 0;
+  const totalGoalOthers = goalsData
+    ?.filter(g => g.month <= monthsToCount)
+    .reduce((sum, g) => sum + (g.revenue_others_goal || 0), 0) || 0;
 
   const achievementIkea = totalGoalIkea > 0 ? (totalActualIkea / totalGoalIkea * 100) : 0;
   const achievementIkeaIndustry = totalGoalIkeaIndustry > 0 ? (totalActualIkeaIndustry / totalGoalIkeaIndustry * 100) : 0;
   const achievementOthers = totalGoalOthers > 0 ? (totalActualOthers / totalGoalOthers * 100) : 0;
 
   // Oblicz prognozę na koniec roku
-  const currentMonth = new Date().getMonth() + 1;
-  const currentYear = new Date().getFullYear();
-  const isCurrentYear = reportData.year === currentYear;
-  
   let projectedRevenue = totalActualRevenue;
   let remainingGoal = 0;
+  let isTrendInsufficient = false;
   
   if (isCurrentYear && currentMonth < 12) {
     const monthsElapsed = reportData.monthlyData.filter(m => m.monthNum <= currentMonth && m.totalDays > 0).length;
@@ -70,11 +87,13 @@ export default function GoalsDashboard({ reportData, goalsData, language }) {
     const monthsRemaining = 12 - currentMonth;
     projectedRevenue = totalActualRevenue + (avgMonthlyActual * monthsRemaining);
     remainingGoal = totalGoalRevenue - totalActualRevenue;
+    
+    // Trend jest niewystarczający tylko jeśli PROGNOZA jest poniżej celu
+    isTrendInsufficient = projectedRevenue < totalGoalRevenue;
+  } else {
+    // Dla przeszłych/przyszłych lat: sprawdź czy osiągnięto cel
+    isTrendInsufficient = totalActualRevenue < totalGoalRevenue;
   }
-
-  // Sprawdź, które miesiące są poniżej celu
-  const monthsBelowGoal = chartData.filter(m => m.goalRevenue > 0 && m.actualRevenue < m.goalRevenue);
-  const isTrendInsufficient = overallAchievement < 90;
 
   return (
     <div className="space-y-6">
@@ -151,15 +170,15 @@ export default function GoalsDashboard({ reportData, goalsData, language }) {
             </div>
           )}
 
-          {isTrendInsufficient && (
+          {isTrendInsufficient && isCurrentYear && (
             <div className="mt-4 bg-red-50 border border-red-200 rounded-lg p-4 flex items-start gap-3">
               <AlertTriangle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
               <div className="text-sm text-red-800">
                 <p className="font-semibold mb-1">{t('needsImprovement', language)}</p>
                 <p>
                   {language === 'pl' 
-                    ? `Aktualny postęp jest niewystarczający. Wymagane jest zwiększenie średniego miesięcznego obrotu o ${formatCurrency((totalGoalRevenue - totalActualRevenue) / Math.max(1, 12 - currentMonth))}, aby osiągnąć roczny cel.`
-                    : `Current progress is insufficient. An increase in average monthly revenue of ${formatCurrency((totalGoalRevenue - totalActualRevenue) / Math.max(1, 12 - currentMonth))} is required to meet the annual goal.`}
+                    ? `Prognozowany obrót roczny (${formatCurrency(projectedRevenue)}) jest poniżej celu. Wymagane jest zwiększenie średniego miesięcznego obrotu o ${formatCurrency((totalGoalRevenue - projectedRevenue) / Math.max(1, 12 - currentMonth))}, aby osiągnąć roczny cel.`
+                    : `Projected annual revenue (${formatCurrency(projectedRevenue)}) is below target. An increase in average monthly revenue of ${formatCurrency((totalGoalRevenue - projectedRevenue) / Math.max(1, 12 - currentMonth))} is required to meet the annual goal.`}
                 </p>
               </div>
             </div>
