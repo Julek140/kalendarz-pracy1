@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -22,6 +22,20 @@ export default function GoalsManager({ year, existingGoals, language }) {
     }
     return initial;
   });
+
+  // Aktualizuj cele gdy zmienia się rok lub existingGoals
+  useEffect(() => {
+    const updated = {};
+    for (let month = 1; month <= 12; month++) {
+      const existing = existingGoals?.find(g => g.month === month);
+      updated[month] = {
+        revenue_ikea_goal: existing?.revenue_ikea_goal || 0,
+        revenue_ikea_industry_goal: existing?.revenue_ikea_industry_goal || 0,
+        revenue_others_goal: existing?.revenue_others_goal || 0,
+      };
+    }
+    setGoals(updated);
+  }, [year, existingGoals]);
 
   const saveGoalsMutation = useMutation({
     mutationFn: async (goalsData) => {
