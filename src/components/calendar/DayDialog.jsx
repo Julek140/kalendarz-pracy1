@@ -41,6 +41,9 @@ export default function DayDialog({
   const [revenueIkea, setRevenueIkea] = useState("");
   const [revenueIkeaIndustry, setRevenueIkeaIndustry] = useState("");
   const [revenueOthers, setRevenueOthers] = useState("");
+  const [trucksIkea, setTrucksIkea] = useState("");
+  const [trucksIkeaIndustry, setTrucksIkeaIndustry] = useState("");
+  const [trucksOthers, setTrucksOthers] = useState("");
   const { language } = useLanguage();
 
   const startNewEntry = () => {
@@ -51,6 +54,9 @@ export default function DayDialog({
     setRevenueIkea("");
     setRevenueIkeaIndustry("");
     setRevenueOthers("");
+    setTrucksIkea("");
+    setTrucksIkeaIndustry("");
+    setTrucksOthers("");
     setNotes("");
     setShowForm(true);
   };
@@ -63,6 +69,9 @@ export default function DayDialog({
     setRevenueIkea(workDay.revenue_ikea ? workDay.revenue_ikea.toString() : "");
     setRevenueIkeaIndustry(workDay.revenue_ikea_industry ? workDay.revenue_ikea_industry.toString() : "");
     setRevenueOthers(workDay.revenue_others ? workDay.revenue_others.toString() : "");
+    setTrucksIkea(workDay.trucks_ikea ? workDay.trucks_ikea.toString() : "");
+    setTrucksIkeaIndustry(workDay.trucks_ikea_industry ? workDay.trucks_ikea_industry.toString() : "");
+    setTrucksOthers(workDay.trucks_others ? workDay.trucks_others.toString() : "");
     setNotes(workDay.notes || "");
     setShowForm(true);
   };
@@ -76,6 +85,9 @@ export default function DayDialog({
       revenue_ikea: revenueIkea ? parseFloat(revenueIkea) : 0,
       revenue_ikea_industry: revenueIkeaIndustry ? parseFloat(revenueIkeaIndustry) : 0,
       revenue_others: revenueOthers ? parseFloat(revenueOthers) : 0,
+      trucks_ikea: trucksIkea ? parseInt(trucksIkea) : 0,
+      trucks_ikea_industry: trucksIkeaIndustry ? parseInt(trucksIkeaIndustry) : 0,
+      trucks_others: trucksOthers ? parseInt(trucksOthers) : 0,
       notes: notes.trim() || undefined,
     };
 
@@ -138,16 +150,19 @@ export default function DayDialog({
                               {workDay.revenue_ikea > 0 && (
                                 <div className="text-blue-700">
                                   <span className="font-medium">IKEA SUPPLY:</span> {new Intl.NumberFormat('pl-PL', { style: 'currency', currency: 'PLN' }).format(workDay.revenue_ikea)}
+                                  {workDay.trucks_ikea > 0 && <span className="ml-2 text-xs">🚚 {workDay.trucks_ikea}</span>}
                                 </div>
                               )}
                               {workDay.revenue_ikea_industry > 0 && (
                                 <div className="text-purple-700">
                                   <span className="font-medium">IKEA INDUSTRY:</span> {new Intl.NumberFormat('pl-PL', { style: 'currency', currency: 'PLN' }).format(workDay.revenue_ikea_industry)}
+                                  {workDay.trucks_ikea_industry > 0 && <span className="ml-2 text-xs">🚚 {workDay.trucks_ikea_industry}</span>}
                                 </div>
                               )}
                               {workDay.revenue_others > 0 && (
                                 <div className="text-green-700">
                                   <span className="font-medium">{language === 'pl' ? 'POZOSTALI' : 'OTHERS'}:</span> {new Intl.NumberFormat('pl-PL', { style: 'currency', currency: 'PLN' }).format(workDay.revenue_others)}
+                                  {workDay.trucks_others > 0 && <span className="ml-2 text-xs">🚚 {workDay.trucks_others}</span>}
                                 </div>
                               )}
                             </div>
@@ -276,54 +291,105 @@ export default function DayDialog({
                   </Label>
                 </div>
 
-                {/* Revenue Inputs */}
+                {/* Revenue and Trucks Inputs */}
                 <div className="space-y-3">
-                  <div>
-                    <Label htmlFor="revenue-ikea" className="text-base font-semibold mb-2 block text-blue-700">
-                      {t('revenueIkea', language)}:
-                    </Label>
-                    <Input
-                      id="revenue-ikea"
-                      type="number"
-                      min="0"
-                      step="0.01"
-                      value={revenueIkea}
-                      onChange={(e) => setRevenueIkea(e.target.value)}
-                      placeholder="0.00"
-                      className="text-lg border-blue-300"
-                    />
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <Label htmlFor="revenue-ikea" className="text-base font-semibold mb-2 block text-blue-700">
+                        {t('revenueIkea', language)}:
+                      </Label>
+                      <Input
+                        id="revenue-ikea"
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        value={revenueIkea}
+                        onChange={(e) => setRevenueIkea(e.target.value)}
+                        placeholder="0.00"
+                        className="text-lg border-blue-300"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="trucks-ikea" className="text-base font-semibold mb-2 block text-blue-700">
+                        🚚 {t('trucksIkea', language)}:
+                      </Label>
+                      <Input
+                        id="trucks-ikea"
+                        type="number"
+                        min="0"
+                        step="1"
+                        value={trucksIkea}
+                        onChange={(e) => setTrucksIkea(e.target.value)}
+                        placeholder="0"
+                        className="text-lg border-blue-300"
+                      />
+                    </div>
                   </div>
                   
-                  <div>
-                    <Label htmlFor="revenue-ikea-industry" className="text-base font-semibold mb-2 block text-purple-700">
-                      {t('revenueIkeaIndustry', language)}:
-                    </Label>
-                    <Input
-                      id="revenue-ikea-industry"
-                      type="number"
-                      min="0"
-                      step="0.01"
-                      value={revenueIkeaIndustry}
-                      onChange={(e) => setRevenueIkeaIndustry(e.target.value)}
-                      placeholder="0.00"
-                      className="text-lg border-purple-300"
-                    />
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <Label htmlFor="revenue-ikea-industry" className="text-base font-semibold mb-2 block text-purple-700">
+                        {t('revenueIkeaIndustry', language)}:
+                      </Label>
+                      <Input
+                        id="revenue-ikea-industry"
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        value={revenueIkeaIndustry}
+                        onChange={(e) => setRevenueIkeaIndustry(e.target.value)}
+                        placeholder="0.00"
+                        className="text-lg border-purple-300"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="trucks-ikea-industry" className="text-base font-semibold mb-2 block text-purple-700">
+                        🚚 {t('trucksIkeaIndustry', language)}:
+                      </Label>
+                      <Input
+                        id="trucks-ikea-industry"
+                        type="number"
+                        min="0"
+                        step="1"
+                        value={trucksIkeaIndustry}
+                        onChange={(e) => setTrucksIkeaIndustry(e.target.value)}
+                        placeholder="0"
+                        className="text-lg border-purple-300"
+                      />
+                    </div>
                   </div>
                   
-                  <div>
-                    <Label htmlFor="revenue-others" className="text-base font-semibold mb-2 block text-green-700">
-                      {t('revenueOthers', language)}:
-                    </Label>
-                    <Input
-                      id="revenue-others"
-                      type="number"
-                      min="0"
-                      step="0.01"
-                      value={revenueOthers}
-                      onChange={(e) => setRevenueOthers(e.target.value)}
-                      placeholder="0.00"
-                      className="text-lg border-green-300"
-                    />
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <Label htmlFor="revenue-others" className="text-base font-semibold mb-2 block text-green-700">
+                        {t('revenueOthers', language)}:
+                      </Label>
+                      <Input
+                        id="revenue-others"
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        value={revenueOthers}
+                        onChange={(e) => setRevenueOthers(e.target.value)}
+                        placeholder="0.00"
+                        className="text-lg border-green-300"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="trucks-others" className="text-base font-semibold mb-2 block text-green-700">
+                        🚚 {t('trucksOthers', language)}:
+                      </Label>
+                      <Input
+                        id="trucks-others"
+                        type="number"
+                        min="0"
+                        step="1"
+                        value={trucksOthers}
+                        onChange={(e) => setTrucksOthers(e.target.value)}
+                        placeholder="0"
+                        className="text-lg border-green-300"
+                      />
+                    </div>
                   </div>
                 </div>
 
