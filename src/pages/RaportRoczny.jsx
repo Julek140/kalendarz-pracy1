@@ -5,12 +5,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { FileText, TrendingUp, Calendar, Loader2 } from "lucide-react";
+import { FileText, TrendingUp, Calendar, Loader2, Target } from "lucide-react";
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import { startOfMonth, endOfMonth, format, parseISO } from "date-fns";
 import { pl, enUS } from "date-fns/locale";
 import { useLanguage } from "@/components/LanguageContext";
 import { t } from "@/components/translations";
+import GoalsManager from "@/components/annual/GoalsManager";
+import GoalsDashboard from "@/components/annual/GoalsDashboard";
 
 const YEARS = ["2024", "2025", "2026", "2027", "2028", "2029"];
 
@@ -33,6 +35,12 @@ export default function RaportRocznyPage() {
   const { data: workDays = [] } = useQuery({
     queryKey: ['workDays'],
     queryFn: () => base44.entities.WorkDay.list(),
+    initialData: [],
+  });
+
+  const { data: financialGoals = [] } = useQuery({
+    queryKey: ['financialGoals'],
+    queryFn: () => base44.entities.FinancialGoal.list(),
     initialData: [],
   });
 
@@ -351,8 +359,12 @@ export default function RaportRocznyPage() {
         </div>
 
         <Tabs defaultValue="annualReport" className="w-full" onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-2 mb-6">
+          <TabsList className="grid w-full grid-cols-3 mb-6">
             <TabsTrigger value="annualReport">{t('annualReport', language)}</TabsTrigger>
+            <TabsTrigger value="financialGoals">
+              <Target className="w-4 h-4 mr-2" />
+              {t('financialGoals', language)}
+            </TabsTrigger>
             <TabsTrigger value="yearComparison">{t('yearComparison', language)}</TabsTrigger>
           </TabsList>
           
@@ -403,6 +415,31 @@ export default function RaportRocznyPage() {
             {/* Raport Roczny */}
             {reportData && (
               <div className="space-y-6">
+                {/* Dashboard celów - jeśli są ustawione cele */}
+                {financialGoals.filter(g => g.year === reportData.year).length > 0 && (
+                  <GoalsDashboard 
+                    reportData={reportData} 
+                    goalsData={financialGoals.filter(g => g.year === reportData.year)}
+                    language={language}
+                  />
+                )}
+
+                {financialGoals.filter(g => g.year === reportData.year).length === 0 && (
+                  <Card className="border-dashed border-2 border-amber-300 bg-amber-50">
+                    <CardContent className="p-6 text-center">
+                      <Target className="w-12 h-12 text-amber-600 mx-auto mb-3" />
+                      <p className="text-amber-800 mb-2 font-semibold">{t('noGoalsSet', language)}</p>
+                      <p className="text-amber-700 text-sm mb-4">{t('setGoalsFirst', language)}</p>
+                      <Button
+                        onClick={() => setActiveTab("financialGoals")}
+                        className="bg-amber-600 hover:bg-amber-700"
+                      >
+                        {t('manageFinancialGoals', language)}
+                      </Button>
+                    </CardContent>
+                  </Card>
+                )}
+
                 {/* Statystyki główne */}
                 <div className="grid md:grid-cols-4 gap-4">
                   <Card className="shadow-lg border-none bg-gradient-to-br from-emerald-500 to-green-600 text-white">
@@ -697,6 +734,40 @@ export default function RaportRocznyPage() {
                 </CardContent>
               </Card>
             )}
+          </TabsContent>
+          
+          <TabsContent value="financialGoals">
+            <Card className="mb-6 shadow-lg border-none">
+              <CardHeader className="bg-gradient-to-r from-indigo-50 to-purple-50 border-b">
+                <CardTitle className="flex items-center gap-2">
+                  <Target className="w-5 h-5 text-indigo-600" />
+                  {t('manageFinancialGoals', language)}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-6">
+                <div className="mb-4">
+                  <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 mb-2 block">
+                    {t('selectYear', language)}
+                  </label>
+                  <Select value={selectedYear} onValueChange={setSelectedYear}>
+                    <SelectTrigger className="w-48">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {YEARS.map(y => (
+                        <SelectItem key={y} value={y}>{y}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </CardContent>
+            </Card>
+
+            <GoalsManager 
+              year={selectedYear} 
+              existingGoals={financialGoals.filter(g => g.year === parseInt(selectedYear))}
+              language={language}
+            />
           </TabsContent>
           
           <TabsContent value="yearComparison">
