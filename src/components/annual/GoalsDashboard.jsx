@@ -43,6 +43,19 @@ export default function GoalsDashboard({ reportData, goalsData, language }) {
     sum + (g.revenue_ikea_goal || 0) + (g.revenue_ikea_industry_goal || 0) + (g.revenue_others_goal || 0), 0) || 0;
   const overallAchievement = totalGoalRevenue > 0 ? (totalActualRevenue / totalGoalRevenue * 100) : 0;
 
+  // Oblicz statystyki dla każdego źródła
+  const totalActualIkea = reportData.monthlyData.reduce((sum, m) => sum + (m.revenueIkea || 0), 0);
+  const totalActualIkeaIndustry = reportData.monthlyData.reduce((sum, m) => sum + (m.revenueIkeaIndustry || 0), 0);
+  const totalActualOthers = reportData.monthlyData.reduce((sum, m) => sum + (m.revenueOthers || 0), 0);
+
+  const totalGoalIkea = goalsData?.reduce((sum, g) => sum + (g.revenue_ikea_goal || 0), 0) || 0;
+  const totalGoalIkeaIndustry = goalsData?.reduce((sum, g) => sum + (g.revenue_ikea_industry_goal || 0), 0) || 0;
+  const totalGoalOthers = goalsData?.reduce((sum, g) => sum + (g.revenue_others_goal || 0), 0) || 0;
+
+  const achievementIkea = totalGoalIkea > 0 ? (totalActualIkea / totalGoalIkea * 100) : 0;
+  const achievementIkeaIndustry = totalGoalIkeaIndustry > 0 ? (totalActualIkeaIndustry / totalGoalIkeaIndustry * 100) : 0;
+  const achievementOthers = totalGoalOthers > 0 ? (totalActualOthers / totalGoalOthers * 100) : 0;
+
   // Oblicz prognozę na koniec roku
   const currentMonth = new Date().getMonth() + 1;
   const currentYear = new Date().getFullYear();
@@ -151,6 +164,157 @@ export default function GoalsDashboard({ reportData, goalsData, language }) {
               </div>
             </div>
           )}
+        </CardContent>
+      </Card>
+
+      {/* Rozbicie na źródła przychodów */}
+      <Card className="shadow-lg border-none">
+        <CardHeader className="bg-gradient-to-r from-slate-50 to-gray-50">
+          <CardTitle>{language === 'pl' ? 'Realizacja celów według źródeł' : 'Goal Achievement by Source'}</CardTitle>
+        </CardHeader>
+        <CardContent className="p-6">
+          <div className="grid md:grid-cols-3 gap-4">
+            {/* IKEA SUPPLY */}
+            <div className={`p-4 rounded-lg border-2 ${
+              achievementIkea >= 100 ? 'bg-green-50 border-green-300' :
+              achievementIkea >= 90 ? 'bg-yellow-50 border-yellow-300' :
+              'bg-red-50 border-red-300'
+            }`}>
+              <div className="flex items-center justify-between mb-2">
+                <h4 className="font-bold text-sm">IKEA SUPPLY</h4>
+                {achievementIkea >= 100 ? (
+                  <CheckCircle className="w-5 h-5 text-green-600" />
+                ) : achievementIkea >= 90 ? (
+                  <TrendingUp className="w-5 h-5 text-yellow-600" />
+                ) : (
+                  <AlertTriangle className="w-5 h-5 text-red-600" />
+                )}
+              </div>
+              <Progress value={Math.min(achievementIkea, 100)} className="h-2 mb-2" />
+              <div className="space-y-1 text-xs">
+                <div className="flex justify-between">
+                  <span className="text-slate-600">{t('achieved', language)}:</span>
+                  <span className="font-semibold">{formatCurrency(totalActualIkea)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-600">{t('goal', language)}:</span>
+                  <span className="font-semibold">{formatCurrency(totalGoalIkea)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className={`font-bold ${
+                    achievementIkea >= 100 ? 'text-green-600' :
+                    achievementIkea >= 90 ? 'text-yellow-600' :
+                    'text-red-600'
+                  }`}>
+                    {achievementIkea.toFixed(1)}%
+                  </span>
+                  <span className={`text-xs px-2 py-0.5 rounded-full ${
+                    achievementIkea >= 100 ? 'bg-green-200 text-green-800' :
+                    achievementIkea >= 90 ? 'bg-yellow-200 text-yellow-800' :
+                    'bg-red-200 text-red-800'
+                  }`}>
+                    {achievementIkea >= 100 ? (language === 'pl' ? 'Cel osiągnięty' : 'Goal met') :
+                     achievementIkea >= 90 ? (language === 'pl' ? 'Na dobrej drodze' : 'On track') :
+                     (language === 'pl' ? 'Poniżej celu' : 'Below goal')}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* IKEA INDUSTRY */}
+            <div className={`p-4 rounded-lg border-2 ${
+              achievementIkeaIndustry >= 100 ? 'bg-green-50 border-green-300' :
+              achievementIkeaIndustry >= 90 ? 'bg-yellow-50 border-yellow-300' :
+              'bg-red-50 border-red-300'
+            }`}>
+              <div className="flex items-center justify-between mb-2">
+                <h4 className="font-bold text-sm">IKEA INDUSTRY</h4>
+                {achievementIkeaIndustry >= 100 ? (
+                  <CheckCircle className="w-5 h-5 text-green-600" />
+                ) : achievementIkeaIndustry >= 90 ? (
+                  <TrendingUp className="w-5 h-5 text-yellow-600" />
+                ) : (
+                  <AlertTriangle className="w-5 h-5 text-red-600" />
+                )}
+              </div>
+              <Progress value={Math.min(achievementIkeaIndustry, 100)} className="h-2 mb-2" />
+              <div className="space-y-1 text-xs">
+                <div className="flex justify-between">
+                  <span className="text-slate-600">{t('achieved', language)}:</span>
+                  <span className="font-semibold">{formatCurrency(totalActualIkeaIndustry)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-600">{t('goal', language)}:</span>
+                  <span className="font-semibold">{formatCurrency(totalGoalIkeaIndustry)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className={`font-bold ${
+                    achievementIkeaIndustry >= 100 ? 'text-green-600' :
+                    achievementIkeaIndustry >= 90 ? 'text-yellow-600' :
+                    'text-red-600'
+                  }`}>
+                    {achievementIkeaIndustry.toFixed(1)}%
+                  </span>
+                  <span className={`text-xs px-2 py-0.5 rounded-full ${
+                    achievementIkeaIndustry >= 100 ? 'bg-green-200 text-green-800' :
+                    achievementIkeaIndustry >= 90 ? 'bg-yellow-200 text-yellow-800' :
+                    'bg-red-200 text-red-800'
+                  }`}>
+                    {achievementIkeaIndustry >= 100 ? (language === 'pl' ? 'Cel osiągnięty' : 'Goal met') :
+                     achievementIkeaIndustry >= 90 ? (language === 'pl' ? 'Na dobrej drodze' : 'On track') :
+                     (language === 'pl' ? 'Poniżej celu' : 'Below goal')}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* POZOSTALI */}
+            <div className={`p-4 rounded-lg border-2 ${
+              achievementOthers >= 100 ? 'bg-green-50 border-green-300' :
+              achievementOthers >= 90 ? 'bg-yellow-50 border-yellow-300' :
+              'bg-red-50 border-red-300'
+            }`}>
+              <div className="flex items-center justify-between mb-2">
+                <h4 className="font-bold text-sm">POZOSTALI</h4>
+                {achievementOthers >= 100 ? (
+                  <CheckCircle className="w-5 h-5 text-green-600" />
+                ) : achievementOthers >= 90 ? (
+                  <TrendingUp className="w-5 h-5 text-yellow-600" />
+                ) : (
+                  <AlertTriangle className="w-5 h-5 text-red-600" />
+                )}
+              </div>
+              <Progress value={Math.min(achievementOthers, 100)} className="h-2 mb-2" />
+              <div className="space-y-1 text-xs">
+                <div className="flex justify-between">
+                  <span className="text-slate-600">{t('achieved', language)}:</span>
+                  <span className="font-semibold">{formatCurrency(totalActualOthers)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-600">{t('goal', language)}:</span>
+                  <span className="font-semibold">{formatCurrency(totalGoalOthers)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className={`font-bold ${
+                    achievementOthers >= 100 ? 'text-green-600' :
+                    achievementOthers >= 90 ? 'text-yellow-600' :
+                    'text-red-600'
+                  }`}>
+                    {achievementOthers.toFixed(1)}%
+                  </span>
+                  <span className={`text-xs px-2 py-0.5 rounded-full ${
+                    achievementOthers >= 100 ? 'bg-green-200 text-green-800' :
+                    achievementOthers >= 90 ? 'bg-yellow-200 text-yellow-800' :
+                    'bg-red-200 text-red-800'
+                  }`}>
+                    {achievementOthers >= 100 ? (language === 'pl' ? 'Cel osiągnięty' : 'Goal met') :
+                     achievementOthers >= 90 ? (language === 'pl' ? 'Na dobrej drodze' : 'On track') :
+                     (language === 'pl' ? 'Poniżej celu' : 'Below goal')}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
         </CardContent>
       </Card>
 
