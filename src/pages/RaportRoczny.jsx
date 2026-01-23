@@ -13,6 +13,7 @@ import { useLanguage } from "@/components/LanguageContext";
 import { t } from "@/components/translations";
 import GoalsManager from "@/components/annual/GoalsManager";
 import GoalsDashboard from "@/components/annual/GoalsDashboard";
+import TrucksAnalysis from "@/components/annual/TrucksAnalysis";
 
 const YEARS = ["2024", "2025", "2026", "2027", "2028", "2029"];
 
@@ -64,6 +65,9 @@ export default function RaportRocznyPage() {
       const revenueIkea = monthDays.reduce((sum, wd) => sum + (wd.revenue_ikea || 0), 0);
       const revenueIkeaIndustry = monthDays.reduce((sum, wd) => sum + (wd.revenue_ikea_industry || 0), 0);
       const revenueOthers = monthDays.reduce((sum, wd) => sum + (wd.revenue_others || 0), 0);
+      const trucksIkea = monthDays.reduce((sum, wd) => sum + (wd.trucks_ikea || 0), 0);
+      const trucksIkeaIndustry = monthDays.reduce((sum, wd) => sum + (wd.trucks_ikea_industry || 0), 0);
+      const trucksOthers = monthDays.reduce((sum, wd) => sum + (wd.trucks_others || 0), 0);
       const totalRevenue = revenueIkea + revenueIkeaIndustry + revenueOthers;
       const totalShifts = monthDays.reduce((sum, wd) => sum + (wd.shifts || 0), 0);
       const totalDays = monthDays.length;
@@ -76,6 +80,9 @@ export default function RaportRocznyPage() {
         revenueIkea,
         revenueIkeaIndustry,
         revenueOthers,
+        trucksIkea,
+        trucksIkeaIndustry,
+        trucksOthers,
         totalDays,
         totalShifts,
         avgDailyRevenue,
@@ -423,6 +430,13 @@ export default function RaportRocznyPage() {
                     language={language}
                   />
                 )}
+
+                {/* Analiza wysyłek ciężarówek */}
+                <TrucksAnalysis 
+                  reportData={reportData}
+                  goalsData={financialGoals.filter(g => g.year === reportData.year)}
+                  language={language}
+                />
 
                 {financialGoals.filter(g => g.year === reportData.year).length === 0 && (
                   <Card className="border-dashed border-2 border-amber-300 bg-amber-50">
