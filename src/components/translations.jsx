@@ -246,6 +246,32 @@ export const translations = {
     totalDaysWorkedYear: "Dni przepracowane roku",
     totalShiftsWorkedYear: "Zmiany przepracowane roku",
     cannotCompareSameYear: "Nie możesz porównywać tego samego roku",
+
+    // Financial Goals
+    financialGoals: "Cele finansowe",
+    manageFinancialGoals: "Zarządzaj celami finansowymi",
+    setMonthlyGoals: "Ustaw cele miesięczne",
+    monthlyGoalsFor: "Cele miesięczne dla roku {year}",
+    ikeaSupplyGoal: "Cel IKEA SUPPLY",
+    ikeaIndustryGoal: "Cel IKEA INDUSTRY",
+    othersGoal: "Cel POZOSTALI",
+    totalGoal: "Cel łączny",
+    actualRevenue: "Rzeczywisty obrót",
+    goalAchievement: "Realizacja celu",
+    belowGoal: "Poniżej celu",
+    onTrack: "Na dobrej drodze",
+    goalExceeded: "Cel przekroczony",
+    saveGoals: "Zapisz cele",
+    goalsSavedSuccessfully: "Cele zapisane pomyślnie",
+    yearlyGoalSummary: "Podsumowanie celu rocznego",
+    projectedAnnualRevenue: "Prognozowany obrót roczny",
+    annualGoalTotal: "Cel roczny (łączny)",
+    trendInsufficient: "Trend niewystarczający",
+    trendOnTrack: "Trend zgodny z celem",
+    needsImprovement: "Wymaga poprawy",
+    monthlyGoalTracking: "Śledzenie celów miesięcznych",
+    noGoalsSet: "Nie ustawiono celów dla tego roku",
+    setGoalsFirst: "Ustaw cele, aby śledzić postęp",
     },
   
   en: {
@@ -505,8 +531,34 @@ export const translations = {
     totalDaysWorkedYear: "Days Worked of Year",
     totalShiftsWorkedYear: "Shifts Worked of Year",
     cannotCompareSameYear: "You cannot compare the same year",
-  }
-};
+
+    // Financial Goals
+    financialGoals: "Financial Goals",
+    manageFinancialGoals: "Manage Financial Goals",
+    setMonthlyGoals: "Set Monthly Goals",
+    monthlyGoalsFor: "Monthly Goals for {year}",
+    ikeaSupplyGoal: "IKEA SUPPLY Goal",
+    ikeaIndustryGoal: "IKEA INDUSTRY Goal",
+    othersGoal: "OTHER CLIENTS Goal",
+    totalGoal: "Total Goal",
+    actualRevenue: "Actual Revenue",
+    goalAchievement: "Goal Achievement",
+    belowGoal: "Below Goal",
+    onTrack: "On Track",
+    goalExceeded: "Goal Exceeded",
+    saveGoals: "Save Goals",
+    goalsSavedSuccessfully: "Goals saved successfully",
+    yearlyGoalSummary: "Yearly Goal Summary",
+    projectedAnnualRevenue: "Projected Annual Revenue",
+    annualGoalTotal: "Annual Goal (Total)",
+    trendInsufficient: "Trend Insufficient",
+    trendOnTrack: "Trend On Track",
+    needsImprovement: "Needs Improvement",
+    monthlyGoalTracking: "Monthly Goal Tracking",
+    noGoalsSet: "No goals set for this year",
+    setGoalsFirst: "Set goals to track progress",
+    }
+    };
 
 export const t = (key, language = 'pl', params = {}) => {
   let text = translations[language]?.[key] || translations['pl']?.[key] || key;
