@@ -49,16 +49,11 @@ export default function RaportyFinansowePage() {
     initialData: [],
   });
 
-  const { data: user } = useQuery({
-    queryKey: ['currentUser'],
-    queryFn: () => base44.auth.me(),
+  const { data: financialGoals = [] } = useQuery({
+    queryKey: ['financialGoals'],
+    queryFn: () => base44.entities.FinancialGoal.list(),
+    initialData: [],
   });
-
-  const getYearlyGoal = (year) => {
-    if (!user?.yearly_goals) return 0;
-    const goalForYear = user.yearly_goals.find(g => g.year === year);
-    return goalForYear ? goalForYear.goal : 0;
-  };
 
   useEffect(() => {
     if (mode === "month" && selectedMonth && selectedYear) {
@@ -115,7 +110,7 @@ export default function RaportyFinansowePage() {
         return isWithinInterval(date, { start: weekStart, end: weekEnd });
       });
 
-      const totalRevenue = weekDays.reduce((sum, wd) => sum + (wd.revenue || 0), 0);
+      const totalRevenue = weekDays.reduce((sum, wd) => sum + ((wd.revenue_ikea || 0) + (wd.revenue_ikea_industry || 0) + (wd.revenue_others || 0)), 0);
       const totalShifts = weekDays.reduce((sum, wd) => sum + (wd.shifts || 0), 0);
       const totalDays = weekDays.length;
 
@@ -159,12 +154,19 @@ export default function RaportyFinansowePage() {
     const totalRevenue = filteredDays.reduce((sum, wd) => sum + ((wd.revenue_ikea || 0) + (wd.revenue_ikea_industry || 0) + (wd.revenue_others || 0)), 0);
     const totalDays = filteredDays.length;
     const totalShifts = filteredDays.reduce((sum, wd) => sum + (wd.shifts || 0), 0);
+    
+    // Oblicz średni obrót tygodniowy
     const avgWeeklyRevenue = weeklyData.length > 0 ? weeklyData.reduce((sum, w) => sum + w.totalRevenue, 0) / weeklyData.length : 0;
     
-    // Oblicz potrzebny średni obrót miesięczny do osiągnięcia celu
+    // Oblicz średni obrót miesięczny
+    const avgMonthlyRevenue = monthlyData.length > 0 ? monthlyData.reduce((sum, m) => sum + m.totalRevenue, 0) / monthlyData.length : 0;
+    
+    // Oblicz średni miesięczny obrót wymagany do osiągnięcia celu
     const reportYear = new Date(start).getFullYear();
-    const yearlyGoal = getYearlyGoal(reportYear);
-    const requiredAvgMonthlyRevenue = yearlyGoal / 12;
+    const goalsForYear = financialGoals.filter(g => g.year === reportYear);
+    const totalYearlyGoal = goalsForYear.reduce((sum, g) => 
+      sum + (g.revenue_ikea_goal || 0) + (g.revenue_ikea_industry_goal || 0) + (g.revenue_others_goal || 0), 0);
+    const requiredAvgMonthlyRevenue = totalYearlyGoal / 12;
 
     setReportData({
       startDate,
@@ -173,6 +175,7 @@ export default function RaportyFinansowePage() {
       totalDays,
       totalShifts,
       avgWeeklyRevenue,
+      avgMonthlyRevenue,
       requiredAvgMonthlyRevenue,
       revenuePerDay: totalDays > 0 ? totalRevenue / totalDays : 0,
       revenuePerShift: totalShifts > 0 ? totalRevenue / totalShifts : 0,
@@ -339,7 +342,7 @@ export default function RaportyFinansowePage() {
         {reportGenerated && reportData && (
           <div className="space-y-6">
             {/* Statystyki główne */}
-            <div className="grid md:grid-cols-4 gap-4">
+            <div className="grid md:grid-cols-5 gap-4">
               <Card className="shadow-lg border-none bg-gradient-to-br from-emerald-500 to-green-600 text-white">
                 <CardContent className="p-6">
                   <DollarSign className="w-10 h-10 mb-3 opacity-80" />
@@ -353,6 +356,14 @@ export default function RaportyFinansowePage() {
                   <TrendingUp className="w-10 h-10 mb-3 opacity-80" />
                   <p className="text-sm opacity-90 mb-1">{t('avgWeeklyRevenue', language)}</p>
                   <p className="text-3xl font-bold">{formatCurrency(reportData.avgWeeklyRevenue)}</p>
+                </CardContent>
+              </Card>
+
+              <Card className="shadow-lg border-none bg-gradient-to-br from-cyan-500 to-blue-600 text-white">
+                <CardContent className="p-6">
+                  <TrendingUp className="w-10 h-10 mb-3 opacity-80" />
+                  <p className="text-sm opacity-90 mb-1">{t('avgMonthlyRevenue', language)}</p>
+                  <p className="text-3xl font-bold">{formatCurrency(reportData.avgMonthlyRevenue)}</p>
                 </CardContent>
               </Card>
 
