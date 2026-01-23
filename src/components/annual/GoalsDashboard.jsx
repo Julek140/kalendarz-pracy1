@@ -362,27 +362,61 @@ export default function GoalsDashboard({ reportData, goalsData, language }) {
         </CardContent>
       </Card>
 
-      {/* Wykres podziału na źródła z celami */}
+      {/* Wykres podziału na źródła z celami - Small Multiples */}
       <Card className="shadow-lg border-none">
         <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50">
           <CardTitle>{t('monthlyTrendBreakdown', language)} vs {t('financialGoals', language)}</CardTitle>
         </CardHeader>
         <CardContent className="p-6">
-          <ResponsiveContainer width="100%" height={400}>
-            <ComposedChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="month" angle={-45} textAnchor="end" height={80} />
-              <YAxis width={80} tickFormatter={(value) => `${(value / 1000000).toFixed(1)}M`} />
-              <Tooltip formatter={(value) => formatCurrency(value)} />
-              <Legend />
-              <Bar dataKey="revenueIkea" stackId="actual" fill="#3B82F6" name="IKEA SUPPLY" />
-              <Bar dataKey="revenueIkeaIndustry" stackId="actual" fill="#9333EA" name="IKEA INDUSTRY" />
-              <Bar dataKey="revenueOthers" stackId="actual" fill="#10B981" name="POZOSTALI" />
-              <Line type="monotone" dataKey="goalIkea" stroke="#60A5FA" strokeWidth={2} strokeDasharray="5 5" name="Cel IKEA SUPPLY" />
-              <Line type="monotone" dataKey="goalIkeaIndustry" stroke="#C084FC" strokeWidth={2} strokeDasharray="5 5" name="Cel IKEA INDUSTRY" />
-              <Line type="monotone" dataKey="goalOthers" stroke="#34D399" strokeWidth={2} strokeDasharray="5 5" name="Cel POZOSTALI" />
-            </ComposedChart>
-          </ResponsiveContainer>
+          <div className="space-y-8">
+            {/* IKEA SUPPLY */}
+            <div>
+              <h3 className="text-lg font-semibold mb-3 text-blue-700">IKEA SUPPLY</h3>
+              <ResponsiveContainer width="100%" height={250}>
+                <ComposedChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="month" angle={-45} textAnchor="end" height={80} />
+                  <YAxis width={80} tickFormatter={(value) => `${(value / 1000000).toFixed(1)}M`} />
+                  <Tooltip formatter={(value) => formatCurrency(value)} />
+                  <Legend />
+                  <Bar dataKey="revenueIkea" fill="#3B82F6" name={language === 'pl' ? 'Obrót rzeczywisty' : 'Actual Revenue'} />
+                  <Line type="monotone" dataKey="goalIkea" stroke="#1E40AF" strokeWidth={3} name={language === 'pl' ? 'Cel' : 'Goal'} dot={{ fill: '#1E40AF', r: 4 }} />
+                </ComposedChart>
+              </ResponsiveContainer>
+            </div>
+
+            {/* IKEA INDUSTRY */}
+            <div>
+              <h3 className="text-lg font-semibold mb-3 text-purple-700">IKEA INDUSTRY</h3>
+              <ResponsiveContainer width="100%" height={250}>
+                <ComposedChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="month" angle={-45} textAnchor="end" height={80} />
+                  <YAxis width={80} tickFormatter={(value) => `${(value / 1000000).toFixed(1)}M`} />
+                  <Tooltip formatter={(value) => formatCurrency(value)} />
+                  <Legend />
+                  <Bar dataKey="revenueIkeaIndustry" fill="#9333EA" name={language === 'pl' ? 'Obrót rzeczywisty' : 'Actual Revenue'} />
+                  <Line type="monotone" dataKey="goalIkeaIndustry" stroke="#6B21A8" strokeWidth={3} name={language === 'pl' ? 'Cel' : 'Goal'} dot={{ fill: '#6B21A8', r: 4 }} />
+                </ComposedChart>
+              </ResponsiveContainer>
+            </div>
+
+            {/* POZOSTALI */}
+            <div>
+              <h3 className="text-lg font-semibold mb-3 text-green-700">POZOSTALI</h3>
+              <ResponsiveContainer width="100%" height={250}>
+                <ComposedChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="month" angle={-45} textAnchor="end" height={80} />
+                  <YAxis width={80} tickFormatter={(value) => `${(value / 1000000).toFixed(1)}M`} />
+                  <Tooltip formatter={(value) => formatCurrency(value)} />
+                  <Legend />
+                  <Bar dataKey="revenueOthers" fill="#10B981" name={language === 'pl' ? 'Obrót rzeczywisty' : 'Actual Revenue'} />
+                  <Line type="monotone" dataKey="goalOthers" stroke="#047857" strokeWidth={3} name={language === 'pl' ? 'Cel' : 'Goal'} dot={{ fill: '#047857', r: 4 }} />
+                </ComposedChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
         </CardContent>
       </Card>
 
