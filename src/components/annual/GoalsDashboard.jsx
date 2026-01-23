@@ -43,38 +43,43 @@ export default function GoalsDashboard({ reportData, goalsData, language }) {
     sum + (g.revenue_ikea_goal || 0) + (g.revenue_ikea_industry_goal || 0) + (g.revenue_others_goal || 0), 0) || 0;
   const overallAchievement = totalGoalRevenue > 0 ? (totalActualRevenue / totalGoalRevenue * 100) : 0;
 
-  // Oblicz statystyki dla każdego źródła (tylko do obecnego miesiąca dla bieżącego roku)
+  // Oblicz statystyki dla każdego źródła
   const currentMonth = new Date().getMonth() + 1;
   const currentYear = new Date().getFullYear();
   const isCurrentYear = reportData.year === currentYear;
   
-  // Dla bieżącego roku: porównuj tylko dane do obecnego miesiąca
-  const monthsToCount = isCurrentYear ? currentMonth : 12;
+  const totalActualIkea = reportData.monthlyData.reduce((sum, m) => sum + (m.revenueIkea || 0), 0);
+  const totalActualIkeaIndustry = reportData.monthlyData.reduce((sum, m) => sum + (m.revenueIkeaIndustry || 0), 0);
+  const totalActualOthers = reportData.monthlyData.reduce((sum, m) => sum + (m.revenueOthers || 0), 0);
+
+  // Cele ROCZNE (cały rok)
+  const totalGoalIkea = goalsData?.reduce((sum, g) => sum + (g.revenue_ikea_goal || 0), 0) || 0;
+  const totalGoalIkeaIndustry = goalsData?.reduce((sum, g) => sum + (g.revenue_ikea_industry_goal || 0), 0) || 0;
+  const totalGoalOthers = goalsData?.reduce((sum, g) => sum + (g.revenue_others_goal || 0), 0) || 0;
+
+  // Dla bieżącego roku: oblicz prognozę dla każdego źródła
+  let projectedIkea = totalActualIkea;
+  let projectedIkeaIndustry = totalActualIkeaIndustry;
+  let projectedOthers = totalActualOthers;
   
-  const totalActualIkea = reportData.monthlyData
-    .filter(m => m.monthNum <= monthsToCount)
-    .reduce((sum, m) => sum + (m.revenueIkea || 0), 0);
-  const totalActualIkeaIndustry = reportData.monthlyData
-    .filter(m => m.monthNum <= monthsToCount)
-    .reduce((sum, m) => sum + (m.revenueIkeaIndustry || 0), 0);
-  const totalActualOthers = reportData.monthlyData
-    .filter(m => m.monthNum <= monthsToCount)
-    .reduce((sum, m) => sum + (m.revenueOthers || 0), 0);
+  if (isCurrentYear && currentMonth < 12) {
+    const monthsElapsed = reportData.monthlyData.filter(m => m.monthNum <= currentMonth && m.totalDays > 0).length;
+    if (monthsElapsed > 0) {
+      const avgMonthlyIkea = totalActualIkea / monthsElapsed;
+      const avgMonthlyIkeaIndustry = totalActualIkeaIndustry / monthsElapsed;
+      const avgMonthlyOthers = totalActualOthers / monthsElapsed;
+      const monthsRemaining = 12 - currentMonth;
+      
+      projectedIkea = totalActualIkea + (avgMonthlyIkea * monthsRemaining);
+      projectedIkeaIndustry = totalActualIkeaIndustry + (avgMonthlyIkeaIndustry * monthsRemaining);
+      projectedOthers = totalActualOthers + (avgMonthlyOthers * monthsRemaining);
+    }
+  }
 
-  // Cel również tylko do obecnego miesiąca dla bieżącego roku
-  const totalGoalIkea = goalsData
-    ?.filter(g => g.month <= monthsToCount)
-    .reduce((sum, g) => sum + (g.revenue_ikea_goal || 0), 0) || 0;
-  const totalGoalIkeaIndustry = goalsData
-    ?.filter(g => g.month <= monthsToCount)
-    .reduce((sum, g) => sum + (g.revenue_ikea_industry_goal || 0), 0) || 0;
-  const totalGoalOthers = goalsData
-    ?.filter(g => g.month <= monthsToCount)
-    .reduce((sum, g) => sum + (g.revenue_others_goal || 0), 0) || 0;
-
-  const achievementIkea = totalGoalIkea > 0 ? (totalActualIkea / totalGoalIkea * 100) : 0;
-  const achievementIkeaIndustry = totalGoalIkeaIndustry > 0 ? (totalActualIkeaIndustry / totalGoalIkeaIndustry * 100) : 0;
-  const achievementOthers = totalGoalOthers > 0 ? (totalActualOthers / totalGoalOthers * 100) : 0;
+  // Achievement na podstawie prognozy dla bieżącego roku, faktycznych wyników dla przeszłych
+  const achievementIkea = totalGoalIkea > 0 ? ((isCurrentYear ? projectedIkea : totalActualIkea) / totalGoalIkea * 100) : 0;
+  const achievementIkeaIndustry = totalGoalIkeaIndustry > 0 ? ((isCurrentYear ? projectedIkeaIndustry : totalActualIkeaIndustry) / totalGoalIkeaIndustry * 100) : 0;
+  const achievementOthers = totalGoalOthers > 0 ? ((isCurrentYear ? projectedOthers : totalActualOthers) / totalGoalOthers * 100) : 0;
 
   // Oblicz prognozę na koniec roku
   let projectedRevenue = totalActualRevenue;
