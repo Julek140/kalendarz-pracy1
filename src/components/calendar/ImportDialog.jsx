@@ -90,8 +90,21 @@ export default function ImportDialog({ onImportComplete, workDays = [] }) {
       dataToImport.forEach((row, index) => {
         const rowNum = index + 1;
 
-        // Walidacja daty
-        if (!row.date || !/^\d{4}-\d{2}-\d{2}$/.test(row.date)) {
+        // Konwersja i walidacja daty
+        let dateStr = row.date;
+        if (!dateStr) {
+          validationErrors.push(`${language === 'pl' ? 'Wiersz' : 'Row'} ${rowNum}: ${language === 'pl' ? 'Brak daty' : 'Missing date'}`);
+          return;
+        }
+
+        // Konwersja z DD.MM.YYYY lub DD/MM/YYYY na YYYY-MM-DD
+        if (/^\d{2}[./]\d{2}[./]\d{4}$/.test(dateStr)) {
+          const parts = dateStr.split(/[./]/);
+          dateStr = `${parts[2]}-${parts[1]}-${parts[0]}`;
+        }
+
+        // Sprawdź czy data jest w poprawnym formacie
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
           validationErrors.push(`${language === 'pl' ? 'Wiersz' : 'Row'} ${rowNum}: ${language === 'pl' ? 'Nieprawidłowa data' : 'Invalid date'} (${row.date})`);
           return;
         }
