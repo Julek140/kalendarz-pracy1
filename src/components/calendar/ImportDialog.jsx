@@ -89,7 +89,7 @@ export default function ImportDialog({ onImportComplete, workDays = [] }) {
 
       dataToImport.forEach((row, index) => {
         const rowNum = index + 1;
-        
+
         // Walidacja daty
         if (!row.date || !/^\d{4}-\d{2}-\d{2}$/.test(row.date)) {
           validationErrors.push(`${language === 'pl' ? 'Wiersz' : 'Row'} ${rowNum}: ${language === 'pl' ? 'Nieprawidłowa data' : 'Invalid date'} (${row.date})`);
@@ -98,22 +98,35 @@ export default function ImportDialog({ onImportComplete, workDays = [] }) {
 
         // Walidacja działu
         const validDepartments = ['MASZYNOWNIA', 'PAKOWNIA', 'OBA_DZIALY'];
-        if (!row.department || !validDepartments.includes(row.department.toUpperCase())) {
+        const department = String(row.department || '').toUpperCase();
+        if (!department || !validDepartments.includes(department)) {
           validationErrors.push(`${language === 'pl' ? 'Wiersz' : 'Row'} ${rowNum}: ${language === 'pl' ? 'Nieprawidłowy dział' : 'Invalid department'} (${row.department})`);
           return;
         }
 
+        // Parsowanie wartości - obsługa stringów z eksportu Dashboard
+        const parseNumber = (val) => {
+          if (val === null || val === undefined || val === '') return 0;
+          const num = parseFloat(val);
+          return isNaN(num) ? 0 : num;
+        };
+
+        const parseBoolean = (val) => {
+          if (typeof val === 'boolean') return val;
+          return String(val).toLowerCase() === 'true';
+        };
+
         validatedData.push({
           date: row.date,
-          department: row.department.toUpperCase(),
-          shifts: row.shifts || 1,
-          is_downtime: row.is_downtime || false,
-          revenue_ikea: row.revenue_ikea || 0,
-          revenue_ikea_industry: row.revenue_ikea_industry || 0,
-          revenue_others: row.revenue_others || 0,
-          trucks_ikea: row.trucks_ikea || 0,
-          trucks_ikea_industry: row.trucks_ikea_industry || 0,
-          trucks_others: row.trucks_others || 0,
+          department: department,
+          shifts: parseNumber(row.shifts) || 1,
+          is_downtime: parseBoolean(row.is_downtime),
+          revenue_ikea: parseNumber(row.revenue_ikea),
+          revenue_ikea_industry: parseNumber(row.revenue_ikea_industry),
+          revenue_others: parseNumber(row.revenue_others),
+          trucks_ikea: parseNumber(row.trucks_ikea),
+          trucks_ikea_industry: parseNumber(row.trucks_ikea_industry),
+          trucks_others: parseNumber(row.trucks_others),
           notes: row.notes || ""
         });
       });
