@@ -130,7 +130,7 @@ export default function ImportDialog({ onImportComplete, workDays = [] }) {
         };
 
         validatedData.push({
-          date: row.date,
+          date: dateStr,
           department: department,
           shifts: parseNumber(row.shifts) || 1,
           is_downtime: parseBoolean(row.is_downtime),
