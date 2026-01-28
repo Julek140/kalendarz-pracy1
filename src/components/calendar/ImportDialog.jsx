@@ -50,16 +50,16 @@ export default function ImportDialog({ onImportComplete, workDays = [] }) {
           items: {
             type: "object",
             properties: {
-              date: { type: "string", description: "Data w formacie YYYY-MM-DD" },
-              department: { type: "string", description: "MASZYNOWNIA, PAKOWNIA lub OBA_DZIALY" },
-              shifts: { type: "number", description: "Liczba zmian (1-3)" },
-              is_downtime: { type: "boolean", description: "Czy przestój (true/false)" },
-              revenue_ikea: { type: "number", description: "Obrót IKEA SUPPLY w PLN" },
-              revenue_ikea_industry: { type: "number", description: "Obrót IKEA INDUSTRY w PLN" },
-              revenue_others: { type: "number", description: "Obrót POZOSTALI w PLN" },
-              trucks_ikea: { type: "number", description: "Liczba ciężarówek IKEA SUPPLY" },
-              trucks_ikea_industry: { type: "number", description: "Liczba ciężarówek IKEA INDUSTRY" },
-              trucks_others: { type: "number", description: "Liczba ciężarówek POZOSTALI" },
+              date: { type: "string", description: "Data w dowolnym formacie (YYYY-MM-DD, DD.MM.YYYY, DD/MM/YYYY)" },
+              department: { type: "string", description: "MASZYNOWNIA, PAKOWNIA lub OBA_DZIALY lub OBA_DZIAŁY" },
+              shifts: { type: ["number", "string"], description: "Liczba zmian (1-3), może być jako tekst" },
+              is_downtime: { type: ["boolean", "string"], description: "Czy przestój - true/false/Prawda/Fałsz" },
+              revenue_ikea: { type: ["number", "string"], description: "Obrót IKEA SUPPLY w PLN, może być jako tekst" },
+              revenue_ikea_industry: { type: ["number", "string"], description: "Obrót IKEA INDUSTRY w PLN, może być jako tekst" },
+              revenue_others: { type: ["number", "string"], description: "Obrót POZOSTALI w PLN, może być jako tekst" },
+              trucks_ikea: { type: ["number", "string"], description: "Liczba ciężarówek IKEA SUPPLY, może być jako tekst" },
+              trucks_ikea_industry: { type: ["number", "string"], description: "Liczba ciężarówek IKEA INDUSTRY, może być jako tekst" },
+              trucks_others: { type: ["number", "string"], description: "Liczba ciężarówek POZOSTALI, może być jako tekst" },
               notes: { type: "string", description: "Uwagi" }
             },
             required: ["date", "department"]
@@ -69,7 +69,11 @@ export default function ImportDialog({ onImportComplete, workDays = [] }) {
 
       if (extractResult.status === 'error') {
         setStatus('error');
-        setErrors([extractResult.details || (language === 'pl' ? 'Nie udało się odczytać danych z pliku' : 'Failed to read data from file')]);
+        const errorMsg = extractResult.details || (language === 'pl' ? 'Nie udało się odczytać danych z pliku' : 'Failed to read data from file');
+        setErrors([
+          errorMsg,
+          language === 'pl' ? 'Sprawdź, czy plik jest poprawnym CSV lub Excel (.xlsx)' : 'Check if file is valid CSV or Excel (.xlsx)'
+        ]);
         setIsProcessing(false);
         return;
       }
