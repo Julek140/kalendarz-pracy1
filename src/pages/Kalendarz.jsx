@@ -12,7 +12,6 @@ import CalendarGrid from "../components/calendar/CalendarGrid";
 import CalendarLegend from "../components/calendar/CalendarLegend";
 import DayDialog from "../components/calendar/DayDialog";
 import HolidayDialog from "../components/calendar/HolidayDialog";
-import ImportDialog from "../components/calendar/ImportDialog";
 
 // Polskie święta 2025-2029
 const polishHolidays = [
@@ -199,10 +198,6 @@ export default function KalendarzPage() {
               </div>
             </div>
             <div className="flex items-center gap-3 flex-wrap">
-              <ImportDialog 
-                workDays={workDays}
-                onImportComplete={() => queryClient.invalidateQueries({ queryKey: ['workDays'] })}
-              />
               <Button
                 onClick={() => setShowHolidayDialog(true)}
                 variant="outline"
