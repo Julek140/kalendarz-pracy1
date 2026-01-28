@@ -200,6 +200,7 @@ export default function KalendarzPage() {
             </div>
             <div className="flex items-center gap-3 flex-wrap">
               <ImportDialog 
+                workDays={workDays}
                 onImportComplete={() => queryClient.invalidateQueries({ queryKey: ['workDays'] })}
               />
               <Button

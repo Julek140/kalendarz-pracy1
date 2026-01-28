@@ -6,7 +6,7 @@ import { base44 } from "@/api/base44Client";
 import { useLanguage } from "@/components/LanguageContext";
 import { t } from "@/components/translations";
 
-export default function ImportDialog({ onImportComplete }) {
+export default function ImportDialog({ onImportComplete, workDays = [] }) {
   const { language } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
   const [file, setFile] = useState(null);
@@ -157,16 +157,40 @@ export default function ImportDialog({ onImportComplete }) {
     }
   };
 
-  const downloadTemplate = () => {
-    const csvContent = `date,department,shifts,is_downtime,revenue_ikea,revenue_ikea_industry,revenue_others,trucks_ikea,trucks_ikea_industry,trucks_others,notes
-2025-01-15,MASZYNOWNIA,2,false,150000,50000,20000,3,1,1,Przykładowy wpis
-2025-01-16,PAKOWNIA,3,false,200000,75000,30000,4,2,2,
-2025-01-17,OBA_DZIALY,1,true,0,0,0,0,0,0,Przestój techniczny`;
+  const downloadTemplate = (withData = false) => {
+    let csvContent = 'date,department,shifts,is_downtime,revenue_ikea,revenue_ikea_industry,revenue_others,trucks_ikea,trucks_ikea_industry,trucks_others,notes\n';
+    
+    if (withData && workDays.length > 0) {
+      // Sortuj dane po dacie
+      const sortedData = [...workDays].sort((a, b) => new Date(a.date) - new Date(b.date));
+      
+      sortedData.forEach(wd => {
+        const row = [
+          wd.date,
+          wd.department,
+          wd.shifts || 1,
+          wd.is_downtime || false,
+          wd.revenue_ikea || 0,
+          wd.revenue_ikea_industry || 0,
+          wd.revenue_others || 0,
+          wd.trucks_ikea || 0,
+          wd.trucks_ikea_industry || 0,
+          wd.trucks_others || 0,
+          (wd.notes || '').replace(/,/g, ';') // Zamień przecinki na średniki w notatkach
+        ].join(',');
+        csvContent += row + '\n';
+      });
+    } else {
+      // Pusty szablon z przykładami
+      csvContent += '2025-01-15,MASZYNOWNIA,2,false,150000,50000,20000,3,1,1,Przykładowy wpis\n';
+      csvContent += '2025-01-16,PAKOWNIA,3,false,200000,75000,30000,4,2,2,\n';
+      csvContent += '2025-01-17,OBA_DZIALY,1,true,0,0,0,0,0,0,Przestój techniczny\n';
+    }
 
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
-    link.download = 'szablon_import_workday.csv';
+    link.download = withData ? 'workday_export.csv' : 'workday_template.csv';
     link.click();
   };
 
@@ -204,15 +228,32 @@ export default function ImportDialog({ onImportComplete }) {
             </ul>
           </div>
 
-          {/* Przycisk pobierania szablonu */}
-          <Button
-            onClick={downloadTemplate}
-            variant="outline"
-            className="w-full"
-          >
-            <Download className="w-4 h-4 mr-2" />
-            {language === 'pl' ? 'Pobierz szablon CSV' : 'Download CSV template'}
-          </Button>
+          {/* Przyciski pobierania */}
+          <div className="grid grid-cols-2 gap-3">
+            <Button
+              onClick={() => downloadTemplate(false)}
+              variant="outline"
+            >
+              <Download className="w-4 h-4 mr-2" />
+              {language === 'pl' ? 'Pusty szablon' : 'Empty template'}
+            </Button>
+            <Button
+              onClick={() => downloadTemplate(true)}
+              variant="outline"
+              className="bg-blue-50 hover:bg-blue-100"
+              disabled={workDays.length === 0}
+            >
+              <Download className="w-4 h-4 mr-2" />
+              {language === 'pl' ? 'Eksport danych' : 'Export data'}
+            </Button>
+          </div>
+          {workDays.length > 0 && (
+            <p className="text-xs text-slate-500 text-center">
+              {language === 'pl' 
+                ? `Dostępnych ${workDays.length} wpisów do eksportu` 
+                : `${workDays.length} entries available for export`}
+            </p>
+          )}
 
           {/* Upload pliku */}
           <div className="border-2 border-dashed border-slate-300 rounded-lg p-6 text-center">
