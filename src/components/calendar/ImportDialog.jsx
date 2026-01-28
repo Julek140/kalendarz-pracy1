@@ -19,13 +19,13 @@ export default function ImportDialog({ onImportComplete, workDays = [] }) {
     const selectedFile = e.target.files[0];
     if (selectedFile) {
       const fileType = selectedFile.name.split('.').pop().toLowerCase();
-      if (['csv', 'xlsx', 'xls'].includes(fileType)) {
+      if (fileType === 'csv') {
         setFile(selectedFile);
         setStatus(null);
         setErrors([]);
       } else {
         setStatus('error');
-        setErrors([language === 'pl' ? 'Nieprawidłowy format pliku. Użyj CSV lub Excel.' : 'Invalid file format. Use CSV or Excel.']);
+        setErrors([language === 'pl' ? 'Nieprawidłowy format pliku. Użyj CSV.' : 'Invalid file format. Use CSV.']);
       }
     }
   };
@@ -72,7 +72,7 @@ export default function ImportDialog({ onImportComplete, workDays = [] }) {
         const errorMsg = extractResult.details || (language === 'pl' ? 'Nie udało się odczytać danych z pliku' : 'Failed to read data from file');
         setErrors([
           errorMsg,
-          language === 'pl' ? 'Sprawdź, czy plik jest poprawnym CSV lub Excel (.xlsx)' : 'Check if file is valid CSV or Excel (.xlsx)'
+          language === 'pl' ? 'Sprawdź, czy plik jest poprawnym plikiem CSV' : 'Check if file is a valid CSV file'
         ]);
         setIsProcessing(false);
         return;
@@ -266,7 +266,7 @@ export default function ImportDialog({ onImportComplete, workDays = [] }) {
       <DialogTrigger asChild>
         <Button className="bg-indigo-600 hover:bg-indigo-700">
           <Upload className="w-4 h-4 mr-2" />
-          {language === 'pl' ? 'Import z Excel/CSV' : 'Import from Excel/CSV'}
+          {language === 'pl' ? 'Import z CSV' : 'Import from CSV'}
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-2xl">
@@ -281,7 +281,7 @@ export default function ImportDialog({ onImportComplete, workDays = [] }) {
               {language === 'pl' ? 'Jak przygotować plik:' : 'How to prepare the file:'}
             </h4>
             <ul className="text-sm text-blue-800 space-y-1 list-disc list-inside">
-              <li>{language === 'pl' ? 'Format: CSV lub Excel (.xlsx, .xls)' : 'Format: CSV or Excel (.xlsx, .xls)'}</li>
+              <li>{language === 'pl' ? 'Format: CSV' : 'Format: CSV'}</li>
               <li>
                 {language === 'pl' 
                   ? 'Wymagane kolumny: date (YYYY-MM-DD), department (MASZYNOWNIA/PAKOWNIA/OBA_DZIALY)' 
@@ -313,20 +313,13 @@ export default function ImportDialog({ onImportComplete, workDays = [] }) {
               <Download className="w-4 h-4 mr-2" />
               {language === 'pl' ? 'Eksport danych' : 'Export data'}
             </Button>
-          </div>
-          {workDays.length > 0 && (
-            <p className="text-xs text-slate-500 text-center">
-              {language === 'pl' 
-                ? `Dostępnych ${workDays.length} wpisów do eksportu` 
-                : `${workDays.length} entries available for export`}
-            </p>
-          )}
+            </div>
 
           {/* Upload pliku */}
           <div className="border-2 border-dashed border-slate-300 rounded-lg p-6 text-center">
             <input
               type="file"
-              accept=".csv,.xlsx,.xls"
+              accept=".csv"
               onChange={handleFileChange}
               className="hidden"
               id="file-upload"
@@ -337,8 +330,8 @@ export default function ImportDialog({ onImportComplete, workDays = [] }) {
                 {file 
                   ? file.name 
                   : (language === 'pl' 
-                    ? 'Kliknij aby wybrać plik CSV lub Excel' 
-                    : 'Click to select CSV or Excel file')}
+                    ? 'Kliknij aby wybrać plik CSV' 
+                    : 'Click to select CSV file')}
               </p>
               <Button type="button" variant="outline" size="sm">
                 {language === 'pl' ? 'Wybierz plik' : 'Select file'}
