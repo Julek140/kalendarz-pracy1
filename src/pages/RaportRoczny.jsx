@@ -14,7 +14,6 @@ import { t } from "@/components/translations";
 import GoalsManager from "@/components/annual/GoalsManager";
 import GoalsDashboard from "@/components/annual/GoalsDashboard";
 import TrucksAnalysis from "@/components/annual/TrucksAnalysis";
-import ForecastingAnalysis from "@/components/annual/ForecastingAnalysis";
 
 const YEARS = ["2024", "2025", "2026", "2027", "2028", "2029"];
 
@@ -367,15 +366,11 @@ export default function RaportRocznyPage() {
         </div>
 
         <Tabs defaultValue="annualReport" className="w-full" onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-4 mb-6">
+          <TabsList className="grid w-full grid-cols-3 mb-6">
             <TabsTrigger value="annualReport">{t('annualReport', language)}</TabsTrigger>
             <TabsTrigger value="financialGoals">
               <Target className="w-4 h-4 mr-2" />
               {t('financialGoals', language)}
-            </TabsTrigger>
-            <TabsTrigger value="forecasting">
-              <TrendingUp className="w-4 h-4 mr-2" />
-              {language === 'pl' ? 'Prognozy' : 'Forecasts'}
             </TabsTrigger>
             <TabsTrigger value="yearComparison">{t('yearComparison', language)}</TabsTrigger>
           </TabsList>
@@ -785,14 +780,6 @@ export default function RaportRocznyPage() {
             <GoalsManager 
               year={selectedYear} 
               existingGoals={financialGoals.filter(g => g.year === parseInt(selectedYear))}
-              language={language}
-            />
-          </TabsContent>
-          
-          <TabsContent value="forecasting">
-            <ForecastingAnalysis 
-              workDays={workDays}
-              financialGoals={financialGoals}
               language={language}
             />
           </TabsContent>
