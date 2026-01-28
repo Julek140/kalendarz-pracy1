@@ -130,8 +130,45 @@ export default function ImportDialog({ onImportComplete, workDays = [] }) {
         return;
       }
 
-      // 4. Bulk insert
-      await base44.entities.WorkDay.bulkCreate(validatedData);
+      // 4. Pobierz wszystkie istniejące wpisy dla dat z pliku
+      const uniqueDates = [...new Set(validatedData.map(item => item.date))];
+      const existingWorkDays = await base44.entities.WorkDay.filter({
+        date: { $in: uniqueDates }
+      });
+
+      // 5. Rozdziel dane na aktualizacje i nowe wpisy
+      const toUpdate = [];
+      const toCreate = [];
+
+      validatedData.forEach(newEntry => {
+        const existing = existingWorkDays.find(
+          wd => wd.date === newEntry.date && wd.department === newEntry.department
+        );
+
+        if (existing) {
+          // Wpis istnieje - zaktualizuj go
+          toUpdate.push({
+            id: existing.id,
+            data: newEntry
+          });
+        } else {
+          // Wpis nie istnieje - utwórz nowy
+          toCreate.push(newEntry);
+        }
+      });
+
+      // 6. Wykonaj aktualizacje i tworzenie
+      const updatePromises = toUpdate.map(item => 
+        base44.entities.WorkDay.update(item.id, item.data)
+      );
+
+      if (updatePromises.length > 0) {
+        await Promise.all(updatePromises);
+      }
+
+      if (toCreate.length > 0) {
+        await base44.entities.WorkDay.bulkCreate(toCreate);
+      }
 
       setImportedCount(validatedData.length);
       setStatus('success');
