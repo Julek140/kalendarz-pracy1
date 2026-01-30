@@ -186,6 +186,7 @@ export default function RaportRocznyPage() {
         // Porównaj analogiczny okres
         const prevYearSamePeriodRevenue = prevYearData.monthlyData.slice(0, monthsWithData).reduce((sum, m) => sum + m.totalRevenue, 0);
         const currentYearSamePeriodRevenue = reportDataResult.monthlyData.slice(0, monthsWithData).reduce((sum, m) => sum + m.totalRevenue, 0);
+        const currentYearSamePeriodGoal = reportDataResult.monthlyData.slice(0, monthsWithData).reduce((sum, m) => sum + m.totalGoal, 0);
 
         prompt = `Jesteś ekspertem analityki biznesowej specjalizującym się w produkcji kontraktowej.
 
