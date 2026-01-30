@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FileText, TrendingUp, Calendar, Loader2, Target } from "lucide-react";
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
-import { startOfMonth, endOfMonth, format, parseISO } from "date-fns";
+import { startOfMonth, endOfMonth, format, parseISO, getYear, getMonth } from "date-fns";
 import { pl, enUS } from "date-fns/locale";
 import { useLanguage } from "@/components/LanguageContext";
 import { t } from "@/components/translations";
@@ -134,75 +134,108 @@ export default function RaportRocznyPage() {
     const reportDataResult = fetchDataForYear(selectedYear);
     setReportData(reportDataResult);
 
+    const currentDate = new Date();
+    const currentYear = getYear(currentDate);
+    const currentMonthIndex = getMonth(currentDate); // 0-11
+    const isPartialYear = year === currentYear && currentMonthIndex < 11;
+
     // Generuj analizę AI
     try {
-      const prompt = `Jesteś ekspertem analityki biznesowej specjalizującym się w produkcji kontraktowej.
+      let prompt = "";
+      let responseSchema = {};
 
-      KONTEKST FIRMY:
-      CONSTRACT to zakład produkcji kontraktowej, który wytwarza wyroby dla dużych korporacji (m.in. IKEA). 
-      Firma NIE ma własnych produktów i NIE prowadzi działań marketingowych konsumenckich.
-      Obroty zależą od zamówień od klientów B2B, ich sezonowości i cykli produkcyjnych.
+      if (isPartialYear) {
+        // Pobierz dane z roku poprzedniego dla porównania
+        const prevYearData = fetchDataForYear((year - 1).toString());
+        const currentMonthName = format(currentDate, 'LLLL', { locale });
+        const monthsWithData = currentMonthIndex + 1;
+        
+        const prevYearMonthlyData = prevYearData.monthlyData.map(m => `${m.month}: ${formatCurrency(m.totalRevenue)} (${m.totalDays} dni, ${m.totalShifts} zmian)`).join('\n');
+        const currentYearPartialMonthlyData = reportDataResult.monthlyData
+          .slice(0, monthsWithData)
+          .map(m => `${m.month}: ${formatCurrency(m.totalRevenue)} (${m.totalDays} dni, ${m.totalShifts} zmian)`)
+          .join('\n');
 
-      DANE ROCZNE ${year}:
-      - Całkowity obrót: ${formatCurrency(reportDataResult.totalYearRevenue)}
-      - Średni obrót miesięczny: ${formatCurrency(reportDataResult.avgMonthlyRevenue)}
-      - Przepracowane dni: ${reportDataResult.totalYearDays}
-      - Przepracowane zmiany: ${reportDataResult.totalYearShifts}
+        // Porównaj analogiczny okres
+        const prevYearSamePeriodRevenue = prevYearData.monthlyData.slice(0, monthsWithData).reduce((sum, m) => sum + m.totalRevenue, 0);
+        const currentYearSamePeriodRevenue = reportDataResult.monthlyData.slice(0, monthsWithData).reduce((sum, m) => sum + m.totalRevenue, 0);
 
-      DANE MIESIĘCZNE:
-      ${reportDataResult.monthlyData.map(m => `${m.month}: ${formatCurrency(m.totalRevenue)} (${m.totalDays} dni, ${m.totalShifts} zmian)`).join('\n')}
+        prompt = `Jesteś ekspertem analityki biznesowej specjalizującym się w produkcji kontraktowej.
 
-      NAJLEPSZY MIESIĄC: ${reportDataResult.bestMonth.month} - ${formatCurrency(reportDataResult.bestMonth.totalRevenue)}
-      NAJSŁABSZY MIESIĄC: ${reportDataResult.worstMonth.month} - ${formatCurrency(reportDataResult.worstMonth.totalRevenue)}
+KONTEKST FIRMY:
+CONSTRACT to zakład produkcji kontraktowej, który wytwarza wyroby dla dużych korporacji (m.in. IKEA). 
+Firma NIE ma własnych produktów i NIE prowadzi działań marketingowych konsumenckich.
+Obroty zależą od zamówień od klientów B2B, ich sezonowości i cykli produkcyjnych.
 
-      KWARTAŁY:
-      Q1: ${formatCurrency(reportDataResult.quarterlyData[0].totalRevenue)}
-      Q2: ${formatCurrency(reportDataResult.quarterlyData[1].totalRevenue)}
-      Q3: ${formatCurrency(reportDataResult.quarterlyData[2].totalRevenue)}
-      Q4: ${formatCurrency(reportDataResult.quarterlyData[3].totalRevenue)}
+RAPORT CZĘŚCIOWY DLA ROKU ${year} (dane do ${currentMonthName}):
+- Dotychczasowy obrót: ${formatCurrency(currentYearSamePeriodRevenue)}
+- Średni miesięczny: ${formatCurrency(currentYearSamePeriodRevenue / monthsWithData)}
+- Przepracowane dni: ${reportDataResult.totalYearDays}
+- Przepracowane zmiany: ${reportDataResult.totalYearShifts}
 
-      Wygeneruj PROFESJONALNY RAPORT DLA ZARZĄDU zawierający:
+DANE MIESIĘCZNE ${year} (dostępne do ${currentMonthName}):
+${currentYearPartialMonthlyData}
 
-      1. PODSUMOWANIE ROKU (3-4 zdania):
-      - Ocena realizacji produkcji i wykorzystania mocy wytwórczych
-      - Porównanie dynamiki zamówień między pierwszą a drugą połową roku
-      - Wpływ sezonowości klientów i okresów przestojowych
-      - Ogólna wydajność operacyjna zakładu
+DANE Z POPRZEDNIEGO ROKU ${year - 1} (pełny rok dla kontekstu):
+- Całkowity obrót: ${formatCurrency(prevYearData.totalYearRevenue)}
+- Średni miesięczny: ${formatCurrency(prevYearData.avgMonthlyRevenue)}
+- Obrót w analogicznym okresie (${monthsWithData} miesięcy): ${formatCurrency(prevYearSamePeriodRevenue)}
+- Przepracowane dni: ${prevYearData.totalYearDays}
+- Przepracowane zmiany: ${prevYearData.totalYearShifts}
 
-      2. ANALIZA MIESIĘCZNA (1-2 zwięzłe zdania dla każdego miesiąca):
-      - Ocena poziomu produkcji względem średniej
-      - Związek z sezonowością zamówień od klientów B2B
-      - Ewentualne przestoje lub okresy intensywnej produkcji
+DANE MIESIĘCZNE ${year - 1}:
+${prevYearMonthlyData}
 
-      3. TREND ROCZNY:
-      - Określ charakterystykę roku: wzrostowy, spadkowy, stabilny, sezonowy
-      - Powiąż z cyklami zamówień od głównych klientów
-      - Ocena przewidywalności wolumenu produkcji
+PORÓWNANIE TEGO SAMEGO OKRESU:
+- Różnica obrotów: ${formatCurrency(currentYearSamePeriodRevenue - prevYearSamePeriodRevenue)} (${((currentYearSamePeriodRevenue / prevYearSamePeriodRevenue - 1) * 100).toFixed(1)}%)
+- Trend: ${currentYearSamePeriodRevenue > prevYearSamePeriodRevenue ? 'wzrostowy' : 'spadkowy'}
 
-      4. WNIOSKI I REKOMENDACJE (5-6 punktów):
-      - Konkretne wnioski operacyjne dotyczące wykorzystania mocy produkcyjnych
-      - Rekomendacje dotyczące planowania produkcji i zarządzania personelem
-      - Propozycje optymalizacji w relacjach z klientami B2B
-      - Obszary do poprawy w zakresie efektywności produkcji
-      - NIE PROPONUJ akcji marketingowych ani rozwoju własnych produktów
+Wygeneruj PROFESJONALNY RAPORT PROGNOSTYCZNY DLA ZARZĄDU:
 
-      Styl komunikacji: biznesowy, merytoryczny, skoncentrowany na produkcji kontraktowej i relacjach B2B.
+1. PODSUMOWANIE DOTYCHCZASOWEGO TRENDU (3-4 zdania):
+- Porównaj dotychczasowe wyniki ${year} z analogicznym okresem ${year - 1}
+- Oceń tempo wzrostu/spadku i wykorzystanie mocy produkcyjnych
+- Wpływ sezonowości na dotychczasowe wyniki
+- Co wyróżnia bieżący rok względem ubiegłorocznego trendu
 
-      Format odpowiedzi jako JSON:
-      {
-      "podsumowanie_roku": "tekst",
-      "analiza_miesieczna": {
-      "styczeń": "tekst",
-      "luty": "tekst",
-      ...
-      },
-      "trend": "tekst",
-      "wnioski": ["punkt 1", "punkt 2", ...]
-      }`;
+2. ANALIZA MIESIĘCZNA (1-2 zdania dla każdego miesiąca):
+- Dla miesięcy z danymi: porównanie z ${year - 1} i ocena trendu
+- Dla przyszłych miesięcy: prognoza na podstawie danych historycznych z ${year - 1}, wskazanie co musi się wydarzyć
 
-      const analysis = await base44.integrations.Core.InvokeLLM({
-        prompt,
-        response_json_schema: {
+3. PROGNOZA I OCZEKIWANIA NA POZOSTAŁĄ CZĘŚĆ ROKU:
+- Na podstawie historii ${year - 1}, wskaż kiedy spodziewać się szczytów i spadków
+- Porównaj bieżący trend z tym co było w ${year - 1} w analogicznych miesiącach
+- Co musi się zadziać w kolejnych miesiącach, aby osiągnąć pozytywne wyniki
+- Jak firma powinna się przygotować na sezonowość
+
+4. WNIOSKI I REKOMENDACJE (5-6 punktów):
+- Porównawcze wnioski operacyjne z ${year - 1}
+- Rekomendacje na pozostałą część roku w kontekście trendów historycznych
+- Co wymaga poprawy w stosunku do ubiegłego roku
+- NIE PROPONUJ akcji marketingowych ani rozwoju własnych produktów
+
+Format odpowiedzi jako JSON:
+{
+"podsumowanie_roku": "tekst",
+"analiza_miesieczna": {
+"styczeń": "tekst",
+"luty": "tekst",
+"marzec": "tekst",
+"kwiecień": "tekst",
+"maj": "tekst",
+"czerwiec": "tekst",
+"lipiec": "tekst",
+"sierpień": "tekst",
+"wrzesień": "tekst",
+"październik": "tekst",
+"listopad": "tekst",
+"grudzień": "tekst"
+},
+"trend": "tekst",
+"wnioski": ["punkt 1", "punkt 2", ...]
+}`;
+
+        responseSchema = {
           type: "object",
           properties: {
             podsumowanie_roku: { type: "string" },
@@ -226,7 +259,111 @@ export default function RaportRocznyPage() {
             trend: { type: "string" },
             wnioski: { type: "array", items: { type: "string" } }
           }
-        }
+        };
+
+      } else {
+        // Dla pełnego roku - istniejący prompt
+        prompt = `Jesteś ekspertem analityki biznesowej specjalizującym się w produkcji kontraktowej.
+
+KONTEKST FIRMY:
+CONSTRACT to zakład produkcji kontraktowej, który wytwarza wyroby dla dużych korporacji (m.in. IKEA). 
+Firma NIE ma własnych produktów i NIE prowadzi działań marketingowych konsumenckich.
+Obroty zależą od zamówień od klientów B2B, ich sezonowości i cykli produkcyjnych.
+
+DANE ROCZNE ${year}:
+- Całkowity obrót: ${formatCurrency(reportDataResult.totalYearRevenue)}
+- Średni obrót miesięczny: ${formatCurrency(reportDataResult.avgMonthlyRevenue)}
+- Przepracowane dni: ${reportDataResult.totalYearDays}
+- Przepracowane zmiany: ${reportDataResult.totalYearShifts}
+
+DANE MIESIĘCZNE:
+${reportDataResult.monthlyData.map(m => `${m.month}: ${formatCurrency(m.totalRevenue)} (${m.totalDays} dni, ${m.totalShifts} zmian)`).join('\n')}
+
+NAJLEPSZY MIESIĄC: ${reportDataResult.bestMonth.month} - ${formatCurrency(reportDataResult.bestMonth.totalRevenue)}
+NAJSŁABSZY MIESIĄC: ${reportDataResult.worstMonth.month} - ${formatCurrency(reportDataResult.worstMonth.totalRevenue)}
+
+KWARTAŁY:
+Q1: ${formatCurrency(reportDataResult.quarterlyData[0].totalRevenue)}
+Q2: ${formatCurrency(reportDataResult.quarterlyData[1].totalRevenue)}
+Q3: ${formatCurrency(reportDataResult.quarterlyData[2].totalRevenue)}
+Q4: ${formatCurrency(reportDataResult.quarterlyData[3].totalRevenue)}
+
+Wygeneruj PROFESJONALNY RAPORT DLA ZARZĄDU zawierający:
+
+1. PODSUMOWANIE ROKU (3-4 zdania):
+- Ocena realizacji produkcji i wykorzystania mocy wytwórczych
+- Porównanie dynamiki zamówień między pierwszą a drugą połową roku
+- Wpływ sezonowości klientów i okresów przestojowych
+- Ogólna wydajność operacyjna zakładu
+
+2. ANALIZA MIESIĘCZNA (1-2 zwięzłe zdania dla każdego miesiąca):
+- Ocena poziomu produkcji względem średniej
+- Związek z sezonowością zamówień od klientów B2B
+- Ewentualne przestoje lub okresy intensywnej produkcji
+
+3. TREND ROCZNY:
+- Określ charakterystykę roku: wzrostowy, spadkowy, stabilny, sezonowy
+- Powiąż z cyklami zamówień od głównych klientów
+- Ocena przewidywalności wolumenu produkcji
+
+4. WNIOSKI I REKOMENDACJE (5-6 punktów):
+- Konkretne wnioski operacyjne dotyczące wykorzystania mocy produkcyjnych
+- Rekomendacje dotyczące planowania produkcji i zarządzania personelem
+- Propozycje optymalizacji w relacjach z klientami B2B
+- Obszary do poprawy w zakresie efektywności produkcji
+- NIE PROPONUJ akcji marketingowych ani rozwoju własnych produktów
+
+Format odpowiedzi jako JSON:
+{
+"podsumowanie_roku": "tekst",
+"analiza_miesieczna": {
+"styczeń": "tekst",
+"luty": "tekst",
+"marzec": "tekst",
+"kwiecień": "tekst",
+"maj": "tekst",
+"czerwiec": "tekst",
+"lipiec": "tekst",
+"sierpień": "tekst",
+"wrzesień": "tekst",
+"październik": "tekst",
+"listopad": "tekst",
+"grudzień": "tekst"
+},
+"trend": "tekst",
+"wnioski": ["punkt 1", "punkt 2", ...]
+}`;
+
+        responseSchema = {
+          type: "object",
+          properties: {
+            podsumowanie_roku: { type: "string" },
+            analiza_miesieczna: {
+              type: "object",
+              properties: {
+                styczeń: { type: "string" },
+                luty: { type: "string" },
+                marzec: { type: "string" },
+                kwiecień: { type: "string" },
+                maj: { type: "string" },
+                czerwiec: { type: "string" },
+                lipiec: { type: "string" },
+                sierpień: { type: "string" },
+                wrzesień: { type: "string" },
+                październik: { type: "string" },
+                listopad: { type: "string" },
+                grudzień: { type: "string" },
+              }
+            },
+            trend: { type: "string" },
+            wnioski: { type: "array", items: { type: "string" } }
+          }
+        };
+      }
+
+      const analysis = await base44.integrations.Core.InvokeLLM({
+        prompt,
+        response_json_schema: responseSchema
       });
 
       setAiAnalysis(analysis);
