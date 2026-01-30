@@ -18,6 +18,7 @@ import ReportCharts from "../components/reports/ReportCharts";
 import ReportExport from "../components/reports/ReportExport";
 import ReportComparison from "../components/reports/ReportComparison";
 import ReportYearComparison from "../components/reports/ReportYearComparison";
+import AIInsightsPanel from "../components/ai/AIInsightsPanel";
 
 const polishHolidays = [
   // 2025
@@ -361,6 +362,13 @@ export default function RaportyPage() {
             <div className="print-area">
               <div className="mb-6 print:hidden">
                 <ReportExport reportData={reportData} />
+              </div>
+
+              <div className="mb-6 print:hidden">
+                <AIInsightsPanel 
+                  data={reportData}
+                  type="report"
+                />
               </div>
 
               <ReportBalance reportData={reportData} language={language} />

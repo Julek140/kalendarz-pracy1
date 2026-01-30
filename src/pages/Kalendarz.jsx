@@ -12,6 +12,7 @@ import CalendarGrid from "../components/calendar/CalendarGrid";
 import CalendarLegend from "../components/calendar/CalendarLegend";
 import DayDialog from "../components/calendar/DayDialog";
 import HolidayDialog from "../components/calendar/HolidayDialog";
+import AIInsightsPanel from "../components/ai/AIInsightsPanel";
 
 // Polskie święta 2025-2029
 const polishHolidays = [
@@ -235,6 +236,22 @@ export default function KalendarzPage() {
 
         {/* Legend */}
         <CalendarLegend language={language} />
+
+        {/* AI Insights */}
+        <div className="mb-6">
+          <AIInsightsPanel 
+            data={{
+              currentMonth: format(currentMonth, 'yyyy-MM'),
+              workDays: workDays.filter(wd => {
+                const wdDate = new Date(wd.date);
+                return wdDate.getMonth() === currentMonth.getMonth() && 
+                       wdDate.getFullYear() === currentMonth.getFullYear();
+              }),
+              holidays: customHolidays
+            }}
+            type="calendar"
+          />
+        </div>
 
         {/* Calendar Grid */}
         <CalendarGrid
