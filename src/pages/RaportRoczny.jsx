@@ -52,6 +52,9 @@ export default function RaportRocznyPage() {
       return date.getFullYear() === yearInt;
     });
 
+    // Pobierz cele finansowe dla danego roku
+    const yearGoals = financialGoals.filter(g => g.year === yearInt);
+
     const monthlyData = [];
     for (let month = 0; month < 12; month++) {
       const monthStart = new Date(yearInt, month, 1);
@@ -73,6 +76,14 @@ export default function RaportRocznyPage() {
       const totalDays = monthDays.length;
       const avgDailyRevenue = totalDays > 0 ? totalRevenue / totalDays : 0;
 
+      // Pobierz cel dla tego miesiąca
+      const monthGoal = yearGoals.find(g => g.month === month + 1);
+      const goalIkea = monthGoal?.revenue_ikea_goal || 0;
+      const goalIkeaIndustry = monthGoal?.revenue_ikea_industry_goal || 0;
+      const goalOthers = monthGoal?.revenue_others_goal || 0;
+      const totalGoal = goalIkea + goalIkeaIndustry + goalOthers;
+      const goalAchievement = totalGoal > 0 ? (totalRevenue / totalGoal) * 100 : 0;
+
       monthlyData.push({
         month: format(monthStart, 'LLLL', { locale }),
         monthNum: month + 1,
@@ -86,6 +97,11 @@ export default function RaportRocznyPage() {
         totalDays,
         totalShifts,
         avgDailyRevenue,
+        totalGoal,
+        goalIkea,
+        goalIkeaIndustry,
+        goalOthers,
+        goalAchievement,
       });
     }
 
@@ -93,6 +109,8 @@ export default function RaportRocznyPage() {
     const avgMonthlyRevenue = totalYearRevenue / 12;
     const totalYearDays = monthlyData.reduce((sum, m) => sum + m.totalDays, 0);
     const totalYearShifts = monthlyData.reduce((sum, m) => sum + m.totalShifts, 0);
+    const totalYearGoal = monthlyData.reduce((sum, m) => sum + m.totalGoal, 0);
+    const yearGoalAchievement = totalYearGoal > 0 ? (totalYearRevenue / totalYearGoal) * 100 : 0;
 
     const bestMonth = monthlyData.reduce((max, m) => m.totalRevenue > max.totalRevenue ? m : max, monthlyData[0]);
     const worstMonth = monthlyData.filter(m => m.totalDays > 0).reduce((min, m) => m.totalRevenue < min.totalRevenue ? m : min, monthlyData.find(m => m.totalDays > 0) || monthlyData[0]);
@@ -117,6 +135,8 @@ export default function RaportRocznyPage() {
       avgMonthlyRevenue,
       totalYearDays,
       totalYearShifts,
+      totalYearGoal,
+      yearGoalAchievement,
       bestMonth,
       worstMonth,
       aboveAverage,
@@ -150,10 +170,17 @@ export default function RaportRocznyPage() {
         const currentMonthName = format(currentDate, 'LLLL', { locale });
         const monthsWithData = currentMonthIndex + 1;
         
-        const prevYearMonthlyData = prevYearData.monthlyData.map(m => `${m.month}: ${formatCurrency(m.totalRevenue)} (${m.totalDays} dni, ${m.totalShifts} zmian)`).join('\n');
+        const prevYearMonthlyData = prevYearData.monthlyData.map(m => {
+          const goalInfo = m.totalGoal > 0 ? ` | Cel: ${formatCurrency(m.totalGoal)} (${m.goalAchievement.toFixed(0)}%)` : '';
+          return `${m.month}: ${formatCurrency(m.totalRevenue)} (${m.totalDays} dni, ${m.totalShifts} zmian)${goalInfo}`;
+        }).join('\n');
+        
         const currentYearPartialMonthlyData = reportDataResult.monthlyData
           .slice(0, monthsWithData)
-          .map(m => `${m.month}: ${formatCurrency(m.totalRevenue)} (${m.totalDays} dni, ${m.totalShifts} zmian)`)
+          .map(m => {
+            const goalInfo = m.totalGoal > 0 ? ` | Cel: ${formatCurrency(m.totalGoal)} (${m.goalAchievement.toFixed(0)}%)` : '';
+            return `${m.month}: ${formatCurrency(m.totalRevenue)} (${m.totalDays} dni, ${m.totalShifts} zmian)${goalInfo}`;
+          })
           .join('\n');
 
         // Porównaj analogiczny okres
@@ -194,23 +221,23 @@ Wygeneruj PROFESJONALNY RAPORT PROGNOSTYCZNY DLA ZARZĄDU:
 
 1. PODSUMOWANIE DOTYCHCZASOWEGO TRENDU (3-4 zdania):
 - Porównaj dotychczasowe wyniki ${year} z analogicznym okresem ${year - 1}
-- Oceń tempo wzrostu/spadku i wykorzystanie mocy produkcyjnych
+- ${reportDataResult.totalYearGoal > 0 ? `Oceń realizację celu finansowego na ${year} i tempo jego osiągania` : 'Oceń tempo wzrostu/spadku'}
 - Wpływ sezonowości na dotychczasowe wyniki
 - Co wyróżnia bieżący rok względem ubiegłorocznego trendu
 
 2. ANALIZA MIESIĘCZNA (1-2 zdania dla każdego miesiąca):
-- Dla miesięcy z danymi: porównanie z ${year - 1} i ocena trendu
-- Dla przyszłych miesięcy: prognoza na podstawie danych historycznych z ${year - 1}, wskazanie co musi się wydarzyć
+- Dla miesięcy z danymi: porównanie z ${year - 1}${reportDataResult.totalYearGoal > 0 ? ' i oceń realizację celu miesięcznego' : ' i ocena trendu'}
+- Dla przyszłych miesięcy: prognoza na podstawie danych z ${year - 1}${reportDataResult.totalYearGoal > 0 ? ', wskaż co trzeba zrobić aby osiągnąć cel miesięczny' : ', wskazanie co musi się wydarzyć'}
 
 3. PROGNOZA I OCZEKIWANIA NA POZOSTAŁĄ CZĘŚĆ ROKU:
 - Na podstawie historii ${year - 1}, wskaż kiedy spodziewać się szczytów i spadków
+- ${reportDataResult.totalYearGoal > 0 ? `Oceń realność osiągnięcia celu rocznego ${formatCurrency(reportDataResult.totalYearGoal)} i co musi się wydarzyć` : 'Co musi się zadziać w kolejnych miesiącach'}
 - Porównaj bieżący trend z tym co było w ${year - 1} w analogicznych miesiącach
-- Co musi się zadziać w kolejnych miesiącach, aby osiągnąć pozytywne wyniki
 - Jak firma powinna się przygotować na sezonowość
 
 4. WNIOSKI I REKOMENDACJE (5-6 punktów):
 - Porównawcze wnioski operacyjne z ${year - 1}
-- Rekomendacje na pozostałą część roku w kontekście trendów historycznych
+- ${reportDataResult.totalYearGoal > 0 ? 'Konkretne rekomendacje dotyczące osiągnięcia celów finansowych' : 'Rekomendacje na pozostałą część roku'}
 - Co wymaga poprawy w stosunku do ubiegłego roku
 - NIE PROPONUJ akcji marketingowych ani rozwoju własnych produktów
 
@@ -262,7 +289,14 @@ Format odpowiedzi jako JSON:
         };
 
       } else {
-        // Dla pełnego roku - istniejący prompt
+        // Dla pełnego roku
+        const yearGoalsInfo = reportDataResult.totalYearGoal > 0
+          ? `\nCELE FINANSOWE ROK ${year}:
+- Cel roczny łączny: ${formatCurrency(reportDataResult.totalYearGoal)}
+- Realizacja celu: ${reportDataResult.yearGoalAchievement.toFixed(1)}%
+- ${reportDataResult.yearGoalAchievement >= 100 ? 'Cel został OSIĄGNIĘTY!' : `Brak do celu: ${formatCurrency(reportDataResult.totalYearGoal - reportDataResult.totalYearRevenue)}`}`
+          : '';
+
         prompt = `Jesteś ekspertem analityki biznesowej specjalizującym się w produkcji kontraktowej.
 
 KONTEKST FIRMY:
@@ -275,9 +309,13 @@ DANE ROCZNE ${year}:
 - Średni obrót miesięczny: ${formatCurrency(reportDataResult.avgMonthlyRevenue)}
 - Przepracowane dni: ${reportDataResult.totalYearDays}
 - Przepracowane zmiany: ${reportDataResult.totalYearShifts}
+${yearGoalsInfo}
 
 DANE MIESIĘCZNE:
-${reportDataResult.monthlyData.map(m => `${m.month}: ${formatCurrency(m.totalRevenue)} (${m.totalDays} dni, ${m.totalShifts} zmian)`).join('\n')}
+${reportDataResult.monthlyData.map(m => {
+  const goalInfo = m.totalGoal > 0 ? ` | Cel: ${formatCurrency(m.totalGoal)} (${m.goalAchievement.toFixed(0)}%)` : '';
+  return `${m.month}: ${formatCurrency(m.totalRevenue)} (${m.totalDays} dni, ${m.totalShifts} zmian)${goalInfo}`;
+}).join('\n')}
 
 NAJLEPSZY MIESIĄC: ${reportDataResult.bestMonth.month} - ${formatCurrency(reportDataResult.bestMonth.totalRevenue)}
 NAJSŁABSZY MIESIĄC: ${reportDataResult.worstMonth.month} - ${formatCurrency(reportDataResult.worstMonth.totalRevenue)}
@@ -292,23 +330,23 @@ Wygeneruj PROFESJONALNY RAPORT DLA ZARZĄDU zawierający:
 
 1. PODSUMOWANIE ROKU (3-4 zdania):
 - Ocena realizacji produkcji i wykorzystania mocy wytwórczych
-- Porównanie dynamiki zamówień między pierwszą a drugą połową roku
+- ${reportDataResult.totalYearGoal > 0 ? `Ocena realizacji celów finansowych (osiągnięto ${reportDataResult.yearGoalAchievement.toFixed(1)}% celu)` : 'Porównanie dynamiki zamówień między pierwszą a drugą połową roku'}
 - Wpływ sezonowości klientów i okresów przestojowych
 - Ogólna wydajność operacyjna zakładu
 
 2. ANALIZA MIESIĘCZNA (1-2 zwięzłe zdania dla każdego miesiąca):
-- Ocena poziomu produkcji względem średniej
+- Ocena poziomu produkcji względem średniej${reportDataResult.totalYearGoal > 0 ? ' i realizacji celu miesięcznego' : ''}
 - Związek z sezonowością zamówień od klientów B2B
 - Ewentualne przestoje lub okresy intensywnej produkcji
 
 3. TREND ROCZNY:
 - Określ charakterystykę roku: wzrostowy, spadkowy, stabilny, sezonowy
-- Powiąż z cyklami zamówień od głównych klientów
+- ${reportDataResult.totalYearGoal > 0 ? 'Oceń czy cele finansowe były realistyczne i jak wpłynęły na osiągnięte wyniki' : 'Powiąż z cyklami zamówień od głównych klientów'}
 - Ocena przewidywalności wolumenu produkcji
 
 4. WNIOSKI I REKOMENDACJE (5-6 punktów):
 - Konkretne wnioski operacyjne dotyczące wykorzystania mocy produkcyjnych
-- Rekomendacje dotyczące planowania produkcji i zarządzania personelem
+- ${reportDataResult.totalYearGoal > 0 ? 'Rekomendacje dotyczące planowania celów na przyszłość na podstawie osiągniętych wyników' : 'Rekomendacje dotyczące planowania produkcji'}
 - Propozycje optymalizacji w relacjach z klientami B2B
 - Obszary do poprawy w zakresie efektywności produkcji
 - NIE PROPONUJ akcji marketingowych ani rozwoju własnych produktów
