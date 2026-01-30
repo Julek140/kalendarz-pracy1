@@ -1,7 +1,7 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { Calendar, FileBarChart, Factory, Languages } from "lucide-react";
+import { Calendar, FileBarChart, Factory, Languages, TrendingUp } from "lucide-react";
 import FloatingAssistant from "@/components/FloatingAssistant";
 import ProgressBars from "@/components/ProgressBars";
 import { LanguageProvider, useLanguage } from "@/components/LanguageContext";
@@ -45,6 +45,11 @@ function LayoutContent({ children }) {
       title: t('annualReport', language),
       url: createPageUrl("RaportRoczny"),
       icon: FileBarChart,
+    },
+    {
+      title: language === 'pl' ? 'Analizy' : 'Analytics',
+      url: createPageUrl("Analizy"),
+      icon: TrendingUp,
     },
   ];
 
