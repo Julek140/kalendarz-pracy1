@@ -29,6 +29,9 @@ export const translations = {
     downtime: "Przestój",
     weekend: "Weekend",
     addHolidays: "Dodaj święta",
+    addHoliday: "Dodaj święto",
+    workCalendarConstract: "Kalendarz Pracy Zakładu CONSTRACT",
+    manageSchedule: "System zarządzania harmonogramem pracy",
     
     // Work details
     dayDetails: "Szczegóły dnia",
@@ -295,6 +298,9 @@ export const translations = {
     downtime: "Downtime",
     weekend: "Weekend",
     addHolidays: "Add holidays",
+    addHoliday: "Add holiday",
+    workCalendarConstract: "CONSTRACT Work Calendar",
+    manageSchedule: "Work schedule management system",
     
     // Work details
     dayDetails: "Day details",
