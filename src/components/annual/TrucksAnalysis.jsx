@@ -49,11 +49,30 @@ export default function TrucksAnalysis({ reportData, goalsData, language }) {
     const totalGoal = goalsData.reduce((sum, g) => sum + (g[goalKey] || 0), 0);
     const remainingGoal = totalGoal - stats.totalRevenue;
     
+    // Oblicz wymagane TIRy na następny miesiąc
+    let nextMonthRequired = 0;
+    let nextMonthGoal = 0;
+    let nextMonthRemainingGoal = 0;
+    
+    if (isCurrentYear && currentMonth < 12) {
+      const nextMonthNum = currentMonth + 1;
+      const nextMonthGoalData = goalsData.find(g => g.month === nextMonthNum);
+      nextMonthGoal = nextMonthGoalData?.[goalKey] || 0;
+      
+      // Jeśli jest cel dla następnego miesiąca i znamy średnią wartość TIRa
+      if (nextMonthGoal > 0 && stats.avgTruckValue > 0) {
+        nextMonthRequired = Math.ceil(nextMonthGoal / stats.avgTruckValue);
+        nextMonthRemainingGoal = nextMonthGoal;
+      }
+    }
+    
     if (!isCurrentYear || currentMonth >= 12) {
       return { 
         required: 0, 
         status: stats.totalRevenue >= totalGoal ? 'exceeded' : 'below',
         remainingGoal,
+        nextMonthRequired: 0,
+        nextMonthGoal: 0,
       };
     }
 
@@ -66,6 +85,9 @@ export default function TrucksAnalysis({ reportData, goalsData, language }) {
       requiredMonthly: requiredTrucksMonthly,
       remainingGoal,
       status: remainingGoal > 0 ? 'below' : 'exceeded',
+      nextMonthRequired,
+      nextMonthGoal,
+      nextMonthRemainingGoal,
     };
   };
 
@@ -106,51 +128,83 @@ export default function TrucksAnalysis({ reportData, goalsData, language }) {
         </div>
 
         {requirements.status !== 'no-data' && isCurrentYear && currentMonth < 12 && (
-          <div className={`p-4 rounded-lg border-2 ${
-            requirements.status === 'exceeded' 
-              ? `bg-green-50 border-green-300` 
-              : `bg-amber-50 border-amber-300`
-          }`}>
-            <div className="flex items-start gap-3">
-              {requirements.status === 'exceeded' ? (
-                <CheckCircle className="w-6 h-6 text-green-600 flex-shrink-0 mt-0.5" />
-              ) : (
-                <AlertTriangle className="w-6 h-6 text-amber-600 flex-shrink-0 mt-0.5" />
-              )}
-              <div className="flex-1">
-                {requirements.status === 'exceeded' ? (
-                  <>
-                    <p className="font-bold text-green-900 mb-1">
-                      {language === 'pl' ? 'Cel przekroczony! 🎉' : 'Goal exceeded! 🎉'}
-                    </p>
-                    <p className="text-sm text-green-800">
+          <div className="space-y-3">
+            {/* Wymagane TIRy na następny miesiąc */}
+            {requirements.nextMonthRequired > 0 && (
+              <div className="p-4 rounded-lg border-2 bg-blue-50 border-blue-300">
+                <div className="flex items-start gap-3">
+                  <Truck className="w-6 h-6 text-blue-600 flex-shrink-0 mt-0.5" />
+                  <div className="flex-1">
+                    <p className="font-bold text-blue-900 mb-2">
                       {language === 'pl' 
-                        ? `Osiągnięto cel roczny z nadwyżką ${formatCurrency(Math.abs(requirements.remainingGoal))}.`
-                        : `Annual goal achieved with surplus of ${formatCurrency(Math.abs(requirements.remainingGoal))}.`}
+                        ? `Wymagane TIRy na ${new Date(reportData.year, currentMonth).toLocaleDateString(language === 'pl' ? 'pl-PL' : 'en-US', { month: 'long' })}:`
+                        : `Required trucks for ${new Date(reportData.year, currentMonth).toLocaleDateString('en-US', { month: 'long' })}:`}
                     </p>
-                  </>
-                ) : (
-                  <>
-                    <p className="font-bold text-amber-900 mb-2">
-                      {language === 'pl' ? 'Wymagane wysyłki do końca roku:' : 'Required shipments until year end:'}
-                    </p>
-                    <div className="space-y-1 text-sm text-amber-800">
+                    <div className="space-y-1 text-sm text-blue-800">
                       <p>
-                        <strong>{language === 'pl' ? 'Do celu:' : 'To goal:'}</strong> {formatCurrency(requirements.remainingGoal)}
+                        <strong>{language === 'pl' ? 'Cel miesiąca:' : 'Month goal:'}</strong> {formatCurrency(requirements.nextMonthGoal)}
                       </p>
-                      {stats.avgTruckValue > 0 && (
-                        <>
-                          <p>
-                            <strong>{language === 'pl' ? 'Łącznie ciężarówek:' : 'Total trucks:'}</strong> {requirements.required} TIRów
-                          </p>
-                          <p>
-                            <strong>{language === 'pl' ? 'Miesięcznie:' : 'Monthly:'}</strong> ~{requirements.requiredMonthly} TIRów/miesiąc
-                          </p>
-                        </>
-                      )}
+                      <p>
+                        <strong>{language === 'pl' ? 'Wymagane TIRy:' : 'Required trucks:'}</strong> ~{requirements.nextMonthRequired} TIRów
+                      </p>
+                      <p className="text-xs opacity-80">
+                        {language === 'pl' 
+                          ? `(przy średniej wartości ${formatCurrency(stats.avgTruckValue)}/TIR)`
+                          : `(at avg. value of ${formatCurrency(stats.avgTruckValue)}/truck)`}
+                      </p>
                     </div>
-                  </>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Wymagane wysyłki do końca roku */}
+            <div className={`p-4 rounded-lg border-2 ${
+              requirements.status === 'exceeded' 
+                ? `bg-green-50 border-green-300` 
+                : `bg-amber-50 border-amber-300`
+            }`}>
+              <div className="flex items-start gap-3">
+                {requirements.status === 'exceeded' ? (
+                  <CheckCircle className="w-6 h-6 text-green-600 flex-shrink-0 mt-0.5" />
+                ) : (
+                  <AlertTriangle className="w-6 h-6 text-amber-600 flex-shrink-0 mt-0.5" />
                 )}
+                <div className="flex-1">
+                  {requirements.status === 'exceeded' ? (
+                    <>
+                      <p className="font-bold text-green-900 mb-1">
+                        {language === 'pl' ? 'Cel roczny przekroczony! 🎉' : 'Annual goal exceeded! 🎉'}
+                      </p>
+                      <p className="text-sm text-green-800">
+                        {language === 'pl' 
+                          ? `Osiągnięto cel roczny z nadwyżką ${formatCurrency(Math.abs(requirements.remainingGoal))}.`
+                          : `Annual goal achieved with surplus of ${formatCurrency(Math.abs(requirements.remainingGoal))}.`}
+                      </p>
+                    </>
+                  ) : (
+                    <>
+                      <p className="font-bold text-amber-900 mb-2">
+                        {language === 'pl' ? 'Wymagane wysyłki do końca roku:' : 'Required shipments until year end:'}
+                      </p>
+                      <div className="space-y-1 text-sm text-amber-800">
+                        <p>
+                          <strong>{language === 'pl' ? 'Do celu rocznego:' : 'To annual goal:'}</strong> {formatCurrency(requirements.remainingGoal)}
+                        </p>
+                        {stats.avgTruckValue > 0 && (
+                          <>
+                            <p>
+                              <strong>{language === 'pl' ? 'Łącznie ciężarówek:' : 'Total trucks:'}</strong> {requirements.required} TIRów
+                            </p>
+                            <p>
+                              <strong>{language === 'pl' ? 'Średnio miesięcznie:' : 'Avg. monthly:'}</strong> ~{requirements.requiredMonthly} TIRów/miesiąc
+                            </p>
+                          </>
+                        )}
+                      </div>
+                    </>
+                  )}
+                </div>
               </div>
             </div>
           </div>
