@@ -52,7 +52,6 @@ import Kalendarz from './pages/Kalendarz';
 import RaportRoczny from './pages/RaportRoczny';
 import Raporty from './pages/Raporty';
 import RaportyFinansowe from './pages/RaportyFinansowe';
-import Analizy from './pages/Analizy';
 import __Layout from './Layout.jsx';
 
 
@@ -62,7 +61,6 @@ export const PAGES = {
     "RaportRoczny": RaportRoczny,
     "Raporty": Raporty,
     "RaportyFinansowe": RaportyFinansowe,
-    "Analizy": Analizy,
 }
 
 export const pagesConfig = {
