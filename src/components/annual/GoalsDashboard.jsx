@@ -1,9 +1,140 @@
-import React from "react";
+import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { AlertTriangle, TrendingUp, TrendingDown, CheckCircle } from "lucide-react";
+import { AlertTriangle, TrendingUp, TrendingDown, CheckCircle, ChevronLeft, ChevronRight } from "lucide-react";
 import { t } from "@/components/translations";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Line, ComposedChart } from "recharts";
+import { Button } from "@/components/ui/button";
+
+function MonthlySourceGoals({ chartData, language, formatCurrency }) {
+  const [currentMonthIndex, setCurrentMonthIndex] = useState(0);
+  
+  const monthData = chartData[currentMonthIndex];
+  
+  const goNext = () => {
+    if (currentMonthIndex < chartData.length - 1) {
+      setCurrentMonthIndex(currentMonthIndex + 1);
+    }
+  };
+  
+  const goPrev = () => {
+    if (currentMonthIndex > 0) {
+      setCurrentMonthIndex(currentMonthIndex - 1);
+    }
+  };
+  
+  const sources = [
+    {
+      name: "IKEA SUPPLY",
+      actual: monthData.revenueIkea,
+      goal: monthData.goalIkea,
+      color: "blue"
+    },
+    {
+      name: "IKEA INDUSTRY",
+      actual: monthData.revenueIkeaIndustry,
+      goal: monthData.goalIkeaIndustry,
+      color: "purple"
+    },
+    {
+      name: "POZOSTALI",
+      actual: monthData.revenueOthers,
+      goal: monthData.goalOthers,
+      color: "green"
+    }
+  ];
+  
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-6">
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={goPrev}
+          disabled={currentMonthIndex === 0}
+          className="rounded-full"
+        >
+          <ChevronLeft className="w-5 h-5" />
+        </Button>
+        <h3 className="text-2xl font-bold capitalize">{monthData.month}</h3>
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={goNext}
+          disabled={currentMonthIndex === chartData.length - 1}
+          className="rounded-full"
+        >
+          <ChevronRight className="w-5 h-5" />
+        </Button>
+      </div>
+      
+      <div className="grid md:grid-cols-3 gap-4">
+        {sources.map((source) => {
+          const achievement = source.goal > 0 ? (source.actual / source.goal * 100) : 0;
+          const colorClasses = {
+            blue: {
+              bg: achievement >= 100 ? 'bg-blue-50 border-blue-300' : achievement >= 90 ? 'bg-yellow-50 border-yellow-300' : 'bg-red-50 border-red-300',
+              text: achievement >= 100 ? 'text-blue-600' : achievement >= 90 ? 'text-yellow-600' : 'text-red-600',
+              icon: achievement >= 100 ? 'text-blue-600' : achievement >= 90 ? 'text-yellow-600' : 'text-red-600',
+            },
+            purple: {
+              bg: achievement >= 100 ? 'bg-purple-50 border-purple-300' : achievement >= 90 ? 'bg-yellow-50 border-yellow-300' : 'bg-red-50 border-red-300',
+              text: achievement >= 100 ? 'text-purple-600' : achievement >= 90 ? 'text-yellow-600' : 'text-red-600',
+              icon: achievement >= 100 ? 'text-purple-600' : achievement >= 90 ? 'text-yellow-600' : 'text-red-600',
+            },
+            green: {
+              bg: achievement >= 100 ? 'bg-green-50 border-green-300' : achievement >= 90 ? 'bg-yellow-50 border-yellow-300' : 'bg-red-50 border-red-300',
+              text: achievement >= 100 ? 'text-green-600' : achievement >= 90 ? 'text-yellow-600' : 'text-red-600',
+              icon: achievement >= 100 ? 'text-green-600' : achievement >= 90 ? 'text-yellow-600' : 'text-red-600',
+            }
+          };
+          
+          return (
+            <div key={source.name} className={`p-4 rounded-lg border-2 ${colorClasses[source.color].bg}`}>
+              <div className="flex items-center justify-between mb-2">
+                <h4 className="font-bold text-sm">{source.name}</h4>
+                {achievement >= 100 ? (
+                  <CheckCircle className={`w-5 h-5 ${colorClasses[source.color].icon}`} />
+                ) : achievement >= 90 ? (
+                  <TrendingUp className={`w-5 h-5 ${colorClasses[source.color].icon}`} />
+                ) : (
+                  <AlertTriangle className={`w-5 h-5 ${colorClasses[source.color].icon}`} />
+                )}
+              </div>
+              <Progress value={Math.min(achievement, 100)} className="h-2 mb-2" />
+              <div className="space-y-1 text-xs">
+                <div className="flex justify-between">
+                  <span className="text-slate-600">{t('achieved', language)}:</span>
+                  <span className="font-semibold">{formatCurrency(source.actual)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-600">{t('goal', language)}:</span>
+                  <span className="font-semibold">{formatCurrency(source.goal)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className={`font-bold ${colorClasses[source.color].text}`}>
+                    {source.goal > 0 ? `${achievement.toFixed(1)}%` : '-'}
+                  </span>
+                  {source.goal > 0 && (
+                    <span className={`text-xs px-2 py-0.5 rounded-full ${
+                      achievement >= 100 ? 'bg-green-200 text-green-800' :
+                      achievement >= 90 ? 'bg-yellow-200 text-yellow-800' :
+                      'bg-red-200 text-red-800'
+                    }`}>
+                      {achievement >= 100 ? (language === 'pl' ? 'Cel osiągnięty' : 'Goal met') :
+                       achievement >= 90 ? (language === 'pl' ? 'Na dobrej drodze' : 'On track') :
+                       (language === 'pl' ? 'Poniżej celu' : 'Below goal')}
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
 
 export default function GoalsDashboard({ reportData, goalsData, language }) {
   const formatCurrency = (amount) => {
@@ -195,6 +326,16 @@ export default function GoalsDashboard({ reportData, goalsData, language }) {
       <Card className="shadow-lg border-none">
         <CardHeader className="bg-gradient-to-r from-slate-50 to-gray-50">
           <CardTitle>{language === 'pl' ? 'Realizacja celów według źródeł' : 'Goal Achievement by Source'}</CardTitle>
+        </CardHeader>
+        <CardContent className="p-6">
+          <MonthlySourceGoals chartData={chartData} language={language} formatCurrency={formatCurrency} />
+        </CardContent>
+      </Card>
+
+      {/* Podsumowanie roczne według źródeł */}
+      <Card className="shadow-lg border-none">
+        <CardHeader className="bg-gradient-to-r from-slate-50 to-gray-50">
+          <CardTitle>{language === 'pl' ? 'Podsumowanie roczne według źródeł' : 'Annual Summary by Source'}</CardTitle>
         </CardHeader>
         <CardContent className="p-6">
           <div className="grid md:grid-cols-3 gap-4">
