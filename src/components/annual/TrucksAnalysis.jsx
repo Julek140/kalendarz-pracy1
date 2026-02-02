@@ -478,6 +478,53 @@ export default function TrucksAnalysis({ reportData, goalsData, language }) {
         </CardContent>
       </Card>
 
+        <Card className="shadow-lg border-none bg-gradient-to-br from-indigo-500 to-purple-600 text-white">
+        <CardContent className="p-6">
+          <div className="flex items-center gap-4 mb-4">
+            <Truck className="w-12 h-12" />
+            <div>
+              <h2 className="text-2xl font-bold">
+                {language === 'pl' ? 'Analiza Wysyłek' : 'Shipment Analysis'}
+              </h2>
+              <p className="text-sm opacity-90">
+                {language === 'pl' 
+                  ? 'Średnia wartość TIRa i wymagane wysyłki do realizacji celów' 
+                  : 'Average truck value and required shipments to meet goals'}
+              </p>
+            </div>
+          </div>
+          
+          <div className="grid md:grid-cols-3 gap-4">
+            <div className="bg-white/20 backdrop-blur-sm rounded-lg p-3">
+              <p className="text-sm opacity-90 mb-1">
+                {language === 'pl' ? 'Łącznie wysłanych TIRów' : 'Total trucks sent'}
+              </p>
+              <p className="text-3xl font-bold">
+                {ikeaSupplyStats.totalTrucks + ikeaIndustryStats.totalTrucks + othersStats.totalTrucks}
+              </p>
+            </div>
+            <div className="bg-white/20 backdrop-blur-sm rounded-lg p-3">
+              <p className="text-sm opacity-90 mb-1">
+                {language === 'pl' ? 'Średnia wartość TIRa (ogółem)' : 'Avg. truck value (overall)'}
+              </p>
+              <p className="text-3xl font-bold">
+                {(ikeaSupplyStats.totalTrucks + ikeaIndustryStats.totalTrucks + othersStats.totalTrucks) > 0
+                  ? formatCurrency(reportData.totalYearRevenue / (ikeaSupplyStats.totalTrucks + ikeaIndustryStats.totalTrucks + othersStats.totalTrucks))
+                  : '-'}
+              </p>
+            </div>
+            <div className="bg-white/20 backdrop-blur-sm rounded-lg p-3">
+              <p className="text-sm opacity-90 mb-1">
+                {language === 'pl' ? 'Średnio TIRów/miesiąc' : 'Avg. trucks/month'}
+              </p>
+              <p className="text-3xl font-bold">
+                {Math.round((ikeaSupplyStats.totalTrucks + ikeaIndustryStats.totalTrucks + othersStats.totalTrucks) / 12)}
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       <ReceiverCardWithMonth
         title="IKEA SUPPLY"
         stats={ikeaSupplyStats}
