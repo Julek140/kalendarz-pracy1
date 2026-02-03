@@ -1,11 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { FileText, TrendingUp, Calendar, Loader2, Target } from "lucide-react";
+import { FileText, TrendingUp, Calendar, Loader2, Target, Download } from "lucide-react";
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import { startOfMonth, endOfMonth, format, parseISO, getYear, getMonth } from "date-fns";
 import { pl, enUS } from "date-fns/locale";
@@ -14,16 +14,20 @@ import { t } from "@/components/translations";
 import GoalsManager from "@/components/annual/GoalsManager";
 import GoalsDashboard from "@/components/annual/GoalsDashboard";
 import TrucksAnalysis from "@/components/annual/TrucksAnalysis";
+import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
 
 const YEARS = ["2024", "2025", "2026", "2027", "2028", "2029"];
 
 export default function RaportRocznyPage() {
   const { language } = useLanguage();
+  const reportRef = useRef(null);
   const [activeTab, setActiveTab] = useState("annualReport");
   const [selectedYear, setSelectedYear] = useState("2025");
   const [reportData, setReportData] = useState(null);
   const [aiAnalysis, setAiAnalysis] = useState(null);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
 
   const [selectedYear1, setSelectedYear1] = useState("2024");
   const [selectedYear2, setSelectedYear2] = useState("2025");
@@ -523,6 +527,54 @@ Format odpowiedzi jako JSON:
     return new Intl.NumberFormat(language === 'pl' ? 'pl-PL' : 'en-US', { style: 'currency', currency: 'PLN', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount);
   };
 
+  const handleExportToPDF = async () => {
+    if (!reportRef.current) return;
+    
+    setIsExporting(true);
+    try {
+      const canvas = await html2canvas(reportRef.current, {
+        scale: 1.5,
+        useCORS: true,
+        logging: false,
+        scrollY: -window.scrollY,
+        scrollX: -window.scrollX,
+        windowWidth: document.documentElement.scrollWidth,
+        windowHeight: document.documentElement.scrollHeight,
+      });
+      
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4',
+      });
+      
+      const pageWidth = 210;
+      const pageHeight = 297;
+      const imgWidth = pageWidth;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      
+      let heightLeft = imgHeight;
+      let position = 0;
+
+      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+
+      while (heightLeft > 0) {
+        position = heightLeft - imgHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+      }
+      
+      pdf.save(`raport-roczny-${selectedYear}.pdf`);
+    } catch (error) {
+      console.error('Error exporting PDF:', error);
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   return (
     <div className="p-4 md:p-8 min-h-screen">
       <div className="max-w-7xl mx-auto">
@@ -597,7 +649,27 @@ Format odpowiedzi jako JSON:
 
             {/* Raport Roczny */}
             {reportData && (
-              <div className="space-y-6">
+              <>
+                <div className="flex justify-end mb-4">
+                  <Button
+                    onClick={handleExportToPDF}
+                    disabled={isExporting}
+                    className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700"
+                  >
+                    {isExporting ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        {language === 'pl' ? 'Eksportowanie...' : 'Exporting...'}
+                      </>
+                    ) : (
+                      <>
+                        <Download className="w-4 h-4 mr-2" />
+                        {language === 'pl' ? 'Eksportuj do PDF' : 'Export to PDF'}
+                      </>
+                    )}
+                  </Button>
+                </div>
+                <div ref={reportRef} className="space-y-6">
                 {/* Dashboard celów - jeśli są ustawione cele */}
                 {financialGoals.filter(g => g.year === reportData.year).length > 0 && (
                   <GoalsDashboard 
