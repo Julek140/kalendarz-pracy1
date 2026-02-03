@@ -537,9 +537,16 @@ Format odpowiedzi jako JSON:
     
     setIsExporting(true);
     try {
-      // Pobierz wszystkie karty (Card components) aby eksportować każdą osobno
-      const cards = reportRef.current.querySelectorAll('.space-y-6 > *');
+      const canvas = await html2canvas(reportRef.current, {
+        scale: 1.2,
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#ffffff',
+        windowWidth: reportRef.current.scrollWidth,
+        windowHeight: reportRef.current.scrollHeight,
+      });
       
+      const imgData = canvas.toDataURL('image/png');
       const pdf = new jsPDF({
         orientation: 'portrait',
         unit: 'mm',
@@ -548,46 +555,28 @@ Format odpowiedzi jako JSON:
       
       const pageWidth = 210;
       const pageHeight = 297;
-      const margin = 10;
-      let currentY = margin;
-      let isFirstPage = true;
+      const imgWidth = pageWidth;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
       
-      for (let i = 0; i < cards.length; i++) {
-        const card = cards[i];
-        
-        // Renderuj każdą kartę osobno
-        const canvas = await html2canvas(card, {
-          scale: 2,
-          useCORS: true,
-          logging: false,
-          backgroundColor: '#ffffff',
-        });
-        
-        const imgData = canvas.toDataURL('image/png');
-        const imgWidth = pageWidth - (2 * margin);
-        const imgHeight = (canvas.height * imgWidth) / canvas.width;
-        
-        // Jeśli element nie zmieści się na obecnej stronie, dodaj nową
-        if (currentY + imgHeight > pageHeight - margin && !isFirstPage) {
-          pdf.addPage();
-          currentY = margin;
-        }
-        
-        pdf.addImage(imgData, 'PNG', margin, currentY, imgWidth, imgHeight);
-        currentY += imgHeight + 5; // 5mm odstęp między elementami
-        
-        // Jeśli element jest bardzo wysoki i wykracza poza stronę
-        if (imgHeight > pageHeight - (2 * margin)) {
-          pdf.addPage();
-          currentY = margin;
-        }
-        
-        isFirstPage = false;
+      let heightLeft = imgHeight;
+      let position = 0;
+
+      // Dodaj pierwszą stronę
+      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+
+      // Dodaj kolejne strony jeśli potrzeba
+      while (heightLeft > 0) {
+        position = -(imgHeight - heightLeft);
+        pdf.addPage();
+        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
       }
       
       pdf.save(`raport-roczny-${selectedYear}.pdf`);
     } catch (error) {
       console.error('Error exporting PDF:', error);
+      alert('Błąd podczas eksportu PDF. Sprawdź konsolę.');
     } finally {
       setIsExporting(false);
     }
