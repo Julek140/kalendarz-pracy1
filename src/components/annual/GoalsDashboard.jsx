@@ -212,16 +212,32 @@ export default function GoalsDashboard({ reportData, goalsData, language }) {
   const achievementIkeaIndustry = totalGoalIkeaIndustry > 0 ? ((isCurrentYear ? projectedIkeaIndustry : totalActualIkeaIndustry) / totalGoalIkeaIndustry * 100) : 0;
   const achievementOthers = totalGoalOthers > 0 ? ((isCurrentYear ? projectedOthers : totalActualOthers) / totalGoalOthers * 100) : 0;
 
-  // Oblicz prognozę na koniec roku
+  // Oblicz prognozę na koniec roku - TYLKO na podstawie pełnych, zakończonych miesięcy
   let projectedRevenue = totalActualRevenue;
   let remainingGoal = 0;
   let isTrendInsufficient = false;
+  let fullyCompletedMonthsCount = 0;
+  let monthsRemainingInYearForProjection = 0;
   
   if (isCurrentYear && currentMonth < 12) {
-    const monthsElapsed = reportData.monthlyData.filter(m => m.monthNum <= currentMonth && m.totalDays > 0).length;
-    const avgMonthlyActual = monthsElapsed > 0 ? totalActualRevenue / monthsElapsed : 0;
-    const monthsRemaining = 12 - currentMonth;
-    projectedRevenue = totalActualRevenue + (avgMonthlyActual * monthsRemaining);
+    // Liczymy tylko pełne, zakończone miesiące (jeśli jest luty 03, liczymy tylko styczeń)
+    fullyCompletedMonthsCount = Math.max(0, currentMonth - 1);
+    
+    // Obrót z pełnych miesięcy
+    const actualRevenueFromCompletedMonths = reportData.monthlyData
+      .filter(m => m.monthNum <= fullyCompletedMonthsCount)
+      .reduce((sum, m) => sum + m.totalRevenue, 0);
+    
+    // Średnia miesięczna z pełnych miesięcy
+    const avgMonthlyActual = fullyCompletedMonthsCount > 0 
+      ? actualRevenueFromCompletedMonths / fullyCompletedMonthsCount 
+      : 0;
+    
+    // Pozostałe miesiące do projekcji
+    monthsRemainingInYearForProjection = 12 - fullyCompletedMonthsCount;
+    
+    // Prognoza = obrót z pełnych miesięcy + prognoza dla pozostałych
+    projectedRevenue = actualRevenueFromCompletedMonths + (avgMonthlyActual * monthsRemainingInYearForProjection);
     remainingGoal = totalGoalRevenue - totalActualRevenue;
     
     // Trend jest niewystarczający tylko jeśli PROGNOZA jest poniżej celu
@@ -313,8 +329,8 @@ export default function GoalsDashboard({ reportData, goalsData, language }) {
                 <p className="font-semibold mb-1">{t('needsImprovement', language)}</p>
                 <p>
                   {language === 'pl' 
-                    ? `Prognozowany obrót roczny (${formatCurrency(projectedRevenue)}) jest poniżej celu. Wymagane jest zwiększenie średniego miesięcznego obrotu o ${formatCurrency((totalGoalRevenue - projectedRevenue) / Math.max(1, 12 - currentMonth))}, aby osiągnąć roczny cel.`
-                    : `Projected annual revenue (${formatCurrency(projectedRevenue)}) is below target. An increase in average monthly revenue of ${formatCurrency((totalGoalRevenue - projectedRevenue) / Math.max(1, 12 - currentMonth))} is required to meet the annual goal.`}
+                    ? `Prognozowany obrót roczny (${formatCurrency(projectedRevenue)}) jest poniżej celu. Wymagane jest zwiększenie średniego miesięcznego obrotu o ${formatCurrency((totalGoalRevenue - projectedRevenue) / Math.max(1, monthsRemainingInYearForProjection))}, aby osiągnąć roczny cel.`
+                    : `Projected annual revenue (${formatCurrency(projectedRevenue)}) is below target. An increase in average monthly revenue of ${formatCurrency((totalGoalRevenue - projectedRevenue) / Math.max(1, monthsRemainingInYearForProjection))} is required to meet the annual goal.`}
                 </p>
               </div>
             </div>
