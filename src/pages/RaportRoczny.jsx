@@ -981,7 +981,8 @@ Format odpowiedzi jako JSON:
                     </CardContent>
                   </Card>
                 )}
-              </div>
+                </div>
+              </>
             )}
 
             {!reportData && !isGenerating && (
