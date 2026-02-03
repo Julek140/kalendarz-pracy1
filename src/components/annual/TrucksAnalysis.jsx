@@ -318,10 +318,18 @@ export default function TrucksAnalysis({ reportData, goalsData, language }) {
             </div>
             <div className="bg-white/20 backdrop-blur-sm rounded-lg p-3">
               <p className="text-sm opacity-90 mb-1">
-                {language === 'pl' ? 'Średnio TIRów/miesiąc' : 'Avg. trucks/month'}
+                {language === 'pl' ? 'Średnio TIRów/miesiąc (do celu)' : 'Avg. trucks/month (to goal)'}
               </p>
               <p className="text-3xl font-bold">
-                {Math.round((ikeaSupplyStats.totalTrucks + ikeaIndustryStats.totalTrucks + othersStats.totalTrucks) / 12)}
+                {(() => {
+                  if (!goalsData || goalsData.length === 0) return '-';
+                  const totalGoal = goalsData.reduce((sum, g) => sum + (g.revenue_ikea_goal || 0) + (g.revenue_ikea_industry_goal || 0) + (g.revenue_others_goal || 0), 0);
+                  const totalTrucks = ikeaSupplyStats.totalTrucks + ikeaIndustryStats.totalTrucks + othersStats.totalTrucks;
+                  const avgTruckValue = totalTrucks > 0 ? reportData.totalYearRevenue / totalTrucks : 0;
+                  if (avgTruckValue === 0) return '-';
+                  const requiredTrucksPerMonth = Math.round(totalGoal / 12 / avgTruckValue);
+                  return requiredTrucksPerMonth;
+                })()}
               </p>
             </div>
           </div>
