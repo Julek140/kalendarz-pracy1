@@ -670,7 +670,7 @@ Format odpowiedzi jako JSON:
                   </Button>
                 </div>
                 <div ref={reportRef} className="space-y-6">
-                {/* Dashboard celów - jeśli są ustawione cele */}
+                  {/* Dashboard celów - jeśli są ustawione cele */}
                 {financialGoals.filter(g => g.year === reportData.year).length > 0 && (
                   <GoalsDashboard 
                     reportData={reportData} 
@@ -981,9 +981,9 @@ Format odpowiedzi jako JSON:
                     </CardContent>
                   </Card>
                 )}
-                </div>
-              </>
-            )}
+                  </div>
+                </>
+              )}
 
             {!reportData && !isGenerating && (
               <Card className="border-dashed border-2 border-slate-300">
