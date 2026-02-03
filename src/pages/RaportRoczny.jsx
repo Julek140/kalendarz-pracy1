@@ -110,8 +110,13 @@ export default function RaportRocznyPage() {
     }
 
     const totalYearRevenue = monthlyData.reduce((sum, m) => sum + m.totalRevenue, 0);
-    const avgMonthlyRevenue = totalYearRevenue / 12;
-    const totalYearDays = monthlyData.reduce((sum, m) => sum + m.totalDays, 0);
+    
+    // Oblicz średni miesięczny obrót tylko z miesięcy, które mają dane
+    const monthsWithData = monthlyData.filter(m => m.totalDays > 0).length;
+    const avgMonthlyRevenue = monthsWithData > 0 ? totalYearRevenue / monthsWithData : 0;
+    
+    // Oblicz dni przepracowane (wykluczając przestoje)
+    const totalYearDays = yearWorkDays.filter(wd => !wd.is_downtime).length;
     const totalYearShifts = monthlyData.reduce((sum, m) => sum + m.totalShifts, 0);
     const totalYearGoal = monthlyData.reduce((sum, m) => sum + m.totalGoal, 0);
     const yearGoalAchievement = totalYearGoal > 0 ? (totalYearRevenue / totalYearGoal) * 100 : 0;
@@ -723,7 +728,9 @@ Format odpowiedzi jako JSON:
                   <Card className="shadow-lg border-none bg-gradient-to-br from-purple-500 to-pink-600 text-white">
                     <CardContent className="p-6">
                       <Calendar className="w-10 h-10 mb-3 opacity-80" />
-                      <p className="text-sm opacity-90 mb-1">{t('daysWorked', language)}</p>
+                      <p className="text-sm opacity-90 mb-1">
+                        {language === 'pl' ? 'Dni przepracowane' : 'Days worked'}
+                      </p>
                       <p className="text-3xl font-bold">{reportData.totalYearDays}</p>
                     </CardContent>
                   </Card>
