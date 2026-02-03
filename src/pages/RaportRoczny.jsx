@@ -537,16 +537,8 @@ Format odpowiedzi jako JSON:
     
     setIsExporting(true);
     try {
-      const canvas = await html2canvas(reportRef.current, {
-        scale: 1.2,
-        useCORS: true,
-        logging: false,
-        backgroundColor: '#ffffff',
-        windowWidth: reportRef.current.scrollWidth,
-        windowHeight: reportRef.current.scrollHeight,
-      });
+      const elements = reportRef.current.children;
       
-      const imgData = canvas.toDataURL('image/png');
       const pdf = new jsPDF({
         orientation: 'portrait',
         unit: 'mm',
@@ -555,28 +547,74 @@ Format odpowiedzi jako JSON:
       
       const pageWidth = 210;
       const pageHeight = 297;
-      const imgWidth = pageWidth;
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      const margin = 10;
+      const maxWidth = pageWidth - (2 * margin);
+      const maxHeight = pageHeight - (2 * margin);
       
-      let heightLeft = imgHeight;
-      let position = 0;
-
-      // Dodaj pierwszą stronę
-      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-      heightLeft -= pageHeight;
-
-      // Dodaj kolejne strony jeśli potrzeba
-      while (heightLeft > 0) {
-        position = -(imgHeight - heightLeft);
-        pdf.addPage();
-        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-        heightLeft -= pageHeight;
+      let yOffset = margin;
+      let pageNumber = 1;
+      
+      for (let i = 0; i < elements.length; i++) {
+        const element = elements[i];
+        
+        const canvas = await html2canvas(element, {
+          scale: 1.5,
+          useCORS: true,
+          logging: false,
+          backgroundColor: '#ffffff',
+        });
+        
+        const imgData = canvas.toDataURL('image/png');
+        const imgWidth = maxWidth;
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+        
+        // Jeśli element nie mieści się na obecnej stronie, zacznij nową
+        if (yOffset + imgHeight > pageHeight - margin && pageNumber > 1) {
+          pdf.addPage();
+          yOffset = margin;
+          pageNumber++;
+        }
+        
+        // Jeśli element jest wyższy niż strona, podziel go
+        if (imgHeight > maxHeight) {
+          let remainingHeight = imgHeight;
+          let sourceY = 0;
+          
+          while (remainingHeight > 0) {
+            const heightToDraw = Math.min(remainingHeight, pageHeight - yOffset - margin);
+            const sourceHeight = (heightToDraw / imgWidth) * canvas.width;
+            
+            // Wytnij odpowiedni fragment
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = canvas.width;
+            tempCanvas.height = sourceHeight;
+            const ctx = tempCanvas.getContext('2d');
+            ctx.drawImage(canvas, 0, sourceY, canvas.width, sourceHeight, 0, 0, canvas.width, sourceHeight);
+            
+            const fragmentData = tempCanvas.toDataURL('image/png');
+            pdf.addImage(fragmentData, 'PNG', margin, yOffset, imgWidth, heightToDraw);
+            
+            remainingHeight -= heightToDraw;
+            sourceY += sourceHeight;
+            
+            if (remainingHeight > 0) {
+              pdf.addPage();
+              yOffset = margin;
+              pageNumber++;
+            } else {
+              yOffset += heightToDraw + 5;
+            }
+          }
+        } else {
+          pdf.addImage(imgData, 'PNG', margin, yOffset, imgWidth, imgHeight);
+          yOffset += imgHeight + 5;
+        }
       }
       
       pdf.save(`raport-roczny-${selectedYear}.pdf`);
     } catch (error) {
       console.error('Error exporting PDF:', error);
-      alert('Błąd podczas eksportu PDF. Sprawdź konsolę.');
+      alert('Błąd podczas eksportu PDF: ' + error.message);
     } finally {
       setIsExporting(false);
     }
