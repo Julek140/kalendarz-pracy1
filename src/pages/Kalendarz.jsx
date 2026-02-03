@@ -1,12 +1,14 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
+import { ChevronLeft, ChevronRight, Plus, Download } from "lucide-react";
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isWeekend, addMonths, subMonths, startOfWeek, endOfWeek } from "date-fns";
 import { pl, enUS } from "date-fns/locale";
 import { useLanguage } from "@/components/LanguageContext";
 import { t } from "@/components/translations";
+import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
 
 import CalendarGrid from "../components/calendar/CalendarGrid";
 import CalendarLegend from "../components/calendar/CalendarLegend";
@@ -94,10 +96,12 @@ const polishHolidays = [
 export default function KalendarzPage() {
   const { language } = useLanguage();
   const locale = language === 'pl' ? pl : enUS;
+  const calendarRef = useRef(null);
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedDay, setSelectedDay] = useState(null);
   const [showDialog, setShowDialog] = useState(false);
   const [showHolidayDialog, setShowHolidayDialog] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
 
   const queryClient = useQueryClient();
 
@@ -180,9 +184,39 @@ export default function KalendarzPage() {
     deleteWorkDayMutation.mutate(id);
   };
 
+  const handleExportToPDF = async () => {
+    if (!calendarRef.current) return;
+    
+    setIsExporting(true);
+    try {
+      const canvas = await html2canvas(calendarRef.current, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+      });
+      
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF({
+        orientation: 'landscape',
+        unit: 'mm',
+        format: 'a4',
+      });
+      
+      const imgWidth = 297;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      
+      pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+      pdf.save(`kalendarz-${currentMonth.getFullYear()}-${String(currentMonth.getMonth() + 1).padStart(2, '0')}.pdf`);
+    } catch (error) {
+      console.error('Error exporting PDF:', error);
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   return (
     <div className="p-4 md:p-8 min-h-screen">
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-7xl mx-auto" ref={calendarRef}>
         {/* Header */}
         <div className="bg-white rounded-2xl shadow-lg p-6 mb-6">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -198,6 +232,15 @@ export default function KalendarzPage() {
               </div>
             </div>
             <div className="flex items-center gap-3 flex-wrap">
+              <Button
+                onClick={handleExportToPDF}
+                disabled={isExporting}
+                variant="outline"
+                className="bg-green-50 hover:bg-green-100 border-green-200 text-green-700"
+              >
+                <Download className="w-4 h-4 mr-2" />
+                {isExporting ? (language === 'pl' ? 'Eksportowanie...' : 'Exporting...') : 'PDF'}
+              </Button>
               <Button
                 onClick={() => setShowHolidayDialog(true)}
                 variant="outline"
