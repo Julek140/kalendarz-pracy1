@@ -2,7 +2,8 @@ import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
+import { ChevronLeft, ChevronRight, Plus, Download } from "lucide-react";
+import { toast } from "sonner";
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isWeekend, addMonths, subMonths, startOfWeek, endOfWeek } from "date-fns";
 import { pl, enUS } from "date-fns/locale";
 import { useLanguage } from "@/components/LanguageContext";
@@ -180,6 +181,35 @@ export default function KalendarzPage() {
     deleteWorkDayMutation.mutate(id);
   };
 
+  const handleExport = async () => {
+    try {
+      const workdays = await base44.entities.WorkDay.list();
+      const holidays = await base44.entities.Holiday.list();
+      const financialgoals = await base44.entities.FinancialGoal.list();
+
+      const exportData = {
+        workdays,
+        holidays,
+        financialgoals
+      };
+
+      const dataStr = JSON.stringify(exportData, null, 2);
+      const blob = new Blob([dataStr], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `constract-export-${format(new Date(), 'yyyy-MM-dd')}.json`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      toast.success(language === 'pl' ? 'Dane wyeksportowane pomyślnie' : 'Data exported successfully');
+    } catch (error) {
+      toast.error(language === 'pl' ? 'Błąd eksportu danych' : 'Error exporting data');
+    }
+  };
+
   return (
     <div className="p-4 md:p-8 min-h-screen">
       <div className="max-w-7xl mx-auto">
@@ -205,6 +235,14 @@ export default function KalendarzPage() {
               >
                 <Plus className="w-4 h-4 mr-2" />
                 {t('addHoliday', language)}
+              </Button>
+              <Button
+                onClick={handleExport}
+                variant="outline"
+                className="bg-green-50 hover:bg-green-100 border-green-200 text-green-700"
+              >
+                <Download className="w-4 h-4 mr-2" />
+                {language === 'pl' ? 'Eksportuj dane' : 'Export data'}
               </Button>
               <div className="flex items-center gap-3">
                 <Button
