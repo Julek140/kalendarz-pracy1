@@ -1,0 +1,47 @@
+{
+  "name": "Holiday",
+  "type": "object",
+  "properties": {
+    "date": {
+      "type": "string",
+      "format": "date",
+      "description": "Data \u015bwi\u0119ta"
+    },
+    "name": {
+      "type": "string",
+      "description": "Nazwa \u015bwi\u0119ta"
+    },
+    "is_work_free": {
+      "type": "boolean",
+      "default": true,
+      "description": "Czy dzie\u0144 jest wolny od pracy"
+    }
+  },
+  "required": [
+    "date",
+    "name"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "read": {},
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "write": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

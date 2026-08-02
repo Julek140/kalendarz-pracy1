@@ -1,0 +1,125 @@
+{
+  "name": "WorkDay",
+  "type": "object",
+  "properties": {
+    "date": {
+      "type": "string",
+      "format": "date",
+      "description": "Data dnia pracy"
+    },
+    "department": {
+      "type": "string",
+      "enum": [
+        "MASZYNOWNIA",
+        "PAKOWNIA",
+        "OBA_DZIALY"
+      ],
+      "description": "Dzia\u0142 kt\u00f3ry pracowa\u0142"
+    },
+    "shifts": {
+      "type": "number",
+      "default": 1,
+      "minimum": 1,
+      "maximum": 3,
+      "description": "Liczba przepracowanych zmian"
+    },
+    "is_downtime": {
+      "type": "boolean",
+      "default": false,
+      "description": "Czy by\u0142 przest\u00f3j"
+    },
+    "revenue_ikea": {
+      "type": "number",
+      "minimum": 0,
+      "default": 0,
+      "description": "Obr\u00f3t IKEA SUPPLY w PLN"
+    },
+    "revenue_ikea_industry": {
+      "type": "number",
+      "minimum": 0,
+      "default": 0,
+      "description": "Obr\u00f3t IKEA INDUSTRY w PLN"
+    },
+    "revenue_others": {
+      "type": "number",
+      "minimum": 0,
+      "default": 0,
+      "description": "Obr\u00f3t POZOSTALI w PLN"
+    },
+    "trucks_ikea": {
+      "type": "number",
+      "minimum": 0,
+      "default": 0,
+      "description": "Liczba wys\u0142anych ci\u0119\u017car\u00f3wek IKEA SUPPLY"
+    },
+    "trucks_ikea_industry": {
+      "type": "number",
+      "minimum": 0,
+      "default": 0,
+      "description": "Liczba wys\u0142anych ci\u0119\u017car\u00f3wek IKEA INDUSTRY"
+    },
+    "trucks_others": {
+      "type": "number",
+      "minimum": 0,
+      "default": 0,
+      "description": "Liczba wys\u0142anych ci\u0119\u017car\u00f3wek POZOSTALI"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Dodatkowe uwagi"
+    }
+  },
+  "required": [
+    "date",
+    "department"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "write": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}

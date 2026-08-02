@@ -1,0 +1,61 @@
+{
+  "name": "FinancialGoal",
+  "type": "object",
+  "properties": {
+    "year": {
+      "type": "number",
+      "description": "Rok dla kt\u00f3rego ustawiono cel"
+    },
+    "month": {
+      "type": "number",
+      "minimum": 1,
+      "maximum": 12,
+      "description": "Miesi\u0105c (1-12)"
+    },
+    "revenue_ikea_goal": {
+      "type": "number",
+      "minimum": 0,
+      "default": 0,
+      "description": "Cel obrotu IKEA SUPPLY w PLN"
+    },
+    "revenue_ikea_industry_goal": {
+      "type": "number",
+      "minimum": 0,
+      "default": 0,
+      "description": "Cel obrotu IKEA INDUSTRY w PLN"
+    },
+    "revenue_others_goal": {
+      "type": "number",
+      "minimum": 0,
+      "default": 0,
+      "description": "Cel obrotu POZOSTALI w PLN"
+    }
+  },
+  "required": [
+    "year",
+    "month"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "read": {},
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "write": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

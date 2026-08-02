@@ -1,0 +1,31 @@
+{
+  "name": "User",
+  "type": "object",
+  "properties": {
+    "yearly_goals": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "year": {
+            "type": "number",
+            "description": "Rok"
+          },
+          "goal": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Cel finansowy w PLN"
+          }
+        },
+        "required": [
+          "year",
+          "goal"
+        ]
+      },
+      "description": "Cele finansowe dla r\u00f3\u017cnych lat"
+    }
+  },
+  "required": [
+    "yearly_goals"
+  ]
+}
